@@ -8,11 +8,11 @@ if ( !class_exists( 'Cargo_Express_Shipping_Method' ) ) {
         	
             $this->id                 = 'cargo-express';
             $this->instance_id 		  = absint( $instance_id );
-        	$this->method_title       = __( 'CARGO EXPRESS', 'aims-woo-baldarp-shipping' );  
-            $this->method_description = __( 'Custom Shipping method CARGO Express for Home Delivery', 'aims-woo-baldarp-shipping' ); 
+        	$this->method_title       = __( 'CARGO EXPRESS', 'astra-woo-cargo' );  
+            $this->method_description = __( 'Custom Shipping method CARGO Express for Home Delivery', 'astra-woo-cargo' ); 
             $this->supports           = array( 'shipping-zones','instance-settings','instance-settings-modal','settings');
 			$this->enabled            = 'yes';
-			$this->title       		  = __( 'CARGO EXPRESS SHIPPING', 'aims-woo-baldarp-shipping');
+			$this->title       		  = __( 'CARGO EXPRESS SHIPPING', 'astra-woo-cargo');
 			$this->init();
 
 			$this->title = $this->get_option('title');
@@ -33,22 +33,22 @@ if ( !class_exists( 'Cargo_Express_Shipping_Method' ) ) {
 
 			$this->instance_form_fields = array(
 				'title' => array(
-					'title' => __( 'Title', 'aims-woo-baldarp-shipping' ),
+					'title' => __( 'Title', 'astra-woo-cargo' ),
 					'type' => 'text',
-					'description' => __( 'Title to be display on site', 'aims-woo-baldarp-shipping' ),
-					'default' => __( 'שילוח עד הבית CARGO Express', 'aims-woo-baldarp-shipping' )
+					'description' => __( 'Title to be display on site', 'astra-woo-cargo' ),
+					'default' => __( 'שילוח עד הבית CARGO Express', 'astra-woo-cargo' )
 				),
 				'shipping_cost' => array(
-					'title' => __( 'Shipping cost', 'aims-woo-baldarp-shipping' ),
+					'title' => __( 'Shipping cost', 'astra-woo-cargo' ),
 					'type' => 'text',
-					'description' => __( '', 'aims-woo-baldarp-shipping' ),
-					'default' => __( '', 'aims-woo-baldarp-shipping' )
+					'description' => __( '', 'astra-woo-cargo' ),
+					'default' => __( '', 'astra-woo-cargo' )
 				),
 				'free_shipping_amount' => array(
-					'title' => __( 'Free shipping from an amount', 'aims-woo-baldarp-shipping' ),
+					'title' => __( 'Free shipping from an amount', 'astra-woo-cargo' ),
 					'type' => 'text',
-					'description' => __( '', 'aims-woo-baldarp-shipping' ),
-					'default' => __( '', 'aims-woo-baldarp-shipping' )
+					'description' => __( '', 'astra-woo-cargo' ),
+					'default' => __( '', 'astra-woo-cargo' )
 				),
 			);
 		}

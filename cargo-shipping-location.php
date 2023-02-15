@@ -8,7 +8,7 @@
  * Author URI: http://websolutions.co.il/
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: aims-woo-baldarp-shipping
+ * Text Domain: astra-woo-cargo
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
