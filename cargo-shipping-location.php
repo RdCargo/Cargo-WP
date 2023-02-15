@@ -203,7 +203,7 @@ if(!class_exists('Awsb_Shipping') ) {
 		*/
 	    function send_order_to_cargo() {
 
-			if(trim(get_option('from_stree')) == '' || trim(get_option('from_stree_name')) == '' || trim(get_option('from_city')) == ''  || trim(get_option('phonenumber_from')) == '' || trim(get_option('shipping_cargo_express')) == '' || trim(get_option('shipping_cargo_box')) == '') {
+			if(trim(get_option('from_street')) == '' || trim(get_option('from_street_name')) == '' || trim(get_option('from_city')) == ''  || trim(get_option('phonenumber_from')) == '' || trim(get_option('shipping_cargo_express')) == '' || trim(get_option('shipping_cargo_box')) == '') {
 				echo json_encode(array("shipmentId" => "","error_msg" => "Please enter all details from plugin setting"));
 				exit;
 			}
@@ -259,8 +259,8 @@ if(!class_exists('Awsb_Shipping') ) {
 			}
 			$data['Params']['from_address']['name'] = $orderData['shipping']['first_name'].' '.$orderData['shipping']['last_name'];
 			$data['Params']['from_address']['company'] = get_option( 'website_name_cargo' );
-			$data['Params']['from_address']['street1'] = get_option('from_stree');
-			$data['Params']['from_address']['street2'] = get_option('from_stree_name');
+			$data['Params']['from_address']['street1'] = get_option('from_street');
+			$data['Params']['from_address']['street2'] = get_option('from_street_name');
 			$data['Params']['from_address']['city'] = get_option('from_city');
 			$data['Params']['from_address']['state'] = $orderData['shipping']['state'];
 			$data['Params']['from_address']['zip'] = $orderData['shipping']['postcode'];
@@ -734,8 +734,8 @@ if(!class_exists('Awsb_Shipping') ) {
 						}
 						$data['Params']['from_address']['name'] = $orderData['shipping']['first_name'].' '.$orderData['shipping']['last_name'];
 						$data['Params']['from_address']['company'] = get_option( 'website_name_cargo' );
-						$data['Params']['from_address']['street1'] = get_option('from_stree');
-						$data['Params']['from_address']['street2'] = get_option('from_stree_name');
+						$data['Params']['from_address']['street1'] = get_option('from_street');
+						$data['Params']['from_address']['street2'] = get_option('from_street_name');
 						$data['Params']['from_address']['city'] = get_option('from_city');
 						$data['Params']['from_address']['state'] = $orderData['shipping']['state'];
 						$data['Params']['from_address']['zip'] = $orderData['shipping']['postcode'];
@@ -801,7 +801,7 @@ if(!class_exists('Awsb_Shipping') ) {
         {
         	if(!is_checkout()) {
         		if('wc-send-cargo' == 'wc-'.$new_status) {
-					if(trim(get_option('from_stree')) != '' && trim(get_option('from_stree_name')) != '' && trim(get_option('from_city')) != ''  && trim(get_option('phonenumber_from')) != '' && trim(get_option('shipping_cargo_express')) != '' && trim(get_option('shipping_cargo_box')) != '') {
+					if(trim(get_option('from_street')) != '' && trim(get_option('from_street_name')) != '' && trim(get_option('from_city')) != ''  && trim(get_option('phonenumber_from')) != '' && trim(get_option('shipping_cargo_express')) != '' && trim(get_option('shipping_cargo_box')) != '') {
 						//exit("here");
 						$this->createShipment($order_id);
 					}
@@ -880,8 +880,8 @@ if(!class_exists('Awsb_Shipping') ) {
 			}
 			$data['Params']['from_address']['name'] = $orderData['shipping']['first_name'].' '.$orderData['shipping']['last_name'];
 			$data['Params']['from_address']['company'] = get_option( 'website_name_cargo' );
-			$data['Params']['from_address']['street1'] = get_option('from_stree');
-			$data['Params']['from_address']['street2'] = get_option('from_stree_name');
+			$data['Params']['from_address']['street1'] = get_option('from_street');
+			$data['Params']['from_address']['street2'] = get_option('from_street_name');
 			$data['Params']['from_address']['city'] = get_option('from_city');
 			$data['Params']['from_address']['state'] = $orderData['shipping']['state'];
 			$data['Params']['from_address']['zip'] = $orderData['shipping']['postcode'];
@@ -1280,8 +1280,8 @@ if(!class_exists('Awsb_Shipping') ) {
             register_setting('awsb_shipping_api_settings_fg', 'cargo_google_api_key');
             register_setting('awsb_shipping_api_settings_fg', 'shipping_cargo_express');
             register_setting('awsb_shipping_api_settings_fg', 'shipping_cargo_box');
-            register_setting('awsb_shipping_api_settings_fg', 'from_stree');
-            register_setting('awsb_shipping_api_settings_fg', 'from_stree_name');
+            register_setting('awsb_shipping_api_settings_fg', 'from_street');
+            register_setting('awsb_shipping_api_settings_fg', 'from_street_name');
             register_setting('awsb_shipping_api_settings_fg', 'from_city');
             register_setting('awsb_shipping_api_settings_fg', 'phonenumber_from');
             register_setting('awsb_shipping_api_settings_fg', 'website_name_cargo');
