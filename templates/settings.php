@@ -270,7 +270,7 @@ $awsb_shipping = new Awsb_Shipping;
                                        id="disable_order_status"
                                        value="1"
                                        name="disable_order_status"
-                                       value="1" <?php if(get_option('disable_order_status')) {echo "checked"; } ?> >
+                                       value="1" <?php if (get_option('disable_order_status')) {echo "checked"; } ?> >
                             </label>
                         </div>
                         <div class='validation' style='color:red;margin-bottom: 10px; direction:ltr;'></div>
