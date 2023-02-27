@@ -15,7 +15,7 @@ $awsb_shipping = new Awsb_Shipping;
 			<?php settings_fields( 'awsb_shipping_api_settings_fg' ); ?>
 			<table>
 				<tr class="no-need">
-					<th scope="row" align="right" ><label for="shipping_api_username"><?= __('Username: ', 'astra-woo-cargo') ?></label></th>
+					<th scope="row" align="left" ><label for="shipping_api_username"><?= __('Username: ', 'astra-woo-cargo') ?></label></th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">
 							<label for="shipping_api_username" style="vertical-align: top;">
@@ -30,7 +30,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr class="no-need">
-					<th scope="row" align="right" ><label for="shipping_api_pwd"><?= __('Password: ', 'astra-woo-cargo') ?></label></th>
+					<th scope="row" align="left" ><label for="shipping_api_pwd"><?= __('Password: ', 'astra-woo-cargo') ?></label></th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">
 							<label for="shipping_api_pwd" style="vertical-align: top;">
@@ -45,7 +45,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr class="no-need">
-					<th scope="row" align="right" ><label for="shipping_api_int1">Int1 : </label></th>
+					<th scope="row" align="left" ><label for="shipping_api_int1">Int1 : </label></th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">
 							<label for="shipping_api_int1" style="vertical-align: top;">
@@ -63,7 +63,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="shipping_cargo_express"><?= __('Cargo Express: ', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -79,7 +79,7 @@ $awsb_shipping = new Awsb_Shipping;
 					</td>
 				</tr>
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="shipping_cargo_box"><?= __('Cargo BOX: ', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -94,9 +94,35 @@ $awsb_shipping = new Awsb_Shipping;
 						</div>
 					</td>
 				</tr>
+
+                <tr>
+                    <th scope="row" align="left" >
+                        <label for="cargo_box_style"><?= __('Cargo Box Checkout Style', 'astra-woo-cargo') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cargo_box_style" style="vertical-align: top;">
+                                <?php
+                                    $cargo_box_style = get_option('cargo_box_style');
+                                    $cargo_box_style_options = array(
+                                        'cargo_map'         => __('Map', 'astra-woo-cargo'),
+                                        'cargo_dropdowns'   => __('Dropdowns', 'astra-woo-cargo'),
+                                        'cargo_automatic'   => __('Automatic choice', 'astra-woo-cargo')
+                                    );
+                                ?>
+                                <select name="cargo_box_style">
+                                    <?php foreach ( $cargo_box_style_options as $key => $value ) : ?>
+                                    <option value="<?= $key ?>" <?php if ($key === $cargo_box_style) echo 'selected="selected"'; ?>><?= $value ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <p style="margin-top: 0;">Automatic choice will choose closest pickup point automatically from customer address.</p>
+                        </div>
+                    </td>
+                </tr>
 				
 				<tr class="no-need">
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="cargo_consumer_key"><?= __('Consumer Key:', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -113,7 +139,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr class="no-need">
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="cargo_consumer_secret_key"><?= __('Consumer Secret Key:', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -130,7 +156,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="from_street"><?= __('From Street Number', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -146,7 +172,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="from_street"><?= __('Street Name', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -163,7 +189,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="from_city"><?= __('From City', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -180,7 +206,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" ><label for="phonenumber_from"><?= __('Phone Number', 'astra-woo-cargo') ?></label></th>
+					<th scope="row" align="left" ><label for="phonenumber_from"><?= __('Phone Number', 'astra-woo-cargo') ?></label></th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">
 							<label for="phonenumber_from" style="vertical-align: top;">
@@ -195,7 +221,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="website_name_cargo"><?= __('Website name', 'astra-woo-cargo') ?></label>
                     </th>
 					<td>
@@ -213,7 +239,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-					<th scope="row" align="right" >
+					<th scope="row" align="left" >
                         <label for="website_name_cargo"><?= __('Bootstrap', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
@@ -240,7 +266,7 @@ $awsb_shipping = new Awsb_Shipping;
 				</tr>
 
 				<tr>
-                    <th scope="row" align="right" >
+                    <th scope="row" align="left" >
                         <label for="send_to_cargo_all"><?= __('Enable for All orders', 'astra-woo-cargo') ?></label>
                     </th>
                     <td >
@@ -259,7 +285,7 @@ $awsb_shipping = new Awsb_Shipping;
                 </tr>
 
 				<tr>
-                    <th scope="row" align="right" >
+                    <th scope="row" align="left" >
                         <label for="send_to_cargo_all"><?= __('Disable order status when sent to cargo', 'astra-woo-cargo') ?></label>
                     </th>
                     <td >
@@ -278,8 +304,8 @@ $awsb_shipping = new Awsb_Shipping;
                 </tr>
 
 				<tr>
-					<th scope="row" align="right" >
-                        <label for="cargo_order_status"><?= __('Status Order : Automatic transmission of orders to the shipping company.', 'astra-woo-cargo') ?></label>
+					<th scope="row" align="left" >
+                        <label for="cargo_order_status"><?= __('Order Status:', 'astra-woo-cargo') ?></label>
                     </th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">

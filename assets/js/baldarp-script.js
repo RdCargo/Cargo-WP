@@ -21,13 +21,12 @@ jQuery(document).ready(function() {
             jQuery("div.blockUI").removeClass('blockOverlay');
             jQuery("div.blockUI").removeAttr('id')
             jQuery("div.blockUI").hide();
+
             var msgnew = JSON.parse(msg);
             if(msgnew.data == 0) {
                 //alert("Something went wrong. Please refresh the page");
                 return false;
             }
-            var datanew  = "["+msgnew.data+"]";
-            // mainJson = JSON.parse(datanew);
             mainJson = JSON.parse(msgnew.dataval);
             jQuery.each(mainJson, function(index) {
                 if(mainJson[index].DistributionPointID == Cookies.get('cargoPointID')) {
@@ -61,58 +60,6 @@ jQuery(document).ready(function() {
    // addLocationSection();
     
 });
-/*jQuery('#pac-input').autocomplete({
-    lookup: mainJson,
-    onSelect: function (suggestion) {
-      var thehtml = '<strong>Currency Name:</strong> ' + suggestion.DistributionPointName + ' <br> <strong>Symbol:</strong> ' + suggestion.DistributionPointID;
-      $('#outputcontent').html(thehtml);
-    }
-  });*/ 
-/* jQuery(document).on('keyup','#search-input-cus',function(){
-    var thisEle = jQuery(this);
-	var calue = jQuery("#search-input-cus").val();
-	console.log(calue);
-	//return false;
-    jQuery(".startup-dropdown").html("");
-	var html = [];
-	var strn = "PLAY 123 456";
-    var divStruc = '';
-    if(calue != '') {
-        jQuery.each(mainJson, function(index) {
-        	//mainJson[index].DistributionPointName.toString()
-        	 if(mainJson[index].DistributionPointID.toString().indexOf(calue) > -1 || mainJson[index].CityName.toString().indexOf(calue) > -1 || mainJson[index].DistributionPointName.toString().indexOf(calue) > -1 ) {
-        	 	
-                item = {};
-                item["CityName"] = mainJson[index].CityName;
-                item["Comment"] = mainJson[index].Comment;
-                item["DistributionPointID"] = mainJson[index].DistributionPointID;
-                item["DistributionPointName"] = mainJson[index].DistributionPointName;
-                item["IdNum"] = mainJson[index].IdNum;
-                item["Islocker"] = mainJson[index].Islocker;
-                item["Latitude"] = mainJson[index].Latitude;
-                item["Longitude"] = mainJson[index].Longitude;
-                item["Phone"] = mainJson[index].Phone;
-                item["Phone2"] = mainJson[index].Phone2;
-                item["Quantity"] = mainJson[index].Quantity;
-                item["StreetName"] = mainJson[index].StreetName;
-                item["StreetNum"] = mainJson[index].StreetNum;
-                item["markerId"] = index;
-                html.push(item);
-        	 	
-        	}
-        });
-    }
-
-    console.log(html);
-    if(html.length != 0) {
-        jQuery(html).each(function(index){
-            divStruc += "<li class='marker-click' data-id="+html[index].markerId+">"+html[index].DistributionPointName+" "+html[index].StreetName+"</li>";
-        }); 
-    }
-
-    jQuery(".startup-dropdown").append(divStruc);
-
-}); */
 
 jQuery(document).on('click','.marker-click',function(){
     var markerID = jQuery(this).data('id');
@@ -121,18 +68,16 @@ jQuery(document).on('click','.marker-click',function(){
 function addLocationSection(shippingMethod){
    // console.log("Shipping value ",jQuery('input[name="shipping_method[0]"]:checked').val());
     if(shippingMethod.split(':')[0] == 'woo-baldarp-pickup') {
-        //setTimeout(function(){
-            if(Cookies.get('cargoPointID') != null) {
+            if( Cookies.get('cargoPointID') != null ) {
                 jQuery("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
-            }else{
-                if(jQuery('#mapmodelcargo').is(":hidden")){
+            } else {
+                if (jQuery('#mapmodelcargo').is(":hidden")) {
                     checkLocationSet(shippingMethod);
-                }else{
+                } else {
                     jQuery("#modal-close").trigger('click');
                 }
             }
 
-        //},3000);
     }
 }
 
@@ -175,7 +120,9 @@ function checkLocationSet(shippingMethod = '') {
                        //setTimeout(function(){ 
                             //jQuery("#mapbutton").show();
                             jQuery('#mapbutton').css('pointer-events','all');
-                            jQuery("#mapbutton").trigger('click')
+                            jQuery('#mapbutton').css('display','block');
+                            jQuery('.wc_card_shipping_header_cargo').css('display','block');
+                            // jQuery("#mapbutton").trigger('click')
                        //},2000); 
 
                     }
@@ -185,14 +132,16 @@ function checkLocationSet(shippingMethod = '') {
                 jQuery("#mapbutton").parent('li').css("margin-bottom","auto");
 
             }
-        }else{
+        } else {
             if(jQuery('input[name="shipping_method[0]"]:checked').val().split(':')[0] == 'woo-baldarp-pickup') {
                 if(jQuery('#mapmodelcargo').is(":hidden")){
                     if(Cookies.get('cargoPointID') == null) {
                        //setTimeout(function(){ 
                             //jQuery("#mapbutton").show();
                             jQuery('#mapbutton').css('pointer-events','all');
-                            jQuery("#mapbutton").trigger('click')
+                            jQuery('#mapbutton').css('display','block');
+                            jQuery('.wc_card_shipping_header_cargo').css('display','block');
+                        // jQuery("#mapbutton").trigger('click')
                        //},2000); 
 
                     }
@@ -218,29 +167,23 @@ jQuery(document).on('click','#modal-close',function () {
 jQuery(document).on("click",'#modal-close-desc',function () {
      jQuery('.descript').hide();
 });
-jQuery(document).on('click','#mapbutton',function(){
+jQuery(document).on('click','#mapbutton',function(e){
+    e.preventDefault();
     google.maps.event.trigger(map, 'resize');
     initMap();
     jQuery('.modal').each(function(){
         if(!jQuery(this).hasClass('descript')){
             initAutocomplete();
             jQuery("#mapmodelcargo").show();
-        }else{
-            /*setTimeout(function(){
-               jQuery(".descript").show();
-           },5000);*/
         }
     });
-    //jQuery('.modal').show();
-   
-
 });
 jQuery(document).on('click','.open-how-it-works',function(){
     jQuery(".descript").show();
 });
 
 jQuery(document).on('click','.tack-order-cus',function(){
-    //alert("cluck");
+
     var orderID = jQuery(this).data('id');
     var customerId = '3175';
     jQuery.ajax({
@@ -255,23 +198,114 @@ jQuery(document).on('click','.tack-order-cus',function(){
     
 })
 
+
+jQuery(document).on('updated_checkout', function() {
+    jQuery('#cargo_city').select2();
+    jQuery('#cargo_pickup_point').select2({minimumResultsForSearch: -1});
+})
 jQuery(document).on('change','.shipping_method', function() {
     var shippingMethod  = jQuery(this).val().split(':');
+
     if(shippingMethod[0] == 'woo-baldarp-pickup') {
         jQuery("div.blockUI").attr('id','overlay')
         jQuery("div.blockUI").addClass('blockOverlay');      
         jQuery("div.blockUI").show();
-        if(!jQuery('#mapbutton').length){
-        	jQuery(this).parent('li').append('<span class="baldrap-btn" id="mapbutton" style="pointer-events: all;"> בחירת נקודה </span><div id="selected_cargo"></div><input type="hidden" id="DistributionPointID" name="DistributionPointID" value=""><input type="hidden" id="DistributionPointName" name="DistributionPointName" value=""><input type="hidden" id="CityName" name="CityName" value=""><input type="hidden" id="StreetName" name="StreetName" value=""><input type="hidden" id="StreetNum" name="StreetNum" value=""><input type="hidden" id="Comment" name="Comment" value=""><input type="hidden" id="cargoPhone" name="cargoPhone" value=""><input type="hidden" id="Latitude" name="Latitude" value=""><input type="hidden" id="Longitude" name="Longitude" value="">')
-        }
+        // if(!jQuery('#mapbutton').length){
+        // 	jQuery(this).parent('li').append('<span class="baldrap-btn" id="mapbutton" style="pointer-events: all;"> בחירת נקודה </span><div id="selected_cargo"></div><input type="hidden" id="DistributionPointID" name="DistributionPointID" value=""><input type="hidden" id="DistributionPointName" name="DistributionPointName" value=""><input type="hidden" id="CityName" name="CityName" value=""><input type="hidden" id="StreetName" name="StreetName" value=""><input type="hidden" id="StreetNum" name="StreetNum" value=""><input type="hidden" id="Comment" name="Comment" value=""><input type="hidden" id="cargoPhone" name="cargoPhone" value=""><input type="hidden" id="Latitude" name="Latitude" value=""><input type="hidden" id="Longitude" name="Longitude" value="">')
+        // }
+
         jQuery("#mapbutton").show();
         jQuery("#selected_cargo").show();
         changeShippimh();
-    }else{
+    } else {
         jQuery("#mapbutton").hide();
         jQuery("#selected_cargo").hide();
     }
 });
+jQuery(document).on('change', '#cargo_city', function() {
+    Cookies.set('CargoCityName', jQuery(this).val(), {expires: 10,path: '/'})
+    setTimeout(function() {
+        jQuery( document.body ).trigger( 'update_checkout' );
+    }, 100)
+
+    // jQuery.ajax({
+    //     type: "post",
+    //     url: "https://api.carg0.co.il/Webservice/getPickUpPoints",
+    //     processData: false,
+    //     contentType: 'application/json',
+    //     data: JSON.stringify({city : jQuery(this).val()}),
+    //     beforeSend: function() {
+    //       jQuery('#cargo_pickup_point').parent().hide();
+    //     },
+    //     success: function(response){
+    //         console.log(response);
+    //
+    //         if ( response.Result === 'OK' ) {
+    //             let html = '';
+    //             response.PointsDetails.forEach(option => {
+    //                 html += `<option value="${option.DistributionPointID}">${option.DistributionPointName}, ${option.StreetName} ${option.StreetNum}</option>`;
+    //             })
+    //             jQuery('#cargo_pickup_point').empty().html(html);
+    //             jQuery('#cargo_pickup_point').select2({minimumResultsForSearch: -1});
+    //             jQuery('#cargo_pickup_point').parent().show();
+    //         }
+    //     },
+    //     error: function(x,r,c) {
+    //         alert(r);
+    //     }
+    // });
+})
+jQuery(document).on('change', '#cargo_pickup_point', function() {
+    Cookies.set('cargoPointID', jQuery(this).val(), {expires: 10,path: '/'})
+    Cookies.set('CargoCityName', jQuery('#cargo_city option:selected').attr('value'), {expires: 10,path: '/'})
+    setTimeout(function() {
+        jQuery(document.body).trigger('update_checkout');
+    }, 100);
+
+    // jQuery.ajax({
+    //     type: "post",
+    //     url: "https://api.carg0.co.il/Webservice/getPickUpPoints",
+    //     processData: false,
+    //     contentType: 'application/json',
+    //     data: JSON.stringify({pointId : jQuery(this).val()}),
+    //     beforeSend: function() {
+    //     },
+    //     success: function(response){
+    //         console.log(response);
+    //
+    //         if ( response.Result === 'OK' ) {
+    //             jQuery('#DistributionPointID').val(response.DistributionPointID);
+    //             jQuery('#DistributionPointName').val(response.DistributionPointName);
+    //             jQuery('#CityName').val(response.CityName);
+    //             jQuery('#StreetName').val(response.StreetName);
+    //             jQuery('#StreetNum').val(response.StreetNum);
+    //             jQuery('#Comment').val(response.Comment);
+    //             jQuery('#cargoPhone').val(response.Phone);
+    //             jQuery('#Latitude').val(response.Latitude);
+    //             jQuery('#Longitude').val(response.Longitude);
+    //             Cookies.set('cargoLatitude', response.Latitude, {expires: 10,path: '/'});
+    //             Cookies.set('cargoLongitude', response.Longitude,{expires: 10,path: '/'});
+    //             Cookies.set('cargoPointID', response.DistributionPointID, {expires: 10,path: '/'})
+    //             Cookies.set('cargoPointName', response.DistributionPointName, {expires: 10,path: '/'})
+    //             Cookies.set('CargoCityName', response.CityName, {expires: 10,path: '/'})
+    //             Cookies.set('cargoStreetName', response.StreetName, {expires: 10,path: '/'})
+    //             Cookies.set('cargoStreetNum', response.StreetNum, {expires: 10,path: '/'})
+    //             Cookies.set('cargoComment', response.Comment, {expires: 10,path: '/'})
+    //             Cookies.set('cargoPhone', response.Phone, {expires: 10,path: '/'})
+    //             Cookies.set('fullAddress', response.StreetName,{expires: 10,path: '/'})
+    //         } else {
+    //             alert(response.error_msg);
+    //         }
+    //     },
+    //     error: function(x,r,c) {
+    //         console.log(x);
+    //         console.log(r);
+    //         console.log(c);
+    //     }
+    // });
+
+})
+
 
 jQuery(document).on('submit','form.checkout', function(event) {
     jQuery('.shipping_method').each(function(){
@@ -308,9 +342,7 @@ function fillInAddress() {
             closest = i;
         }
     }
-    // google.maps.event.trigger(markersArray[closest], 'click');
     google.maps.event.trigger(markersArray[closest], 'click');
-    //alert(markersArray[closest].title);
   }
   function toRad(Value) 
   {
@@ -322,8 +354,7 @@ function initAutocomplete() {
     autocomplete = new google.maps.places.Autocomplete((document.getElementById('search-input-cus')),
         {types: ['geocode']}
     );
-    // When the user selects an address from the dropdown, populate the address
-    // fields in the form.
+
     autocomplete.addListener('place_changed', fillInAddress);
   }
 /* Init Google map on the modal popup */
@@ -483,8 +514,6 @@ function initMap() {
     var marker, i;
     map.mapTypes.set("styled_map", styledMapType);
     map.setMapTypeId("styled_map");
-    var newdsda;
-    var locations = [];
 
     var geocoder = new google.maps.Geocoder();
     var address = "Harimon Tirat Yehuda 7317500";

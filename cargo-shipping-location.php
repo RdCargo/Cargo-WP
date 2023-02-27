@@ -3,9 +3,9 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 1.0.9.1
- * Author: WebSolution
- * Author URI: http://websolutions.co.il/
+ * Version: 2.0,0
+ * Author: Astraverdes
+ * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: astra-woo-cargo
@@ -28,7 +28,7 @@ if( !defined('MAIN_FILE_PATH')) {
 
 if( !class_exists('Awsb_Shipping') ) {
     class Awsb_Shipping {
-        
+
         function __construct() {
             add_action( 'admin_init', array($this, 'awsb_shipping_api_settings_init') );
 
@@ -42,9 +42,9 @@ if( !class_exists('Awsb_Shipping') ) {
                 add_action('woocommerce_order_status_changed',array($this,'cargo_status_change_event'),10,3);
                 add_filter( 'handle_bulk_actions-edit-shop_order', array($this,'bulk_order_cargo_shipment'), 10, 3);
 				add_action( 'admin_notices',array($this,'cargo_bulk_action_admin_notice') );
-               //add_action('woocommerce_thankyou', array($this,'transfer_order_data_for_shipment'), 10, 1); 
-               add_action('woocommerce_checkout_order_processed', array($this,'transfer_order_data_for_shipment'), 10, 1); 
-               add_filter( 'manage_edit-shop_order_columns', array($this,'add_order_delivery_status_column_header'), 20 ); 
+               //add_action('woocommerce_thankyou', array($this,'transfer_order_data_for_shipment'), 10, 1);
+               add_action('woocommerce_checkout_order_processed', array($this,'transfer_order_data_for_shipment'), 10, 1);
+               add_filter( 'manage_edit-shop_order_columns', array($this,'add_order_delivery_status_column_header'), 20 );
                add_action( 'manage_shop_order_posts_custom_column', array($this,'add_custom_column_content') );
                add_filter( 'post_class', array($this,'add_no_link_to_post_class') );
               // add_action( 'admin_print_styles', array($this,'add_order_notes_column_style') );
@@ -78,10 +78,10 @@ if( !class_exists('Awsb_Shipping') ) {
             add_action('wp_ajax_get_shipment_label', array($this,'get_shipment_label') );
 
             add_action( 'wp_head', array($this, 'awsb_script_checkout') );
-            
+
             if ( is_admin() ) {
                 register_activation_hook(__FILE__, array($this,'activate'));
-                
+
                 register_deactivation_hook(__FILE__, array($this,'awsb_deactivate'));
                 // plugin uninstallation
                 register_uninstall_hook(__FILE__, 'awsb_uninstall');
@@ -110,7 +110,7 @@ if( !class_exists('Awsb_Shipping') ) {
                 && isset($_GET['post_type'])
                 && 'shop_order' === $_GET['post_type']
                 && isset($_GET['cargo_send']) ) {
-        
+
                 $count = intval( $_REQUEST['processed_count'] );
 
 				if( isset($_REQUEST['processed_ids']) ){
@@ -122,8 +122,8 @@ if( !class_exists('Awsb_Shipping') ) {
 					    && get_option('disable_order_status') ) {
 						foreach( $order_id_array as $key => $order_id){
 							$order = wc_get_order( $order_id );
-							$order->update_status( $_REQUEST['old_stutus']); // 
-						}	
+							$order->update_status( $_REQUEST['old_stutus']); //
+						}
 					}
 				}
                 printf( '<div class="notice notice-success fade is-dismissible"><p>' .
@@ -148,7 +148,7 @@ if( !class_exists('Awsb_Shipping') ) {
 	    	$data['name'] = "Test Name";
 	    	$data['orderId'] = $_POST['orderID'];
 	    	include( plugin_dir_path( __FILE__ ). 'templates/my-account/order-on-way.php');
-			
+
 			die();
 	    }
 
@@ -175,7 +175,7 @@ if( !class_exists('Awsb_Shipping') ) {
 	                    </div>
 	                </div>
             	</div>
-	    		<?php 
+	    		<?php
 	    	}
 	    }
 
@@ -227,7 +227,7 @@ if( !class_exists('Awsb_Shipping') ) {
 			}
 
 	    	$order_id   = $_POST['orderId'];
-            $response = $this->createShipment($order_id);
+            $response = $this->createShipment($order_id, (int) $_POST['shipment_type'], (int) $_POST['double_delivery'], (int) $_POST['no_of_parcel']);
 
             echo json_encode($response);
 			exit();
@@ -270,7 +270,7 @@ if( !class_exists('Awsb_Shipping') ) {
 			    if ( ! $template_path ) $template_path = $woocommerce->template_url;
 
 			    $plugin_path  = untrailingslashit( plugin_dir_path( __FILE__ ) )  . '/woocommerce/templates/';
-		 
+
                 // Look within passed path within the theme - this is priority
                 $template = locate_template(
                     array(
@@ -353,23 +353,50 @@ if( !class_exists('Awsb_Shipping') ) {
 
 			if( $shipping_method_id == 'cargo-express' || $shipping_method_id == 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
 				?>
-				<label for="myplugin_new_field">
-					<a href="javascript:void(0);" class="edit-address-cargo"><?php _e( 'בקש סטטוס משלוח', 'cargo' ); ?></a>
-				</label>
+                <div class="cargo-button">
+					<a href="javascript:void(0);" class="edit-address-cargo btn"><?php _e( 'בקש סטטוס משלוח', 'cargo' ); ?></a>
+                </div>
+                <?php if ( !$value ) : ?>
+                <div class="cargo-button">
+                    <strong><?= __('Double Delivery', 'cargo') ?></strong>
+                    <label for="cargo_double-delivery">
+                        <input type="checkbox" name="cargo_double_delivery" id="cargo_double-delivery" />
+                        <span><?= __('Yes', 'cargo') ?></span>
+                    </label>
+                </div>
+                <div class="cargo-radio">
+                    <strong><?= __('Shipment Type', 'cargo') ?></strong>
+                    <label for="cargo_shipment_type_regular">
+                        <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_regular" checked value="1" />
+                        <span><?= __('Regular', 'cargo') ?></span>
+                    </label>
+                    <?php if ( $shipping_method_id !== 'woo-baldarp-pickup' ) : ?>
+                    <label for="cargo_shipment_type_pickup">
+                        <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_pickup" value="2" />
+                        <span><?= __('Pickup', 'cargo') ?></span>
+                    </label>
+                    <?php endif; ?>
+                </div>
+
+                <div class="cargo-button">
+                    <strong><?= __('Packages', 'cargo') ?></strong>
+                    <input type="number" name="cargo_packages" id="cargo_packages" value="1" min="1" max="100" style="max-width: 80px;"/>
+                </div>
 
 				<div class="cargo-button">
-                    <?php if ( !$value ) : ?>
-					<input type="button"
-                            class="submit-cargo-shipping"
-                            value="שלח ל CARGO"
-                            data-id="<?php echo $post->ID; ?>">
-                    <?php endif; ?>
+					<a href="#"
+                       class="submit-cargo-shipping"
+                       data-id="<?php echo $post->ID; ?>"><?= __('שלח ל CARGO', 'cargo') ?></a>
 				</div>
-				<div class="cargo-button">
-				<?php if( $value ) { ?>
-					<input type="button" class="label-cargo-shipping" value="הדפס תווית" data-id="<?= $value; ?>">
-				<?php } ?>
+
+                <?php endif; ?>
+
+                <div class="cargo-button">
+				<?php if ( $value ) : ?>
+                    <a href="#" class="label-cargo-shipping"  data-id="<?= $value; ?>"><?= __('הדפס תווית', 'cargo') ?></a>
+				<?php endif ?>
 				</div>
+
 				<div class="checkstatus-section">
 					<?php
                         $customerCode       = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
@@ -381,15 +408,15 @@ if( !class_exists('Awsb_Shipping') ) {
 				</div>
 				<?php if ( $shipping_method_id == 'woo-baldarp-pickup' ) { ?>
 					<div>
-						<h2><?= __('Cargo Store Details', 'cargo') ?></h2>
-						<h3 style="margin:0;">
+						<h3 style="margin-bottom: 5px;"><?= __('Cargo Store Details', 'cargo') ?></h3>
+						<h2 style="padding:0;">
 						    <strong><?= get_post_meta($post->ID,'DistributionPointName',TRUE) ?></strong>
-						</h3>
+						</h2>
 						<h4 style="margin:0;"><?= get_post_meta($post->ID,'StreetNum', TRUE).' '.get_post_meta($post->ID,'StreetName',TRUE).' '.get_post_meta($post->ID,'CityName',TRUE) ?></h4>
 						<h4 style="margin:0;"><?= get_post_meta($post->ID,'store_comment', TRUE) ?></h4>
 						<h3 style="margin:0;"><?= get_post_meta($post->ID,'cargoPhone',TRUE) ?></h3>
 					</div>
-				<?php } 
+				<?php }
 			}
 	    }
 
@@ -455,9 +482,9 @@ if( !class_exists('Awsb_Shipping') ) {
 		}
 
 		/**
-		* Check the Shipping Setting from cargo 
+		* Check the Shipping Setting from cargo
 		*
-		* @param $_POST DATA 
+		* @param $_POST DATA
 		* @return int shipping Status
 		*/
 		function getOrderStatusFromCargo() {
@@ -466,7 +493,7 @@ if( !class_exists('Awsb_Shipping') ) {
                 'DeliveryType' => $_POST['type'],
                 'customerCode' => $_POST['customerCode'],
             );
-			
+
 			$options = [
 			    'body'        => wp_json_encode( $post_data ),
 			    'headers'     => [
@@ -501,14 +528,14 @@ if( !class_exists('Awsb_Shipping') ) {
 		 */
        	function show_shipping_info($order ) {
        		$cargo_shipping_id = $order->get_meta('cargo_shipping_id');
-    
+
 		    if ( ! empty($cargo_shipping_id) ) {
 		        echo '<p><strong>'.__('מזהה משלוח', 'cargo').':</strong> ' . $cargo_shipping_id . '</p>';
 		    }
        	}
 
         function add_no_link_to_post_class( $classes ) {
-			//if ( current_user_can( 'manage_woocommerce' ) ) { //make sure we are shop managers 
+			//if ( current_user_can( 'manage_woocommerce' ) ) { //make sure we are shop managers
 		        foreach ( $classes as $class ) {
 			        if( $class == 'delivery_status' ) {
 			            $classes[] = 'no-link';
@@ -523,7 +550,7 @@ if( !class_exists('Awsb_Shipping') ) {
 
         /**
          * @param $column
-         * 
+         *
          * Add Custom Column in Admin Order List
          */
         function add_custom_column_content( $column ) {
@@ -538,29 +565,19 @@ if( !class_exists('Awsb_Shipping') ) {
 					$type = $shipping_method_id == 'woo-baldarp-pickup' ? "BOX" : "EXPRESS";
 
 					if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
+                        if ( get_post_meta($post->ID, 'get_status_cargo', true) ) {
+                            echo '<p>Status - ' . get_post_meta($post->ID, 'get_status_cargo_text', true) . '</p>';
+                        }
 						echo "<a href='javascript:void(0);' class='btn btn-success send-status' data-orderlist='1' data-id=".$post->ID." data-customerCode=".$customerCode."  data-type=".$type." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true)."> בדוק מצב הזמנה</a>";
 					}
 				}
 
 				if ( 'send_to_cargo' === $column ) {
 					if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
-						echo "<a href='javascript:void(0);' class='btn btn-success cancel-cargo-shipping' data-id=".$post->ID." data-customerCode=".$customerCode." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true).">בטל משלוח</a>";
-					} else {
+                            echo "<p>". get_post_meta($post->ID, 'cargo_shipping_id',true). "</p>";
+                            echo '<a  href="javascript:void(0)" class="btn btn-success label-cargo-shipping" data-id="'.get_post_meta($post->ID,'cargo_shipping_id',true).'">הדפס תווית</a>';
+                        } else {
 						echo "<a href='javascript:void(0);' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>";
-					}
-				}
-
-				if ( 'cargo_delivery_id' === $column ) {
-					if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
-						echo "<p>". get_post_meta($post->ID, 'cargo_shipping_id',true). "</p>";
-						echo '<a  href="javascript:void(0)" class="btn btn-success label-cargo-shipping" data-id="'.get_post_meta($post->ID,'cargo_shipping_id',true).'">הדפס תווית</a>';
-					}
-
-				}
-
-				if ( 'delivery_status' === $column ) {
-					if ( get_post_meta($post->ID, 'get_status_cargo', true) ) {
-						echo '<p>' . get_post_meta($post->ID, 'get_status_cargo_text', true) . '</p>';
 					}
 				}
 			}
@@ -577,7 +594,6 @@ if( !class_exists('Awsb_Shipping') ) {
 		        if ( 'order_status' === $column_name ) {
 		            $new_columns['delivery_status'] = __( 'בדוק מצב הזמנה', 'cargo' );
 		            $new_columns['send_to_cargo'] = __( 'שלח משלוח לCARGO', 'cargo' );
-		            $new_columns['cargo_delivery_id'] = __( 'מזהה משלוח', 'cargo' );
 		            $new_columns['delivery_status'] = __( 'סטטוס משלוח', 'cargo' );
 		        }
 		    }
@@ -629,7 +645,7 @@ if( !class_exists('Awsb_Shipping') ) {
                     }
                 } else if ( 'wc-cancel-cargo' === $report_action ) {
                 	return;
-                }      
+                }
             }
 
 			$redirect_to = add_query_arg(
@@ -676,7 +692,7 @@ if( !class_exists('Awsb_Shipping') ) {
                 } else {
 					if ( get_option('cargo_order_status') == 'wc-'.$new_status ) {
 						if ( get_post_meta($order_id, 'cargo_shipping_id', TRUE) ) {
-                    		return;	
+                    		return;
                     	}
 					    $this->createShipment($order_id);
 					}
@@ -690,82 +706,85 @@ if( !class_exists('Awsb_Shipping') ) {
 				}
 			}
         }
-        
-		function createShipment($order_id) {
+
+		function createShipment($order_id, $shipping_type = 1, $double_delivery = 1, $no_of_parcel = 0) {
 			$order = wc_get_order($order_id);
 			if( get_post_meta($order_id,'cargo_shipping_id',TRUE) ){
-				return;	
+				return;
 			}
 			$orderData      = $order->get_data();
 			$shippingMethod = @array_shift($order->get_shipping_methods());
 			$shipping_method_id = $shippingMethod['method_id'];
 
-			$CarrierID = $shipping_method_id == 'woo-baldarp-pickup' ? '2' : '1';
-			$CarrierName = $shipping_method_id == 'woo-baldarp-pickup' ? 'B0X' : 'EXPRESS';
-			$customerCode = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+			$CarrierName    = $shipping_method_id == 'woo-baldarp-pickup' ? 'B0X' : 'EXPRESS';
+			$customerCode   = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
 
+			$name = $orderData['shipping']['first_name'] ? $orderData['shipping']['first_name']. ' ' . $orderData['shipping']['last_name'] : $orderData['billing']['first_name']. ' ' . $orderData['billing']['last_name'];
             $data['Method'] = "ship";
 
             $data['Params'] = array(
-                'shipping_type'         => "1",
-                'noOfParcel'            => "1",
+                'shipping_type'         => $shipping_type,
+                'doubleDelivery'        => $double_delivery,
+                'noOfParcel'            => $no_of_parcel,
                 'TotalValue'            => $order->get_total(),
                 'TransactionID'         => $order_id,
                 'ContentDescription'    => "",
-                'CashOnDeliveryType'    => 0,
+                'CashOnDeliveryType'    => $order->get_payment_method() === 'cod',
                 'CarrierName'           => "CARGO",
                 'CarrierService'        => $CarrierName,
-                'CarrierID'             => intval($CarrierID),
+                'CarrierID'             => $shipping_method_id == 'woo-baldarp-pickup' ? 0 : 1,
                 'OrderID'               => $order_id,
                 'PaymentMethod'         => $orderData['payment_method'],
                 'Note'                  => $orderData['customer_note'],
                 'customerCode'          => $customerCode,
 
                 'to_address' => array(
-                    'name'      => $orderData['shipping']['first_name'] . ' ' . $orderData['shipping']['last_name'],
-                    'company'   => $orderData['shipping']['company'],
-                    'street1'   => $orderData['shipping']['address_1'],
-                    'street2'   => $orderData['shipping']['address_2'],
-                    'city'      => $orderData['shipping']['city'],
-                    'state'     => $orderData['shipping']['state'],
-                    'zip'       => $orderData['shipping']['postcode'],
-                    'country'   => $orderData['shipping']['country'],
-                    'phone'     => $orderData['billing']['phone'],
-                    'email'     => $orderData['billing']['email'],
+                    'name'      => $name,
+                    'company'   => $orderData['shipping']['company'] ?? $orderData['billing']['company'],
+                    'street1'   => !empty( $orderData['shipping']['address_1'] ) ? $orderData['shipping']['address_1'] : $orderData['billing']['address_1'],
+                    'street2'   => !empty( $orderData['shipping']['address_2'] ) ? $orderData['shipping']['address_2'] : $orderData['billing']['address_2'],
+                    'city'      =>  !empty( $orderData['shipping']['city'] ) ? $orderData['shipping']['city'] : $orderData['billing']['city'],
+                    'state'     =>  !empty( $orderData['shipping']['state'] ) ? $orderData['shipping']['state'] : $orderData['billing']['state'],
+                    'zip'       =>  !empty( $orderData['shipping']['postcode'] ) ? $orderData['shipping']['postcode'] : $orderData['billing']['postcode'],
+                    'country'   =>  !empty( $orderData['shipping']['country'] ) ? $orderData['shipping']['country'] : $orderData['billing']['country'],
+                    'phone'     =>  !empty( $orderData['shipping']['phone'] ) ? $orderData['shipping']['phone'] : $orderData['billing']['phone'],
+                    'email'     =>  !empty( $orderData['shipping']['email'] ) ? $orderData['shipping']['email'] : $orderData['billing']['email'],
                     'floor'     => get_post_meta($order_id, 'cargo_floor', TRUE),
                     'appartment' => get_post_meta($order_id, 'cargo_apartment', TRUE),
                 ),
 
                 'from_address' => array(
-                    'name'      => $orderData['shipping']['first_name']. ' '. $orderData['shipping']['last_name'],
+                    'name'      => $name,
                     'company'   => get_option( 'website_name_cargo' ),
                     'street1'   => get_option('from_street'),
                     'street2'   => get_option('from_street_name'),
                     'city'      => get_option('from_city'),
-                    'state'     => $orderData['shipping']['state'],
-                    'zip'       => $orderData['shipping']['postcode'],
-                    'country'   => $orderData['shipping']['country'],
+                    'state'     => !empty( $orderData['shipping']['state'] ) ? $orderData['shipping']['state'] : $orderData['billing']['state'],
+                    'zip'       => !empty( $orderData['shipping']['postcode'] ) ? $orderData['shipping']['postcode'] : $orderData['billing']['postcode'],
+                    'country'   => !empty( $orderData['shipping']['country'] ) ? $orderData['shipping']['country'] : $orderData['billing']['country'],
                     'phone'     => get_option('phonenumber_from'),
-                    'email'     => $orderData['shipping']['email'],
+                    'email'     => !empty( $orderData['shipping']['email'] ) ? $orderData['shipping']['email'] : $orderData['billing']['email'],
                 )
             );
 
             if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
                 $data['Params']['to_address'] = array(
-                    'name'      => $orderData['shipping']['first_name'].' '.$orderData['shipping']['last_name'],
+                    'name'      => $name,
                     'company'   => get_option( 'website_name_cargo' ),
-                    'street1'   => get_post_meta($order_id,'StreetNum',TRUE),
-                    'street2'   => get_post_meta($order_id,'StreetName',TRUE),
-                    'city'      => get_post_meta($order_id,'CityName',TRUE),
+                    'street1'   => get_post_meta($order_id, 'StreetNum', TRUE),
+                    'street2'   => get_post_meta($order_id, 'StreetName', TRUE),
+                    'city'      => get_post_meta($order_id, 'CityName', TRUE),
                     'state'     => "",
                     'zip'       => "",
                     'country'   => "",
                     'phone'     => $orderData['billing']['phone'],
-                    'email'     => "",
+                    'email'     => $orderData['billing']['email'],
                 );
 
-                $data['Params']['boxPointId'] = get_post_meta($order_id,'DistributionPointID',TRUE);
+                $data['Params']['boxPointId'] = get_post_meta($order_id, 'DistributionPointID', TRUE);
             }
+
+//            var_dump($data);
 
             $response = $this->passDataToCargo( $data );
             $message = '==============================' . PHP_EOL;
@@ -778,16 +797,15 @@ if( !class_exists('Awsb_Shipping') ) {
 				$order->update_meta_data( 'lineNumber', $response['linetext']);
 				$order->update_meta_data( 'drivername', $response['drivername']);
 				$order->save();
-				$boxDetails = "";
-				$boxName = "";
-
-				if( $shipping_method_id == 'woo-baldarp-pickup' ) {
-					$boxDetails = get_post_meta($order_id,'StreetNum',TRUE).' '.get_post_meta($order_id,'StreetName',TRUE).' '.get_post_meta($order_id,'CityName',TRUE).' '.get_post_meta($order_id,'store_comment',TRUE).' '.get_post_meta($order_id,'cargoPhone',TRUE);
-					$boxName = get_post_meta($order_id,'DistributionPointName',TRUE);
-				}
 
                 $message .= "ORDER ID : $order_id | DELIVERY ID  : {$response['shipmentId']} | SEND ON CARGO BY : ".date('Y-m-d H:i:d')."SHIPMENT TYPE : $CarrierName | CUSTOMER CODE : $customerCode" . PHP_EOL;
-                $message .= "CARGO BOX POINT NAME : $boxName | CARGO BOX ADDRESS : $boxDetails". PHP_EOL;
+
+                if( $shipping_method_id == 'woo-baldarp-pickup' ) {
+					$boxDetails = get_post_meta($order_id, 'StreetNum', TRUE).' '.get_post_meta($order_id, 'StreetName', TRUE).' '.get_post_meta($order_id, 'CityName', TRUE).' '.get_post_meta($order_id,'store_comment',TRUE).' '.get_post_meta($order_id,'cargoPhone',TRUE);
+					$boxName = get_post_meta($order_id,'DistributionPointName',TRUE);
+                    $message .= "CARGO BOX POINT NAME : $boxName | CARGO BOX ADDRESS : $boxDetails". PHP_EOL;
+				}
+
 			}
 
             $message .= "Shipment Data : ".json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
@@ -826,7 +844,7 @@ if( !class_exists('Awsb_Shipping') ) {
             	return 0;
             }
         }
-        
+
         public function action_woocommerce_checkout_process( $wccs_custom_checkout_field_pro_process ) {
             $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
             $chosen_method_id = explode(':', $chosen_shipping_methods[0]);
@@ -841,17 +859,17 @@ if( !class_exists('Awsb_Shipping') ) {
         }
 
         public function awsb_admin_plugin_scripts() {
-            $screen = get_current_screen(); 
+            $screen = get_current_screen();
 
             $screen_id    = $screen ? $screen->id : '';
-            
+
             if($screen_id === 'toplevel_page_loaction_api_settings') {
                 wp_enqueue_style( 'admin-baldarp-style', AWSB_URL .'assets/css/admin-baldarp-style.css');
             }
             wp_enqueue_style( 'admin-baldarp-styles', AWSB_URL .'assets/css/admin-baldarp-styles.css');
             	wp_enqueue_script( 'cargo-admin-script', AWSB_URL .'assets/js/admin/admin-baldarp-script.js', array(), '', true);
             	wp_localize_script( 'cargo-admin-script', 'admin_cargo_obj',
-                array( 
+                array(
                     'ajaxurl' => admin_url( 'admin-ajax.php' ),
                     'ajax_nonce'    => wp_create_nonce( 'awsb_shipping_nonce' ),
 					'path' => AWSB_URL,
@@ -900,14 +918,14 @@ if( !class_exists('Awsb_Shipping') ) {
 			if ( is_cart() || is_checkout() ) {
 				wp_enqueue_script( 'baldarp-script', AWSB_URL .'assets/js/baldarp-script.js', array(), '', true);
 				wp_localize_script( 'baldarp-script', 'baldarp_obj',
-					array( 
+					array(
 						'ajaxurl' => admin_url( 'admin-ajax.php' ),
 						'ajax_nonce'    => wp_create_nonce( 'awsb_shipping_nonce' ),
 					)
 				);
 				wp_enqueue_script( 'baldarp-map-jquery', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyATriqvOSeSLdO-eVqCquY7dYlp6p2jAzU&language=he&libraries=places&v=weekly', null, null, true );
 				wp_enqueue_style('badarp-front-css', AWSB_URL.'assets/css/front.css');
-				
+
 				if(get_option('bootstrap_enalble') == 1){
 					wp_enqueue_script( 'baldarp-bootstrap-jquery',  AWSB_URL .'assets/js/boostrap_bundle.js', array(), '', false );
 					wp_enqueue_style('badarp-bootstrap-css', AWSB_URL .'assets/css/boostrap_min.css');
@@ -915,7 +933,7 @@ if( !class_exists('Awsb_Shipping') ) {
 			}
         }
 
-        public function awsb_script_checkout() { 
+        public function awsb_script_checkout() {
 			if ( is_checkout() || is_cart() ){
 			?>
             <input type="hidden" id="default_markers" value="<?php echo AWSB_URL.'assets/image/cargo-icon-svg.svg' ?>" >
@@ -932,14 +950,14 @@ if( !class_exists('Awsb_Shipping') ) {
                             	<input id="search-input-cus" name="search-input-cus" type="text" placeholder="<?= __('חיפוש נקודת איסוף  ', 'cargo') ?>" value=""/>
 	                            <div class="startup">
 	                            	<ul class="startup-dropdown">
-	                            		
+
 	                            	</ul>
 	                            </div>
 
                             </div>
 
                             <h5 class="modal-title"><?= __(' נקודות איסוף', 'cargo')?></h5>
-                            
+
                             <button type="button" class="close" id="modal-close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
@@ -992,7 +1010,7 @@ if( !class_exists('Awsb_Shipping') ) {
                     </div>
                 </div>
             </div>
-           <?php } 
+           <?php }
         }
 
         public function awsb_ajax_delivery_location() {
@@ -1035,9 +1053,35 @@ if( !class_exists('Awsb_Shipping') ) {
                 $result["info"] = $arrData->get_error_message();
                 $result["data"] = 0;
             }
-            
+
             echo json_encode($result);
             wp_die();
+        }
+
+        function cargoAPI($url, $data = []) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+            $response = json_decode($response);
+
+            return $response;
         }
 
         public function awsb_after_shipping_rate( $method, $index ) {
@@ -1050,39 +1094,74 @@ if( !class_exists('Awsb_Shipping') ) {
             if ( $chosen_method_id != 'woo-baldarp-pickup' ) {
                 return;
             } else {
-                if( $chosen_method_ids == 'woo-baldarp-pickup') {
-                    $pointName  = $_COOKIE['cargoPointName'] ?? '';
+                if ( $chosen_method_ids == 'woo-baldarp-pickup') {
                     $pointId    = $_COOKIE['cargoPointID'] ?? '';
                     $city       = $_COOKIE['CargoCityName'] ?? '';
-                    $street     = $_COOKIE['cargoStreetName'] ?? '';
-                    $streetNum  = $_COOKIE['cargoStreetNum'] ?? '';
-                    $comment    = $_COOKIE['cargoComment'] ?? '';
-                    $latitude   = $_COOKIE['cargoLatitude'] ?? '';
-                    $longitude  = $_COOKIE['cargoLongitude'] ?? '';
-                    $phone      = $_COOKIE['cargoPhone'] ?? '';
-
+                    $cargo_box_style = get_option('cargo_box_style');
                     ?>
-                        <span class='baldrap-btn' id='mapbutton'><?= __(' בחירת נקודה', 'cargo') ?></span>
+                    <div class="cargo-map-wrap">
+                        <?php if ($cargo_box_style === 'cargo_map') : ?>
+                        <a class='baldrap-btn btn button wp-element-button' id='mapbutton'><?= __(' בחירת נקודה', 'cargo') ?></a>
                         <div id='selected_cargo'></div>
-                        <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?= $pointId ?>' >
-                        <input type='hidden' id='DistributionPointName' name='DistributionPointName' value='<?= $pointName ?>'>
-                        <input type='hidden' id='CityName' name='CityName' value='<?= $city ?>'>
-                        <input type='hidden' id='StreetName' name='StreetName' value='<?= $street ?>'>
-                        <input type='hidden' id='StreetNum' name='StreetNum' value='<?= $streetNum ?>'>
-                        <input type='hidden' id='Comment' name='Comment' value='<?= $comment ?>' >
-                        <input type='hidden' id='cargoPhone' name='cargoPhone' value='<?= $phone ?>' >
-                        <input type='hidden' id='Latitude' name='Latitude' value='<?= $latitude ?>' >
-                        <input type='hidden' id='Longitude' name='Longitude' value='<?= $longitude ?>'>
+                    <?php elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
+                        $cities = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickupCities");
+                        if ( $cities->Result === 'OK' ) {
+                            ?>
+                                <p class="form-row form-row-wide">
+                                    <label for="cargo_city">
+                                        <span><?= __('Chose city', 'astra-woo-cargo') ?></span>
+                                    </label>
+
+                                    <select name="cargo_city" id="cargo_city" class="select2">
+                                        <?php foreach ($cities->PointsDetails as $key => $value) : ?>
+                                            <option value="<?= $value->CityName ?>" <?php if ($city === $value->CityName) echo 'selected="selected"'; ?>><?= $value->CityName ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </p>
+                            <?php
+                                $points = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickUpPoints", array('city' => $city));
+                            ?>
+                                <p class="form-row form-row-wide">
+                                    <label for="cargo_pickup_point">
+                                        <span><?= __('Chose point', 'astra-woo-cargo') ?></span>
+                                    </label>
+
+                                    <select name="cargo_pickup_point" id="cargo_pickup_point" class="select2 w-100">
+                                        <?php foreach ($points->PointsDetails as $key => $value) : ?>
+                                            <option value="<?= $value->DistributionPointID ?>" <?php if ($pointId === $value->DistributionPointID) echo 'selected="selected"' ?>>
+                                                <?= $value->DistributionPointName ?>, <?= $value->StreetName ?> <?= $value->StreetNum ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </p>
+
+                            <?php } ?>
+                        <?php else : ?>
+                    <?php endif; ?>
+                        <?php
+                            $chosen_point = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickUpPoints", array('pointId' => $pointId));
+                            $chosen_point = $chosen_point->PointsDetails[0];
+                        ?>
+                        <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?= $chosen_point->DistributionPointID ?>' >
+                        <input type='hidden' id='DistributionPointName' name='DistributionPointName' value='<?= $chosen_point->DistributionPointName ?>'>
+                        <input type='hidden' id='CityName' name='CityName' value='<?= $chosen_point->CityName ?>'>
+                        <input type='hidden' id='StreetName' name='StreetName' value='<?= $chosen_point->StreetName ?>'>
+                        <input type='hidden' id='StreetNum' name='StreetNum' value='<?= $chosen_point->StreetNum ?>'>
+                        <input type='hidden' id='Comment' name='Comment' value='<?= $chosen_point->Comment ?>' >
+                        <input type='hidden' id='cargoPhone' name='cargoPhone' value='<?= $chosen_point->Phone ?>' >
+                        <input type='hidden' id='Latitude' name='Latitude' value='<?= $chosen_point->Latitude ?>' >
+                        <input type='hidden' id='Longitude' name='Longitude' value='<?= $chosen_point->Longitude ?>'>
+                    </div>
                      <?php
-                } 
+                }
             }
         }
-        
+
         public function awsb_shipping_method() {
             require_once AWSB_PATH . 'includes/woo-baldarp-shipping.php';
 			require_once AWSB_PATH . 'includes/woo-baldarp-express-shipping.php';
         }
-        
+
         public function awsb_add_Baldarp_shipping_method( $methods ) {
             $methods['woo-baldarp-pickup'] = 'Baldarp_Shipping_Method';
 			$methods['cargo-express'] = 'Cargo_Express_Shipping_Method';
@@ -1106,21 +1185,22 @@ if( !class_exists('Awsb_Shipping') ) {
             register_setting('awsb_shipping_api_settings_fg', 'website_name_cargo');
 			register_setting('awsb_shipping_api_settings_fg', 'bootstrap_enalble');
 			register_setting('awsb_shipping_api_settings_fg', 'send_to_cargo_all');
+			register_setting('awsb_shipping_api_settings_fg', 'cargo_box_style');
 			register_setting('awsb_shipping_api_settings_fg', 'disable_order_status');
         }
-		
-        public function misha_settings_link( $links_array ) {          
+
+        public function misha_settings_link( $links_array ) {
             array_unshift( $links_array, '<a href="' . admin_url( 'admin.php?page=loaction_api_settings' ) . '">' . __('Settings') . '</a>' );
             return $links_array;
         }
 
         public function activate() {
 			if( class_exists( 'Awsb_Express_Shipping' ) ) {
-				error_log( 'You can Only use only one Plugin Cargo Shipping Location Or Cargo Express Shipping Location' );      
+				error_log( 'You can Only use only one Plugin Cargo Shipping Location Or Cargo Express Shipping Location' );
 				$args = var_export( func_get_args(), true );
 				error_log( $args );
 				wp_die( 'You can Only use only one Plugin Cargo Shipping Location Or Cargo Express Shipping Location' );
-			} 
+			}
             //flush permalinks
 			flush_rewrite_rules();
         }
@@ -1128,7 +1208,7 @@ if( !class_exists('Awsb_Shipping') ) {
 			//flush permalinks
 			flush_rewrite_rules();
 		}
-        
+
         public function awsb_uninstall() {
             //flush permalinks
 			flush_rewrite_rules();
@@ -1144,19 +1224,20 @@ if( !class_exists('Awsb_Shipping') ) {
             delete_option('website_name_cargo');
 			delete_option('bootstrap_enalble');
 			delete_option('send_to_cargo_all');
+			delete_option('cargo_box_style');
 			delete_option('disable_order_status');
-			
+
         }
 
         public function InitPlugin(){
             add_action('admin_menu', array($this, 'PluginMenu'));
         }
-        
+
         public function PluginMenu(){
             add_menu_page('Cargo Shipping Location', 'Cargo Shipping Location', 'manage_options', 'loaction_api_settings', array($this, 'settings'),plugin_dir_url( __FILE__ ) . 'assets/image/cargo-icon-with-white-bg-svg.svg');
             add_submenu_page('loaction_api_settings', 'LogFiles', 'LogFiles', 'manage_options', 'cargo_shipping_log', array($this, 'logs'));
         }
-        
+
         public function RenderPage(){
             $this->checkWooCommerce(); ?>
             <div class='wrap'>
@@ -1174,7 +1255,7 @@ if( !class_exists('Awsb_Shipping') ) {
             $this->checkWooCommerce();
             $this->loadTemplate('settings');
         }
-        
+
         public function checkWooCommerce(){
             include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
             if (! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {

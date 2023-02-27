@@ -46,31 +46,48 @@ jQuery(document).ready(function(){
 		});
 	});
 	jQuery(document).on('click','.submit-cargo-shipping',function(e){
-		var orderID = jQuery(this).data('id');
+		e.preventDefault();
+		let orderID = jQuery(this).data('id');
+		let doubleDelivery = jQuery('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1;
+		let shipmentType = jQuery('input[name="cargo_shipment_type"]:checked').val();
+		let noOfParcel = jQuery('input[name="cargo_shipment_type"]:checked').val();
+		console.log(doubleDelivery);
+		console.log(shipmentType);
 		ToggleLoading(true);
 		jQuery.ajax({
 			type : "post",
-			dataType : "json",
+			// dataType : "json",
 			url : admin_cargo_obj.ajaxurl,
-			data : {action: "sendOrderCARGO", orderId : orderID},
+			data : {
+				action: "sendOrderCARGO",
+				orderId : orderID,
+				double_delivery: doubleDelivery,
+				shipment_type: shipmentType,
+				no_of_parcel: noOfParcel
+			},
 			success: function(response) {
 				//location.reload();
+				console.log(response);
 				ToggleLoading(false);
 			   	if(response.shipmentId != "") {
-			   		jQuery(window).scrollTop(0);
-			      	jQuery('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(5000).queue(function(n) {
-					  jQuery('.removeClass').hide(); n();
-
-					 		location.reload();
+					jQuery(window).scrollTop(0);
+					jQuery('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(5000).queue(function(n) {
+						jQuery('.removeClass').hide();
+						n();
+						location.reload();
 					});
-			   	}
-			   	else {
+			   	} else {
 			      alert(response.error_msg);
 			   }
+			},
+			error: function( jqXHR, textStatus, errorThrown ) {
+				console.log('error');
+				console.log(textStatus);
 			}
 	    });
 	});
-	jQuery(document).on('click','.label-cargo-shipping',function(){
+	jQuery(document).on('click','.label-cargo-shipping',function(e){
+		e.preventDefault();
 		var shipmentId = jQuery(this).data('id');
 		if(shipmentId){
 			ToggleLoading(true);
@@ -78,7 +95,7 @@ jQuery(document).ready(function(){
 				type : "post",
 				dataType : "json",
 				url : admin_cargo_obj.ajaxurl,
-				data : {action: "getShipmenlable", shipmentId : shipmentId},
+				data : {action: "get_shipment_label", shipmentId : shipmentId},
 				success: function(response) {
 					ToggleLoading(false);
 				   	if(response.pdfLink != "") {

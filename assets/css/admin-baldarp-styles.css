@@ -16,12 +16,14 @@ a.btn.btn-success.cancel-cargo-shipping {
     color: white;
 }
 
-#cargo_custom_box .inside label{
-    border: 1px solid;
-    padding: 6px 19px;
-    /* margin-right: 12px; */
+/*#cargo_custom_box .inside label{*/
+/*    border: 1px solid;*/
+/*    padding: 6px 19px;*/
+/*    !* margin-right: 12px; *!*/
+/*}*/
+.cargo-button label{
+    display: block;
 }
-
 #cargo_custom_box .inside {
     margin-top: 20px;
 }
@@ -50,7 +52,7 @@ a.btn.btn-success.cancel-cargo-shipping {
     background-color: #e9353e;
     color: white;
 }
-#cargo_custom_box .cargo-button input.label-cargo-shipping {
+.cargo-button .label-cargo-shipping {
     border: 1px solid #e1d111;
     /* border-radius: 18px; */
     padding: 6px 26px;
@@ -58,6 +60,8 @@ a.btn.btn-success.cancel-cargo-shipping {
     border-radius: 4px;
     background-color: #e1d111;
     color: white;
+    display: inline-block;
+    text-decoration: none;
 }
 
 .no-need{
@@ -90,15 +94,22 @@ a.edit-address-cargo{
     border: 1px solid #2878b1;
     border-radius: 4px;
     color: white;
+    display: inline-block;
+    text-decoration: none;
 }
-#cargo_custom_box .inside label{
+#cargo_custom_box .inside .btn{
     padding: 7px 11px;
     background-color: #1bc39c;
     border: 1px solid #1bc39c;
     border-radius: 4px;
     color: white;
+    display: inline-block;
 }
-.cargo_delivery_id .label-cargo-shipping{
+.cargo-radio label {
+    display: block;
+    margin-bottom: 10px;
+}
+.label-cargo-shipping{
     border: 1px solid #e1d111;
     /* border-radius: 18px; */
     padding: 8px 20px;
