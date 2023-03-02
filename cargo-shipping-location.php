@@ -33,56 +33,51 @@ if( !class_exists('Awsb_Shipping') ) {
             add_action( 'admin_init', array($this, 'awsb_shipping_api_settings_init') );
 
             if ( get_option('shipping_cargo_express') != '' ) {
-                add_action( 'woocommerce_shipping_init', array($this,'awsb_shipping_method') );
-
-                add_filter( 'woocommerce_shipping_methods', array($this,'awsb_add_Baldarp_shipping_method') );
-                add_action( 'woocommerce_after_shipping_rate', array($this, 'awsb_after_shipping_rate'), 20, 2) ;
-                add_action('woocommerce_checkout_update_order_meta', array($this,'custom_checkout_field_update_order_meta'));
-                add_action( 'woocommerce_checkout_process',array($this,'action_woocommerce_checkout_process'),10,1);
-                add_action('woocommerce_order_status_changed',array($this,'cargo_status_change_event'),10,3);
-                add_filter( 'handle_bulk_actions-edit-shop_order', array($this,'bulk_order_cargo_shipment'), 10, 3);
-				add_action( 'admin_notices',array($this,'cargo_bulk_action_admin_notice') );
-               //add_action('woocommerce_thankyou', array($this,'transfer_order_data_for_shipment'), 10, 1);
-               add_action('woocommerce_checkout_order_processed', array($this,'transfer_order_data_for_shipment'), 10, 1);
-               add_filter( 'manage_edit-shop_order_columns', array($this,'add_order_delivery_status_column_header'), 20 );
-               add_action( 'manage_shop_order_posts_custom_column', array($this,'add_custom_column_content') );
-               add_filter( 'post_class', array($this,'add_no_link_to_post_class') );
-              // add_action( 'admin_print_styles', array($this,'add_order_notes_column_style') );
-               add_action( 'woocommerce_admin_order_data_after_billing_address', array($this,'show_shipping_info' ));
-               add_filter( 'woocommerce_locate_template',array($this,'intercept_wc_template'), 10, 3 );
-               add_action( 'init', array($this,'register_order_status_for_cargo'));
-               add_filter( 'wc_order_statuses', array($this,'custom_order_status'));
-               add_filter( 'bulk_actions-edit-shop_order', array($this,'custom_dropdown_bulk_actions_shop_order'), 20, 1 );
-               add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
-               add_action( 'add_meta_boxes', array( $this, 'remove_shop_order_meta_boxe' ), 90  );
-               add_filter('the_content', array( $this,'replace_text'));
-               add_action('admin_head', array( $this,'custom_changes_css'));
-              // add_filter( 'woocommerce_my_account_my_orders_actions',array($this,'my_code_add_myaccount_order_track_button'), 10, 2 );
-               add_filter( 'woocommerce_account_orders_columns', array($this,'add_account_orders_column'), 10, 1 );
-               add_action( 'woocommerce_my_account_my_orders_column_order-track', array($this,'add_account_orders_column_rows') );
-               add_action('wp_footer',array($this,'add_model_footer'));
-			  // add_filter( 'woocommerce_package_rates', array($this,'change_shipping_methods_label_names'), 10, 2 );
+                add_action( 'woocommerce_shipping_init', array( $this,'awsb_shipping_method' ) );
+                add_filter( 'woocommerce_shipping_methods', array( $this,'awsb_add_Baldarp_shipping_method' ) );
+                add_action( 'woocommerce_after_shipping_rate', array( $this, 'awsb_after_shipping_rate' ), 20, 2) ;
+                add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'custom_checkout_field_update_order_meta' ));
+                add_action( 'woocommerce_checkout_process', array( $this, 'action_woocommerce_checkout_process' ),10,1);
+                add_action(' woocommerce_order_status_changed', array( $this, 'cargo_status_change_event' ),10,3);
+                add_filter( 'handle_bulk_actions-edit-shop_order', array( $this, 'bulk_order_cargo_shipment' ), 10, 3);
+                add_action( 'admin_notices', array( $this, 'cargo_bulk_action_admin_notice') );
+                add_action( 'woocommerce_checkout_order_processed', array( $this, 'transfer_order_data_for_shipment' ), 10, 1);
+                add_filter( 'manage_edit-shop_order_columns', array( $this, 'add_order_delivery_status_column_header' ), 20 );
+                add_action( 'manage_shop_order_posts_custom_column', array( $this,' add_custom_column_content') );
+                add_filter( 'post_class', array( $this, 'add_no_link_to_post_class' ) );
+                add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_shipping_info' ) );
+                add_filter( 'woocommerce_locate_template', array( $this, 'intercept_wc_template' ), 10, 3 );
+                add_action( 'init', array( $this, 'register_order_status_for_cargo' ) );
+                add_filter( 'wc_order_statuses', array( $this, 'custom_order_status') );
+                add_filter( 'bulk_actions-edit-shop_order', array( $this, 'custom_dropdown_bulk_actions_shop_order' ), 20, 1 );
+                add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
+                add_action( 'add_meta_boxes', array( $this, 'remove_shop_order_meta_box' ), 90  );
+                add_filter( 'the_content', array( $this, 'replace_text' ) );
+                add_action( 'admin_head', array( $this, 'custom_changes_css' ) );
+                add_filter( 'woocommerce_account_orders_columns', array( $this, 'add_account_orders_column'), 10, 1 );
+                add_action( 'woocommerce_my_account_my_orders_column_order-track', array( $this, 'add_account_orders_column_rows' ) );
+                add_action( 'wp_footer', array( $this, 'add_model_footer' ) );
             }
+            add_action( 'woocommerce_order_details_after_order_table', array( $this, 'tracking_button' ) );
+            add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this,  'cargo_settings_link' ) );
+            add_action( 'admin_enqueue_scripts', array( $this, 'awsb_admin_plugin_scripts' ) );
+            add_action( 'wp_enqueue_scripts', array( $this, 'awsb_plugin_scripts' ) );
 
-            add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array($this,  'misha_settings_link' ));
-            add_action( 'admin_enqueue_scripts', array($this,'awsb_admin_plugin_scripts') );
-            add_action( 'wp_enqueue_scripts', array($this,'awsb_plugin_scripts') );
+            add_action( 'wp_ajax_get_order_tracking_details', array( $this,'get_order_tracking_details') );
+            add_action( 'wp_ajax_getOrderStatus', array( $this,'getOrderStatusFromCargo' ) );
+            add_action( 'wp_ajax_nopriv_getOrderStatus', array( $this, 'getOrderStatusFromCargo' ) );
+            add_action( 'wp_ajax_get_delivery_location', array( $this, 'awsb_ajax_delivery_location' ) );
+            add_action( 'wp_ajax_nopriv_get_delivery_location', array( $this, 'awsb_ajax_delivery_location' ) );
 
-            add_action( 'wp_ajax_get_order_tracking_details', array($this,'get_order_tracking_details') );
-            add_action( 'wp_ajax_getOrderStatus', array($this,'getOrderStatusFromCargo') );
-            add_action( 'wp_ajax_nopriv_getOrderStatus', array($this,'getOrderStatusFromCargo' ) );
-            add_action( 'wp_ajax_get_delivery_location', array($this,'awsb_ajax_delivery_location') );
-            add_action( 'wp_ajax_nopriv_get_delivery_location', array($this,'awsb_ajax_delivery_location' ) );
+            add_action('wp_ajax_sendOrderCARGO', array( $this, 'send_order_to_cargo' ) );
+            add_action('wp_ajax_get_shipment_label', array( $this,'get_shipment_label' ) );
 
-            add_action('wp_ajax_sendOrderCARGO', array($this,'send_order_to_cargo') );
-            add_action('wp_ajax_get_shipment_label', array($this,'get_shipment_label') );
-
-            add_action( 'wp_head', array($this, 'awsb_script_checkout') );
+            add_action( 'wp_head', array( $this, 'awsb_script_checkout' ) );
 
             if ( is_admin() ) {
-                register_activation_hook(__FILE__, array($this,'activate'));
+                register_activation_hook(__FILE__, array( $this, 'activate'));
 
-                register_deactivation_hook(__FILE__, array($this,'awsb_deactivate'));
+                register_deactivation_hook(__FILE__, array( $this, 'awsb_deactivate'));
                 // plugin uninstallation
                 register_uninstall_hook(__FILE__, 'awsb_uninstall');
             }
@@ -144,33 +139,44 @@ if( !class_exists('Awsb_Shipping') ) {
 		}
 
 	    function get_order_tracking_details() {
-	    	$data = array();
-	    	$data['name'] = "Test Name";
-	    	$data['orderId'] = $_POST['orderID'];
-	    	include( plugin_dir_path( __FILE__ ). 'templates/my-account/order-on-way.php');
+	    	if ( !isset($_POST['shipping_id']) || $_POST['shipping_id'] === '' ) {
+	    	    echo json_encode( array(
+                    'status'    => 'fail',
+                    'message'   => __('No shipping id provided. Contact support please.', 'astra-woo-cargo')
+                ));
+	    	    wp_die();
+            }
 
+	    	$data['deliveryId'] = (int) $_POST['shipping_id'];
+            $result = $this->cargoAPI('https://api.carg0.co.il/Webservice/CheckShipmentStatusAndTime', $data);
+            echo json_encode( $result );
 			die();
 	    }
 
 	    function add_model_footer() {
 	    	if( is_account_page() ) { ?>
-	    		<div class="modal order-tracking-model" tabindex="-1" role="dialog" >
+	    		<div class="modal order-tracking-model" tabindex="-1" role="dialog" style="display: none;">
 	                <div class="modal-dialog" role="document" style="max-width: 1000px; width: 100%;">
-	                    <div class="modal-content">
-	                        <div class="modal-header">
-	                           <img src="<?php echo site_url();?>/wp-content/uploads/2022/07/cropped-logo_blue.png" alt="Cargo" width="100">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="cargo-logo">
+                                    <img src="<?php echo AWSB_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
+                                </div>
+
 	                            <h5 class="modal-title"><?= __('Order Tracking', 'cargo') ?></h5>
-	                            <button type="button" class="close" id="modal-close" data-dismiss="modal" aria-label="Close">
-	                            <span aria-hidden="true">&times;</span>
+	                            <button type="button" class="close js-modal-close" id="modal-close" data-dismiss="modal" aria-label="Close">
+	                                <span aria-hidden="true">&times;</span>
 	                            </button>
 	                        </div>
 	                        <div class="modal-body order-details-ajax">
-	                            <?php require_once AWSB_PATH . 'templates/my-account/order-on-way.php'; ?>
+                                <div class="delivery-status" style="padding: 10px 20px; display: none;"></div>
+                                <div class="delivery-error woocommerce-error" style="display: none;"></div>
 	                        </div>
 	                        <div class="modal-footer" style="display: block;">
-                                <div id="FlyingCargo_footer" style="display: none;"><?= __('נקודת איסוף מסומנת:', 'cargo') ?><div id="FlyingCargo_loc_name"></div>
-                                <button type="button" class="selected-location" id="FlyingCargo_confirm" data-lat="" data-long="" data-fullAdd="" data-disctiPointID="" data-pointName="" data-city="" data-street="" data-streetNum="" data-comment="" data-locationName=""><?= __('בחירה וסיום', 'cargo') ?></button>
-	                        </div>
+                                <div id="FlyingCargo_footer" style="display: none;"><?= __('נקודת איסוף מסומנת:', 'cargo') ?>
+                                    <div id="FlyingCargo_loc_name"></div>
+                                    <button type="button" class="selected-location btn button wp-element-button" id="FlyingCargo_confirm" data-lat="" data-long="" data-fullAdd="" data-disctiPointID="" data-pointName="" data-city="" data-street="" data-streetNum="" data-comment="" data-locationName=""><?= __('בחירה וסיום', 'cargo') ?></button>
+	                            </div>
 	                        </div>
 	                    </div>
 	                </div>
@@ -191,19 +197,35 @@ if( !class_exists('Awsb_Shipping') ) {
 		    return $columns;
 		}
 
+
+        /**
+         * Function for `woocommerce_order_details_after_order_table` action-hook.
+         *
+         * @param  $order
+         *
+         * @return void
+         */
+        function tracking_button( $order ){
+            $order_id           = $order->get_id();
+            $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
+            if ( $cargo_delivery_id )
+                echo '<a href="javascript:void(0);" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'astra-woo-cargo') . '</a>';
+        }
+
 		/**
         * @param $order
          *
          * Add Track order link in my account page in order tab
         */
 		function add_account_orders_column_rows( $order ) {
-			$order_id = $order->get_id();
-			$cargo_delivery_id = get_post_meta( $order_id, 'cargo_shipping_id', true );
-			$shippingMethod = @array_shift($order->get_shipping_methods());
+			$order_id           = $order->get_id();
+			$cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
+			$shippingMethod     = @array_shift($order->get_shipping_methods());
         	$shipping_method_id = $shippingMethod['method_id'];
-        	$customer_id = $shipping_method_id == 'woo-baldarp-pickup' ? '3175' : '2808';
+        	$customer_id        = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+
 			if( $cargo_delivery_id ) {
-				echo '<a href="javascript:void(0);" class="btn woocommerce-button tack-order-cus" data-delivery="' . $cargo_delivery_id . '" data-customer="' . $customer_id . '" data-id="' . $order_id . '">' . __('Track Order', 'cargo') . '</a>';
+				echo '<a href="javascript:void(0);" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'astra-woo-cargo') . '</a>';
 			}
 		}
 
@@ -340,7 +362,7 @@ if( !class_exists('Awsb_Shipping') ) {
 	    /**
         * remove meta box from the admin order page
         */
-	    public function remove_shop_order_meta_boxe() {
+	    public function remove_shop_order_meta_box() {
 		    remove_meta_box( 'postcustom', 'shop_order', 'normal' );
 		}
 
@@ -715,6 +737,7 @@ if( !class_exists('Awsb_Shipping') ) {
 			$orderData      = $order->get_data();
 			$shippingMethod = @array_shift($order->get_shipping_methods());
 			$shipping_method_id = $shippingMethod['method_id'];
+            $cargo_box_style = get_option('cargo_box_style');
 
 			$CarrierName    = $shipping_method_id == 'woo-baldarp-pickup' ? 'B0X' : 'EXPRESS';
 			$customerCode   = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
@@ -768,23 +791,23 @@ if( !class_exists('Awsb_Shipping') ) {
             );
 
             if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
-                $data['Params']['to_address'] = array(
-                    'name'      => $name,
-                    'company'   => get_option( 'website_name_cargo' ),
-                    'street1'   => get_post_meta($order_id, 'StreetNum', TRUE),
-                    'street2'   => get_post_meta($order_id, 'StreetName', TRUE),
-                    'city'      => get_post_meta($order_id, 'CityName', TRUE),
-                    'state'     => "",
-                    'zip'       => "",
-                    'country'   => "",
-                    'phone'     => $orderData['billing']['phone'],
-                    'email'     => $orderData['billing']['email'],
-                );
+                if ( $cargo_box_style !== 'cargo_automatic' ) {
+                    $data['Params']['to_address'] = array(
+                        'name'      => $name,
+                        'company'   => get_option( 'website_name_cargo' ),
+                        'street1'   => get_post_meta($order_id, 'StreetNum', TRUE),
+                        'street2'   => get_post_meta($order_id, 'StreetName', TRUE),
+                        'city'      => get_post_meta($order_id, 'CityName', TRUE),
+                        'state'     => "",
+                        'zip'       => "",
+                        'country'   => "",
+                        'phone'     =>  !empty( $orderData['shipping']['phone'] ) ? $orderData['shipping']['phone'] : $orderData['billing']['phone'],
+                        'email'     =>  !empty( $orderData['shipping']['email'] ) ? $orderData['shipping']['email'] : $orderData['billing']['email'],
+                    );
 
-                $data['Params']['boxPointId'] = get_post_meta($order_id, 'DistributionPointID', TRUE);
+                    $data['Params']['boxPointId'] = get_post_meta($order_id, 'DistributionPointID', TRUE);
+                }
             }
-
-//            var_dump($data);
 
             $response = $this->passDataToCargo( $data );
             $message = '==============================' . PHP_EOL;
@@ -926,11 +949,24 @@ if( !class_exists('Awsb_Shipping') ) {
 				wp_enqueue_script( 'baldarp-map-jquery', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyATriqvOSeSLdO-eVqCquY7dYlp6p2jAzU&language=he&libraries=places&v=weekly', null, null, true );
 				wp_enqueue_style('badarp-front-css', AWSB_URL.'assets/css/front.css');
 
-				if(get_option('bootstrap_enalble') == 1){
+				if ( get_option('bootstrap_enalble') == 1 ) {
 					wp_enqueue_script( 'baldarp-bootstrap-jquery',  AWSB_URL .'assets/js/boostrap_bundle.js', array(), '', false );
 					wp_enqueue_style('badarp-bootstrap-css', AWSB_URL .'assets/css/boostrap_min.css');
 				}
 			}
+
+            if ( is_account_page() ) {
+                wp_enqueue_style('badarp-front-css', AWSB_URL.'assets/css/front.css');
+
+                wp_enqueue_script( 'cargo-order', AWSB_URL .'assets/js/cargo-order.js', array(), '', true );
+                wp_localize_script( 'cargo-order', 'cargo_obj',
+                    array(
+                        'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                        'ajax_nonce'    => wp_create_nonce( 'awsb_shipping_nonce' ),
+                    )
+                );
+            }
+
         }
 
         public function awsb_script_checkout() {
@@ -939,50 +975,31 @@ if( !class_exists('Awsb_Shipping') ) {
             <input type="hidden" id="default_markers" value="<?php echo AWSB_URL.'assets/image/cargo-icon-svg.svg' ?>" >
         	<input type="hidden" id="selected_marker" value="<?php echo AWSB_URL.'assets/image/selected_new.png' ?>" >
             <div class="modal" id="mapmodelcargo" tabindex="-1" role="dialog" style="display:none;" style="z-index:9999999;">
-                <div class="modal-dialog" role="document" style="max-width: 95%; width: 1000px;max-height: 100%;">
+                <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                           <img src="<?php echo AWSB_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="100">
-                            <div style="direction: rtl;">
-                            	<a href="javascript:void(0);" class="open-how-it-works"><?= __('איך זה עובד ?', 'cargo') ?></a>
+                            <div class="cargo-logo">
+                                <img src="<?php echo AWSB_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
                             </div>
+
                             <div class="modal-search" style="direction: rtl;">
-                            	<input id="search-input-cus" name="search-input-cus" type="text" placeholder="<?= __('חיפוש נקודת איסוף  ', 'cargo') ?>" value=""/>
-	                            <div class="startup">
-	                            	<ul class="startup-dropdown">
-
-	                            	</ul>
-	                            </div>
-
+                                <a href="javascript:void(0);" class="open-how-it-works">?</a>
+                                <div class="form-row">
+                                    <input id="search-input-cus" name="search-input-cus" class="input-text" type="text" placeholder="<?= __('חיפוש נקודת איסוף  ', 'cargo') ?>" value=""/>
+                                    <div class="startup">
+                                        <ul class="startup-dropdown">
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
 
-                            <h5 class="modal-title"><?= __(' נקודות איסוף', 'cargo')?></h5>
 
-                            <button type="button" class="close" id="modal-close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close js-modal-close" id="modal-close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div style="padding-top: 5px;text-align: center;"><strong style="color: #2579b5;"><?= __('לחצו על נקודת האיסוף כדי לבחור או חפשו בתיבת החיפוש מעלה', 'cargo') ?></strong></div>
                         <div class="modal-body">
-                            <div id="map" style="width:auto;height:400px;" ></div>
-                        </div>
-                        <div class="modal-footer" style="display: block;">
-                           <div id="FlyingCargo_footer" style="display: none;">
-                               <span><?= __('נקודת איסוף מסומנת:', 'cargo') ?></span>
-                               <div id="FlyingCargo_loc_name"></div>
-                                <button type="button"
-                                        class="selected-location"
-                                        id="FlyingCargo_confirm"
-                                        data-lat=""
-                                        data-long=""
-                                        data-fullAdd=""
-                                        data-disctiPointID=""
-                                        data-pointName=""
-                                        data-city=""
-                                        data-street=""
-                                        data-streetNum=""
-                                        data-comment="" data-locationName=""><?= __('בחירה וסיום', 'cargo') ?></button>
-                            </div>
+                            <div id="map" style="width:auto;" ></div>
                         </div>
                     </div>
                 </div>
@@ -991,10 +1008,12 @@ if( !class_exists('Awsb_Shipping') ) {
                 <div class="modal-dialog" role="document" style="max-width: 700px; width: 100%;">
                     <div class="modal-content">
                         <div class="modal-header">
-                           <img src="<?php echo AWSB_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="100" style="height: 100px;">
+                            <div class="cargo-logo">
+                                <img src="<?php echo AWSB_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
+                            </div>
                             <h5 class="modal-title"><?= __('CARGO BOX - איך זה עובד', 'cargo') ?></h5>
-                            <button type="button" class="close" id="modal-close-desc" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <button type="button" class="close js-modal-close" id="modal-close-desc" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body" style="direction: rtl;">
@@ -1189,7 +1208,7 @@ if( !class_exists('Awsb_Shipping') ) {
 			register_setting('awsb_shipping_api_settings_fg', 'disable_order_status');
         }
 
-        public function misha_settings_link( $links_array ) {
+        public function cargo_settings_link( $links_array ) {
             array_unshift( $links_array, '<a href="' . admin_url( 'admin.php?page=loaction_api_settings' ) . '">' . __('Settings') . '</a>' );
             return $links_array;
         }

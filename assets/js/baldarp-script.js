@@ -154,19 +154,10 @@ function checkLocationSet(shippingMethod = '') {
         }
     }
 }
-jQuery(document).on('click','#modal-close',function () {
-    jQuery('.modal').hide();
-    if(Cookies.get('cargoPointID') == null) {
-        // jQuery('.shipping_method').each(function(){
-        //     if(jQuery(this).val().split(':')[0] != 'woo-baldarp-pickup'){
-        //         jQuery(this).trigger('click');
-        //     }   
-        // });
-    }
+jQuery(document).on('click','.js-modal-close',function () {
+    jQuery(this).closest('.modal').hide();
 });
-jQuery(document).on("click",'#modal-close-desc',function () {
-     jQuery('.descript').hide();
-});
+
 jQuery(document).on('click','#mapbutton',function(e){
     e.preventDefault();
     google.maps.event.trigger(map, 'resize');
@@ -181,22 +172,6 @@ jQuery(document).on('click','#mapbutton',function(e){
 jQuery(document).on('click','.open-how-it-works',function(){
     jQuery(".descript").show();
 });
-
-jQuery(document).on('click','.tack-order-cus',function(){
-
-    var orderID = jQuery(this).data('id');
-    var customerId = '3175';
-    jQuery.ajax({
-        type: "post",
-        url: baldarp_obj.ajaxurl,
-        data: {action:"get_order_tracking_details",orderID : orderID,customerId:customerId},
-        success: function(msg){
-            jQuery('.order-details-ajax').html(msg);       
-            jQuery('.order-tracking-model').show();
-        }
-    });
-    
-})
 
 
 jQuery(document).on('updated_checkout', function() {
@@ -541,14 +516,14 @@ function initMap() {
                 infowindow.close();
                 clearSelectedMarker();
 
-                infowindow = new google.maps.InfoWindow({content: '<div id="content'+mainJson[index].DistributionPointID+'" style="dir:rtl; text-align:right;max-width:240px;margin-right:10px;">'+
+                infowindow = new google.maps.InfoWindow({content: '<div id="content'+mainJson[index].DistributionPointID+'" style="direction:rtl;padding-left: 15px; text-align:right;max-width:240px;margin: 0;">'+
                 '<div id="siteNotice">'+
                 '</div>'+
-                '<h1 id="firstHeading" class="firstHeading"><h5>'+mainJson[index].DistributionPointName+'</h5>'+
+                '<h5 style="margin: 0;">'+mainJson[index].DistributionPointName+'</h5>'+
                 '<div id="bodyContent">'+
                 '<p>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+' </p>'+
                 '</div>'+
-                '<button type="button" class="selected-location" id="FlyingCargo_confirm" data-lat="'+mainJson[index].Latitude+'" data-long="'+mainJson[index].Longitude+'" data-fulladd="'+btoa(unescape(encodeURIComponent('<div>'+mainJson[index].DistributionPointName+'</div> <div>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+'</div>')))+'" data-disctipointid="'+mainJson[index].DistributionPointID+'" data-pointname="'+mainJson[index].DistributionPointName+'" data-city="'+mainJson[index].CityName+'" data-street="'+mainJson[index].StreetName+'" data-streetnum="'+mainJson[index].StreetNum+'" data-comment="'+mainJson[index].Comment+'" data-locationname="'+mainJson[index].DistributionPointName+'" data-cargoph="'+mainJson[index].Phone+'">בחירה וסיום</button>'+
+                '<button type="button" class="selected-location btn button wp-element-button" id="FlyingCargo_confirm" data-lat="'+mainJson[index].Latitude+'" data-long="'+mainJson[index].Longitude+'" data-fulladd="'+btoa(unescape(encodeURIComponent('<div>'+mainJson[index].DistributionPointName+'</div> <div>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+'</div>')))+'" data-disctipointid="'+mainJson[index].DistributionPointID+'" data-pointname="'+mainJson[index].DistributionPointName+'" data-city="'+mainJson[index].CityName+'" data-street="'+mainJson[index].StreetName+'" data-streetnum="'+mainJson[index].StreetNum+'" data-comment="'+mainJson[index].Comment+'" data-locationname="'+mainJson[index].DistributionPointName+'" data-cargoph="'+mainJson[index].Phone+'">בחירה וסיום</button>'+
                 '</div>' });
                 infowindow.open(map,marker);
                 const icon = {
@@ -559,22 +534,9 @@ function initMap() {
                 marker.setIcon(icon); 
                 map.setZoom(12);
                 map.setCenter(marker.getPosition());
-                // jQuery('#FlyingCargo_footer').show();
-                // jQuery("#FlyingCargo_confirm").attr("data-lat",mainJson[index].Latitude);
-                // jQuery("#FlyingCargo_confirm").attr("data-long",mainJson[index].Longitude);
-                // jQuery("#FlyingCargo_confirm").attr("data-fullAdd",btoa(unescape(encodeURIComponent('<div>'+mainJson[index].DistributionPointName+'</div> <div>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+'</div>'))));
-                // jQuery("#FlyingCargo_confirm").attr("data-disctiPointID",mainJson[index].DistributionPointID);
-                // jQuery("#FlyingCargo_confirm").attr("data-pointName",mainJson[index].DistributionPointName);
-                // jQuery("#FlyingCargo_confirm").attr("data-city",mainJson[index].CityName);
-                // jQuery("#FlyingCargo_confirm").attr("data-street",mainJson[index].StreetName);
-                // jQuery("#FlyingCargo_confirm").attr("data-streetNum",mainJson[index].StreetNum);
-                // jQuery("#FlyingCargo_confirm").attr("data-comment",mainJson[index].Comment);
-                // jQuery("#FlyingCargo_confirm").attr("data-cargoPh",mainJson[index].Phone);
-                // jQuery("#FlyingCargo_confirm").attr("data-locationName",mainJson[index].DistributionPointName);
-                // jQuery('#FlyingCargo_loc_name').html('<div>'+mainJson[index].DistributionPointName+'</div> <div>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+'</div>');
             }
         })(marker, i));
-       // console.log("Marker Array",markersArray);
+
         if(Cookies.get('cargoPointID') != null) {
             if(mainJson[index].DistributionPointID == Cookies.get('cargoPointID')) {
                 icon = {
@@ -587,11 +549,13 @@ function initMap() {
         
     })  
 }
-/*Chaneg all the maker after select */
+
+/**
+ * Change all the makers after select
+ */
 function clearSelectedMarker() {
-    //console.log(markersArray);
+
     markersArray.forEach(function(marker) {
-        //console.log('dsads');
         const icon = {
             url: jQuery('#default_markers').val(), // url
             scaledSize: new google.maps.Size(60, 60), // scaled size                       
@@ -599,7 +563,10 @@ function clearSelectedMarker() {
         marker.setIcon(icon);
     });
 }
-/*insert value after click on the confirm location*/
+
+/**
+ * insert value after click on the confirm location
+ */
 jQuery(document).on('click','#FlyingCargo_confirm',function () {
     jQuery('#FlyingCargo_loc_name').html(jQuery(this).attr("data-locationName"));
     jQuery('#selected_cargo').html(decodeURIComponent(escape(atob(jQuery(this).attr("data-fullAdd")))));
@@ -625,5 +592,4 @@ jQuery(document).on('click','#FlyingCargo_confirm',function () {
     jQuery('#selected_cargo').show();
     jQuery('.modal').hide();
     jQuery('#mapbutton').css('pointer-events','all');
-   //jQuery('#mapbutton').show();
 });
