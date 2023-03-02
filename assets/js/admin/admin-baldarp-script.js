@@ -1,6 +1,4 @@
 jQuery(document).ready(function(){
-
-
 	jQuery(document).on('click','.send-status',function(){
 		var orderId = jQuery(this).data('id');
 		var cargoDeliveryId = jQuery(this).data('deliveryid');
@@ -22,8 +20,7 @@ jQuery(document).ready(function(){
 				      	if(response.orderStatus != '') {
 				      		jQuery("#statusCargo").val(response.orderStatus).change();
 				      	}
-				   	}
-				   	else {
+				   	} else {
 				      alert("בעיה לקבל את סטטוס המשלוח");
 				   }
 				   if(orderpage == 1){
@@ -114,9 +111,6 @@ jQuery(document).ready(function(){
 			alert("יצירת התווית נכשלה");
 			return false;
 		}
-	});
-	jQuery(document).on('click','.cancel-cargo-shipping',function(){
-		alert("Sorry. We are Working on it")
 	});
 
 	jQuery('#website_name_cargo').on('keypress', function (event) {

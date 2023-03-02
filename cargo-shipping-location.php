@@ -946,6 +946,8 @@ if( !class_exists('Awsb_Shipping') ) {
 						'ajax_nonce'    => wp_create_nonce( 'awsb_shipping_nonce' ),
 					)
 				);
+
+				// TODO remove api key and use client's api key
 				wp_enqueue_script( 'baldarp-map-jquery', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyATriqvOSeSLdO-eVqCquY7dYlp6p2jAzU&language=he&libraries=places&v=weekly', null, null, true );
 				wp_enqueue_style('badarp-front-css', AWSB_URL.'assets/css/front.css');
 

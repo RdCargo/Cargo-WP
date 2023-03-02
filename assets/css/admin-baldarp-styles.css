@@ -6,21 +6,7 @@ a.btn.btn-success.send-status {
     color: white;
     border-radius: 4px;
 }
-a.btn.btn-success.cancel-cargo-shipping {
-    border: 1px solid #e9353e;
-    /* border-radius: 18px; */
-    padding: 8px 20px;
-    font-size: 10px;
-    border-radius: 4px;
-    background-color: #e9353e;
-    color: white;
-}
 
-/*#cargo_custom_box .inside label{*/
-/*    border: 1px solid;*/
-/*    padding: 6px 19px;*/
-/*    !* margin-right: 12px; *!*/
-/*}*/
 .cargo-button label{
     display: block;
 }
@@ -43,15 +29,7 @@ a.btn.btn-success.cancel-cargo-shipping {
 #cargo_custom_box .inside .cargo-button {
     margin-top: 12px;
 }
-#cargo_custom_box .cargo-button input.cancel-cargo-shipping {
-    border: 1px solid #e9353e;
-    /* border-radius: 18px; */
-    padding: 6px 26px;
-    font-size: 15px;
-    border-radius: 4px;
-    background-color: #e9353e;
-    color: white;
-}
+
 .cargo-button .label-cargo-shipping {
     border: 1px solid #e1d111;
     /* border-radius: 18px; */
