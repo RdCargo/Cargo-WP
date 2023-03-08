@@ -68,7 +68,7 @@ jQuery(document).ready(function(){
 				ToggleLoading(false);
 			   	if(response.shipmentId != "") {
 					jQuery(window).scrollTop(0);
-					jQuery('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(5000).queue(function(n) {
+					jQuery('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(500).queue(function(n) {
 						jQuery('.removeClass').hide();
 						n();
 						location.reload();
