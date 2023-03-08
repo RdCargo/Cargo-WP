@@ -43,7 +43,7 @@ if( !class_exists('Awsb_Shipping') ) {
                 add_action( 'admin_notices', array( $this, 'cargo_bulk_action_admin_notice') );
                 add_action( 'woocommerce_checkout_order_processed', array( $this, 'transfer_order_data_for_shipment' ), 10, 1);
                 add_filter( 'manage_edit-shop_order_columns', array( $this, 'add_order_delivery_status_column_header' ), 20 );
-                add_action( 'manage_shop_order_posts_custom_column', array( $this,' add_custom_column_content') );
+                add_action( 'manage_shop_order_posts_custom_column', array( $this,'add_custom_column_content') );
                 add_filter( 'post_class', array( $this, 'add_no_link_to_post_class' ) );
                 add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_shipping_info' ) );
                 add_filter( 'woocommerce_locate_template', array( $this, 'intercept_wc_template' ), 10, 3 );
@@ -106,27 +106,29 @@ if( !class_exists('Awsb_Shipping') ) {
                 && 'shop_order' === $_GET['post_type']
                 && isset($_GET['cargo_send']) ) {
 
-                $count = intval( $_REQUEST['processed_count'] );
+                $count = intval( sanitize_text_field($_REQUEST['processed_count']) );
 
 				if( isset($_REQUEST['processed_ids']) ){
-					$order_id_array = explode(",", $_REQUEST['processed_ids'] );
+					$order_id_array = explode(",", sanitize_text_field($_REQUEST['processed_ids']) );
 
-					if( $_REQUEST['old_stutus'] != ""
-					    && $_REQUEST['is_cargo'] == 1
-					    && $_REQUEST['new_status'] == 'send-cargo'
+					if( sanitize_text_field($_REQUEST['old_stutus']) != ""
+					    && sanitize_text_field($_REQUEST['is_cargo']) === '1'
+					    && sanitize_text_field($_REQUEST['new_status']) === 'send-cargo'
 					    && get_option('disable_order_status') ) {
 						foreach( $order_id_array as $key => $order_id){
 							$order = wc_get_order( $order_id );
 							$order->update_status( $_REQUEST['old_stutus']); //
 						}
+
+                       echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
+                            _n( '%s Order Sent for Shipment',
+                                '%s Orders Sent For Shipment',
+                                $count,
+                                'woocommerce'
+                            ) . '</p></div>', $count ) );
 					}
 				}
-                printf( '<div class="notice notice-success fade is-dismissible"><p>' .
-                    _n( '%s Order Sent for Shipment',
-                    '%s Orders Sent For Shipment',
-                    $count,
-                    'woocommerce'
-                ) . '</p></div>', $count );
+
             }
         }
 
@@ -139,7 +141,7 @@ if( !class_exists('Awsb_Shipping') ) {
 		}
 
 	    function get_order_tracking_details() {
-	    	if ( !isset($_POST['shipping_id']) || $_POST['shipping_id'] === '' ) {
+	    	if ( !isset($_POST['shipping_id']) || sanitize_text_field($_POST['shipping_id']) === '' ) {
 	    	    echo json_encode( array(
                     'status'    => 'fail',
                     'message'   => __('No shipping id provided. Contact support please.', 'astra-woo-cargo')
@@ -248,7 +250,7 @@ if( !class_exists('Awsb_Shipping') ) {
 				exit;
 			}
 
-	    	$order_id   = $_POST['orderId'];
+	    	$order_id   = sanitize_text_field($_POST['orderId']);
             $response = $this->createShipment($order_id, (int) $_POST['shipment_type'], (int) $_POST['double_delivery'], (int) $_POST['no_of_parcel']);
 
             echo json_encode($response);
@@ -322,15 +324,6 @@ if( !class_exists('Awsb_Shipping') ) {
 		        'show_in_admin_all_list'    => true,
 		        'show_in_admin_status_list' => true,
 		        'label_count'               => _n_noop( 'Send to CARGO <span class="count">(%s)</span>', 'Send to CARGO <span class="count">(%s)</span>' )
-		    ) );
-
-		    register_post_status( 'wc-cancel-cargo', array(
-		        'label'                     => 'Cancel to Send CARGO',
-		        'public'                    => true,
-		        'exclude_from_search'       => false,
-		        'show_in_admin_all_list'    => true,
-		        'show_in_admin_status_list' => true,
-		        'label_count'               => _n_noop( 'Cancel to Send CARGO <span class="count">(%s)</span>', 'Cancel to Send CARGO <span class="count">(%s)</span>' )
 		    ) );
 		}
 
@@ -450,7 +443,6 @@ if( !class_exists('Awsb_Shipping') ) {
          */
 		function custom_order_status( $order_statuses ) {
 		    $order_statuses['wc-send-cargo'] = _x( 'Send to CARGO', 'Order status', 'cargo' );
-		    $order_statuses['wc-cancel-cargo'] = _x( 'Cancel to Send CARGO', 'Order status', 'cargo' );
 		    return $order_statuses;
 		}
 
@@ -469,7 +461,6 @@ if( !class_exists('Awsb_Shipping') ) {
 
 		        if ('mark_processing' === $key) {
 		            $new_actions['mark_send-cargo'] = __( 'Send to CARGO', 'cargo' );
-		            $new_actions['mark_cancel-cargo'] = __( 'Cancel to Send CARGO', 'cargo' );
 		        }
 		    }
 
@@ -512,8 +503,8 @@ if( !class_exists('Awsb_Shipping') ) {
 		function getOrderStatusFromCargo() {
 			$post_data = array(
                 'deliveryId' => (int) $_POST['deliveryId'],
-                'DeliveryType' => $_POST['type'],
-                'customerCode' => $_POST['customerCode'],
+                'DeliveryType' => sanitize_text_field($_POST['type']),
+                'customerCode' => sanitize_text_field($_POST['customerCode']),
             );
 
 			$options = [
@@ -533,8 +524,8 @@ if( !class_exists('Awsb_Shipping') ) {
 			$data = (array) json_decode($arrData);
 			if ( $data['errorMsg']  == '' ) {
 				if ( (int) $data['deliveryStatus'] > 0) {
-					update_post_meta($_POST['orderId'], 'get_status_cargo', (int) $data['deliveryStatus']);
-					update_post_meta($_POST['orderId'], 'get_status_cargo_text', $data['DeliveryStatusText']);
+					update_post_meta(sanitize_text_field($_POST['orderId']), 'get_status_cargo', (int) $data['deliveryStatus']);
+					update_post_meta(sanitize_text_field($_POST['orderId']), 'get_status_cargo_text', $data['DeliveryStatusText']);
 					echo json_encode(array( "type" => "success", "data" => $data['DeliveryStatusText'], "orderStatus" => (int)$data['deliveryStatus']));
 				} else {
 					echo json_encode(array("type" => "failed","data" => 'Not Getting Data'));
@@ -575,7 +566,7 @@ if( !class_exists('Awsb_Shipping') ) {
          *
          * Add Custom Column in Admin Order List
          */
-        function add_custom_column_content( $column ) {
+        public function add_custom_column_content( $column ) {
 		    global $post;
 			$order              = wc_get_order($post->ID);
 			$shippingMethod     = @array_shift($order->get_shipping_methods());
@@ -636,13 +627,13 @@ if( !class_exists('Awsb_Shipping') ) {
         	$shipping_method_id = $shippingMethod['method_id'];
 
         	if ( $shipping_method_id === 'woo-baldarp-pickup' ) {
-    			update_post_meta( $order_id, 'DistributionPointID', $_POST['DistributionPointID'] );
-    			update_post_meta( $order_id, 'DistributionPointName', $_POST['DistributionPointName'] );
-    			update_post_meta( $order_id, 'CityName', $_POST['CityName'] );
-    			update_post_meta( $order_id, 'StreetName', $_POST['StreetName'] );
-    			update_post_meta( $order_id, 'StreetNum', $_POST['StreetNum'] );
-    			update_post_meta( $order_id, 'cargoPhone', $_POST['cargoPhone'] );
-    			update_post_meta( $order_id, 'store_comment', $_POST['Comment'] );
+    			update_post_meta( $order_id, 'DistributionPointID', sanitize_text_field($_POST['DistributionPointID']) );
+    			update_post_meta( $order_id, 'DistributionPointName', sanitize_text_field($_POST['DistributionPointName']) );
+    			update_post_meta( $order_id, 'CityName', sanitize_text_field($_POST['CityName']) );
+    			update_post_meta( $order_id, 'StreetName', sanitize_text_field($_POST['StreetName']) );
+    			update_post_meta( $order_id, 'StreetNum', sanitize_text_field($_POST['StreetNum']) );
+    			update_post_meta( $order_id, 'cargoPhone', sanitize_text_field($_POST['cargoPhone']) );
+    			update_post_meta( $order_id, 'store_comment', sanitize_text_field($_POST['Comment']) );
         	}
         }
 
@@ -874,7 +865,7 @@ if( !class_exists('Awsb_Shipping') ) {
             $chosen_method_id = reset($chosen_method_id);
 
             if ( $chosen_method_id == 'woo-baldarp-pickup' ) {
-                if ( $_POST['DistributionPointID'] == '' ) {
+                if ( sanitize_text_field($_POST['DistributionPointID']) === '' ) {
                     wc_add_notice( __( 'Please select Shipping Collection Points' ), 'error' );
                 }
             }
@@ -910,29 +901,29 @@ if( !class_exists('Awsb_Shipping') ) {
             $shippingMethod = explode(':',$_POST['shipping_method'][0]);
             if( reset($shippingMethod) == 'woo-baldarp-pickup') {
 
-                if ( $_POST['DistributionPointID'] ) {
-                    $order->update_meta_data( 'cargo_DistributionPointID', $_POST['DistributionPointID']);
+                if ( isset($_POST['DistributionPointID']) ) {
+                    $order->update_meta_data( 'cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']) );
                 }
-                if ( $_POST['DistributionPointName'] ) {
-                    $order->update_meta_data( 'cargo_DistributionPointName', $_POST['DistributionPointName']);
+                if ( isset( $_POST['DistributionPointName'] ) ) {
+                    $order->update_meta_data( 'cargo_DistributionPointName', sanitize_text_field($_POST['DistributionPointName']) );
                 }
-                if ( $_POST['CityName'] ) {
-                    $order->update_meta_data( 'cargo_CityName', $_POST['CityName']);
+                if ( isset( $_POST['CityName'] ) ) {
+                    $order->update_meta_data( 'cargo_CityName', sanitize_text_field($_POST['CityName']) );
                 }
-                if( $_POST['StreetName'] ) {
-                    $order->update_meta_data( 'cargo_StreetName', $_POST['StreetName']);
+                if( isset( $_POST['StreetName'] ) ) {
+                    $order->update_meta_data( 'cargo_StreetName', sanitize_text_field($_POST['StreetName']) );
                 }
-                if ( $_POST['StreetNum'] ) {
-                    $order->update_meta_data( 'cargo_StreetNum', $_POST['StreetNum']);
+                if ( isset( $_POST['StreetNum'] ) ) {
+                    $order->update_meta_data( 'cargo_StreetNum', sanitize_text_field($_POST['StreetNum']) );
                 }
-                if ( $_POST['Comment'] ) {
-                    $order->update_meta_data( 'cargo_Comment', $_POST['Comment'] );
+                if ( isset( $_POST['Comment'] ) ) {
+                    $order->update_meta_data( 'cargo_Comment', sanitize_text_field($_POST['Comment']) );
                 }
-                if ( $_POST['Latitude'] ) {
-                    $order->update_meta_data( 'cargo_Latitude', $_POST['Latitude']);
+                if ( isset( $_POST['Latitude'] ) ) {
+                    $order->update_meta_data( 'cargo_Latitude', sanitize_text_field($_POST['Latitude']) );
                 }
-                if ( $_POST['Longitude'] ) {
-                    $order->update_meta_data( 'cargo_Longitude', $_POST['Longitude']);
+                if ( isset( $_POST['Longitude'] ) ) {
+                    $order->update_meta_data( 'cargo_Longitude', sanitize_text_field($_POST['Longitude']) );
                 }
             }
         }
@@ -1080,29 +1071,9 @@ if( !class_exists('Awsb_Shipping') ) {
         }
 
         function cargoAPI($url, $data = []) {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_POSTFIELDS => json_encode($data),
-                CURLOPT_HTTPHEADER => array(
-                    'Content-Type: application/json'
-                ),
-            ));
-
-            $response = curl_exec($curl);
-            curl_close($curl);
-            $response = json_decode($response);
-
-            return $response;
+            $response   = wp_remote_post($url, $data);
+            $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object");
+            return json_decode($response);
         }
 
         public function awsb_after_shipping_rate( $method, $index ) {
@@ -1126,7 +1097,8 @@ if( !class_exists('Awsb_Shipping') ) {
                         <div id='selected_cargo'></div>
                     <?php elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
                         $cities = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickupCities");
-                        if ( $cities->Result === 'OK' ) {
+
+                            if ( $cities->Result === 'OK' ) {
                             ?>
                                 <p class="form-row form-row-wide">
                                     <label for="cargo_city">
