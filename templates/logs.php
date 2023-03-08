@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$OptimumOctopus = new Awsb_Shipping;
+$OptimumOctopus = new CSLFW_Shipping;
 
 $upload = wp_upload_dir();
 $upload_dir = $upload['basedir'];
@@ -38,30 +38,30 @@ if ( ! empty( $_REQUEST['log_file'] ) && isset( $result[ sanitize_title( wp_unsl
 
 
 
-$handle = ! empty( $viewed_log ) ? get_log_file_handle_op( $viewed_log ) : '';
+$handle = ! empty( $viewed_log ) ? cslfw_get_log_file_handle_op( $viewed_log ) : '';
 
 if ( ! empty( $_REQUEST['handle'] ) ) { // WPCS: input var ok, CSRF ok.
-	remove_log_op();
+	cslfw_remove_log_op();
 }
 
-function get_log_file_handle_op( $filename ) {
+function cslfw_get_log_file_handle_op( $filename ) {
 	return substr( $filename, 0, strlen( $filename ) > 48 ? strlen( $filename ) - 48 : strlen( $filename ) - 4 );
 }
 
-function remove_log_op() {
+function cslfw_remove_log_op() {
 	if ( empty( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['_wpnonce'] ), 'remove_log' ) ) { // WPCS: input var ok, sanitization ok.
 		wp_die( esc_html__( 'Action failed. Please refresh the page and retry.', 'woocommerce' ) );
 	}
 
 	if ( ! empty( $_REQUEST['handle'] ) ) {  // WPCS: input var ok.
-		remove_op( wp_unslash( $_REQUEST['handle'] ) ); // WPCS: input var ok, sanitization ok.
+		cslfw_remove_op( wp_unslash( $_REQUEST['handle'] ) ); // WPCS: input var ok, sanitization ok.
 	}
 
 	wp_safe_redirect( esc_url_raw( admin_url( 'admin.php?page=cargo_shipping_log' ) ) );
 	exit();
 }
 
-function remove_op($handle) {
+function cslfw_remove_op($handle) {
 	$upload = wp_upload_dir();
 	$upload_dir = $upload['basedir'];
 	$logs_dir = $upload_dir . '/cargo-shipping-location';
@@ -80,31 +80,29 @@ function remove_op($handle) {
 		}
 	}
 	
-	//echo "sdsdsd <pre>";print_r($result_new);exit;
 	$handle  = sanitize_title( $handle );
 	
 	if ( isset( $result_new[ $handle ] ) && $result_new[ $handle ] ) {
 		$file = realpath( trailingslashit( $logs_dir ) .'/'. $result_new[ $handle ] );
 		if ( 0 === stripos( $file, realpath( trailingslashit( $logs_dir ) ) ) && is_file( $file ) && is_writable( $file ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_is_writable
-			close_op( $file ); // Close first to be certain no processes keep it alive after it is unlinked.
+			cslfw_close_op( $file ); // Close first to be certain no processes keep it alive after it is unlinked.
 			$removed = unlink( $file ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_unlink
 		}
-		//do_action( 'woocommerce_log_remove', $handle, $removed );
 	}
 	return $removed;
 }
 
-function close_op( $handle ) {
+function cslfw_close_op( $handle ) {
 	$result = false;
 
-	if ( is_open_op( $handle ) ) {
+	if ( cslfw_is_open_op( $handle ) ) {
 		$result = fclose( $handles[ $handle ] ); // @codingStandardsIgnoreLine.
 		unset( $handles[ $handle ] );
 	}
 	return $result;
 }
 
-function is_open_op($handle) {
+function cslfw_is_open_op($handle) {
 	return array_key_exists( $handle, $handles ) && is_resource( $handles[ $handle ] );
 }
 

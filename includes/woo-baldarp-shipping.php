@@ -1,6 +1,6 @@
 <?php
-if ( !class_exists( 'Baldarp_Shipping_Method' ) ) {
-    class Baldarp_Shipping_Method extends WC_Shipping_Method {
+if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
+    class CSLFW_Shipping_Method extends WC_Shipping_Method {
 		/**
          * Constructor for your shipping class                 
          */
@@ -8,11 +8,11 @@ if ( !class_exists( 'Baldarp_Shipping_Method' ) ) {
         	
             $this->id                 = 'woo-baldarp-pickup';
             $this->instance_id 		  = absint( $instance_id );
-        	$this->method_title       = __( 'Collection From a CARGO Delivery Point', 'astra-woo-cargo' );  
-            $this->method_description = __( 'Custom Shipping Method CARGO Box For self pickup', 'astra-woo-cargo' ); 
+        	$this->method_title       = __( 'Collection From a CARGO Delivery Point', 'cargo-shipping-location-for-woocommerce' );  
+            $this->method_description = __( 'Custom Shipping Method CARGO Box For self pickup', 'cargo-shipping-location-for-woocommerce' ); 
             $this->supports           = array( 'shipping-zones','instance-settings','instance-settings-modal','settings');
 			$this->enabled            = 'yes';
-			$this->title       		  = __( 'Collection From a CARGO Delivery Point', 'astra-woo-cargo');
+			$this->title       		  = __( 'Collection From a CARGO Delivery Point', 'cargo-shipping-location-for-woocommerce');
 			$this->init();
 
 			$this->title = $this->get_option('title');
@@ -33,22 +33,22 @@ if ( !class_exists( 'Baldarp_Shipping_Method' ) ) {
 
 			$this->instance_form_fields = array(
 				'title' => array(
-					'title' => __( 'Title', 'astra-woo-cargo' ),
+					'title' => __( 'Title', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => __( 'Title to be display on site', 'astra-woo-cargo' ),
-					'default' => __( 'CARGO BOX נקודות איסוף', 'astra-woo-cargo' )
+					'description' => __( 'Title to be display on site', 'cargo-shipping-location-for-woocommerce' ),
+					'default' => __( 'CARGO BOX נקודות איסוף', 'cargo-shipping-location-for-woocommerce' )
 				),
 				'shipping_cost' => array(
-					'title' => __( 'Shipping cost', 'astra-woo-cargo' ),
+					'title' => __( 'Shipping cost', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => __( '', 'astra-woo-cargo' ),
-					'default' => __( '', 'astra-woo-cargo' )
+					'description' => __( '', 'cargo-shipping-location-for-woocommerce' ),
+					'default' => __( '', 'cargo-shipping-location-for-woocommerce' )
 				),
 				'free_shipping_amount' => array(
-					'title' => __( 'Free shipping from an amount', 'astra-woo-cargo' ),
+					'title' => __( 'Free shipping from an amount', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => __( '', 'astra-woo-cargo' ),
-					'default' => __( '', 'astra-woo-cargo' )
+					'description' => __( '', 'cargo-shipping-location-for-woocommerce' ),
+					'default' => __( '', 'cargo-shipping-location-for-woocommerce' )
 				),
 			);
 		}
