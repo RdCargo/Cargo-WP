@@ -22,7 +22,8 @@
                 if (response.deliveryStatusTime != undefined)
                     $('.order-details-ajax .delivery-status').append(', ' + response.deliveryStatusTime);
                 if ( response.errorMsg != '' ) {
-                    $('.order-details-ajax .delivery-error').text(`${response.errorMsg}`);
+                    let errorMsg = response.error_msg ? response.error_msg : response.errorMsg
+                    $('.order-details-ajax .delivery-error').text(`${errorMsg}`);
                     $('.order-details-ajax .delivery-error').show();
                 }
                 $('.order-tracking-model').show();

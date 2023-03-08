@@ -211,7 +211,7 @@ if( !class_exists('Awsb_Shipping') ) {
             $order_id           = $order->get_id();
             $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
             if ( $cargo_delivery_id )
-                echo '<a href="javascript:void(0);" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'astra-woo-cargo') . '</a>';
+                echo wp_kses_post('<a href="javascript:void(0);" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'astra-woo-cargo') . '</a>');
         }
 
 		/**
@@ -227,7 +227,7 @@ if( !class_exists('Awsb_Shipping') ) {
         	$customer_id        = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
 
 			if( $cargo_delivery_id ) {
-				echo '<a href="javascript:void(0);" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'astra-woo-cargo') . '</a>';
+				echo wp_kses_post('<a href="javascript:void(0);" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'astra-woo-cargo') . '</a>');
 			}
 		}
 
@@ -342,7 +342,7 @@ if( !class_exists('Awsb_Shipping') ) {
 				if ( $shipping_method_id == 'cargo-express' || $shipping_method_id == 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
 					add_meta_box(
 						'cargo_custom_box',
-						__( '<img src="'.AWSB_URL."assets/image/howitworks.png".'" alt="Cargo" width="100" style="width:50px;">CARGO', 'cargo' ),
+						'<img src="'.AWSB_URL."assets/image/howitworks.png".'" alt="Cargo" width="100" style="width:50px;">CARGO', 'cargo',
 						array( $this, 'render_meta_box_content' ),
 						'shop_order',
 						'side',
@@ -543,7 +543,7 @@ if( !class_exists('Awsb_Shipping') ) {
        		$cargo_shipping_id = $order->get_meta('cargo_shipping_id');
 
 		    if ( ! empty($cargo_shipping_id) ) {
-		        echo '<p><strong>'.__('מזהה משלוח', 'cargo').':</strong> ' . $cargo_shipping_id . '</p>';
+		        echo wp_kses_post('<p><strong>'.__('מזהה משלוח', 'cargo').':</strong> ' . $cargo_shipping_id . '</p>');
 		    }
        	}
 
@@ -1071,9 +1071,42 @@ if( !class_exists('Awsb_Shipping') ) {
         }
 
         function cargoAPI($url, $data = []) {
-            $response   = wp_remote_post($url, $data);
+//            $curl = curl_init();
+//            curl_setopt_array($curl, array(
+//                CURLOPT_URL => $url,
+//                CURLOPT_RETURNTRANSFER => true,
+//                CURLOPT_ENCODING => '',
+//                CURLOPT_MAXREDIRS => 10,
+//                CURLOPT_TIMEOUT => 0,
+//                CURLOPT_FOLLOWLOCATION => true,
+//                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//                CURLOPT_CUSTOMREQUEST => 'POST',
+//                CURLOPT_SSL_VERIFYHOST => 0,
+//                CURLOPT_SSL_VERIFYPEER => 0,
+//                CURLOPT_POSTFIELDS => json_encode($data),
+//                CURLOPT_HTTPHEADER => array(
+//                    'Content-Type: application/json'
+//                ),
+//            ));
+//
+//            $response = curl_exec($curl);
+//            curl_close($curl);
+//            $response = json_decode($response);
+            $args = array(
+                'method'      => 'POST',
+                'timeout'     => 45,
+//                'redirection' => 5,
+                'httpversion' => '1.1',
+                'blocking'    => true,
+                'headers'     => array(),
+                'body'        => json_encode($data),
+                'headers' => array(
+                    'Content-Type: application/json'
+                ),
+            );
+            $response   = wp_remote_post($url, $args);
             $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object");
-            return json_decode($response);
+            return json_decode( $response );
         }
 
         public function awsb_after_shipping_rate( $method, $index ) {
