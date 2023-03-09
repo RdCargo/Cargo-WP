@@ -14,53 +14,6 @@ $cslfw_shipping = new CSLFW_Shipping;
 		<form method="post" action="options.php" id="seting_cargo">
 			<?php settings_fields( 'cslfw_shipping_api_settings_fg' ); ?>
 			<table>
-				<tr class="no-need">
-					<th scope="row" align="left" ><label for="shipping_api_username"><?php _e('Username: ', 'cargo-shipping-location-for-woocommerce') ?></label></th>
-					<td >
-						<div style="display: inline-block; margin-right: 15px;" class="text">
-							<label for="shipping_api_username" style="vertical-align: top;">
-                                <input type="text"
-                                       id="shipping_api_username"
-                                       name="shipping_api_username"
-                                       value="<?php echo esc_attr( get_option('shipping_api_username') )?>"
-                                       placeholder="<?php _e('Please Insert Username', 'cargo-shipping-location-for-woocommerce') ?>"/>
-                            </label>
-						</div>
-					</td>
-				</tr>
-
-				<tr class="no-need">
-					<th scope="row" align="left" ><label for="shipping_api_pwd"><?php _e('Password: ', 'cargo-shipping-location-for-woocommerce') ?></label></th>
-					<td >
-						<div style="display: inline-block; margin-right: 15px;" class="text">
-							<label for="shipping_api_pwd" style="vertical-align: top;">
-                                <input type="text"
-                                       placeholder="<?php _e('Please Insert Password', 'cargo-shipping-location-for-woocommerce') ?>"
-                                       id="shipping_api_pwd"
-                                       name="shipping_api_pwd"
-                                       value="<?php echo esc_attr( get_option('shipping_api_pwd') ) ?>" />
-                            </label>
-						</div>
-					</td>
-				</tr>
-
-				<tr class="no-need">
-					<th scope="row" align="left" ><label for="shipping_api_int1">Int1 : </label></th>
-					<td >
-						<div style="display: inline-block; margin-right: 15px;" class="text">
-							<label for="shipping_api_int1" style="vertical-align: top;">
-                                <input type="number"
-                                       pattern="[0-9]"
-                                       oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                       maxlength="6"
-                                       placeholder="Please Insert Int1"
-                                       id="shipping_api_int1"
-                                       name="shipping_api_int1"
-                                       value="<?php echo esc_attr( get_option('shipping_api_int1') ) ?>" />
-                            </label>
-						</div>
-					</td>
-				</tr>
 
 				<tr>
 					<th scope="row" align="left" >
@@ -112,44 +65,27 @@ $cslfw_shipping = new CSLFW_Shipping;
                                 ?>
                                 <select name="cargo_box_style">
                                     <?php foreach ( $cargo_box_style_options as $key => $value ) : ?>
-                                    <option value="<?php echo $key ?>" <?php if ($key === $cargo_box_style) echo esc_attr('selected="selected"'); ?>><?php echo $value ?></option>
+                                    <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cargo_box_style) echo esc_attr('selected="selected"'); ?>><?php echo $value ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </label>
                             <p style="margin-top: 0;">Automatic choice will choose closest pickup point automatically from customer address.</p>
+
                         </div>
                     </td>
                 </tr>
-				
-				<tr class="no-need">
+				<tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' ? 'table-row' : 'none' ?>">
 					<th scope="row" align="left" >
-                        <label for="cargo_consumer_key"><?php _e('Consumer Key:', 'cargo-shipping-location-for-woocommerce') ?></label>
+                        <label for="cslfw-google-api-key"><?php _e('Google maps API key:', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">
-							<label for="cargo_consumer_key" style="vertical-align: top;">
+							<label for="cslfw_google_api_key" style="vertical-align: top;">
                                 <input type="text"
-                                       placeholder="<?php _e('Please Insert Consumer Key', 'cargo-shipping-location-for-woocommerce') ?>"
-                                       id="cargo_consumer_key"
-                                       name="cargo_consumer_key"
-                                       value="<?php echo esc_attr( get_option('cargo_consumer_key') )?>" />
-                            </label>
-						</div>
-					</td>
-				</tr>
-
-				<tr class="no-need">
-					<th scope="row" align="left" >
-                        <label for="cargo_consumer_secret_key"><?php _e('Consumer Secret Key:', 'cargo-shipping-location-for-woocommerce') ?></label>
-                    </th>
-					<td >
-						<div style="display: inline-block; margin-right: 15px;" class="text">
-							<label for="cargo_consumer_secret_key" style="vertical-align: top;">
-                                <input type="text"
-                                       placeholder="<?php _e('Please Insert Consumer Secret key', 'cargo-shipping-location-for-woocommerce') ?>"
-                                       id="cargo_consumer_secret_key"
-                                       name="cargo_consumer_secret_key"
-                                       value="<?php echo esc_attr( get_option('cargo_consumer_secret_key') ) ?>" />
+                                       placeholder="<?php _e('Please Google maps API key', 'cargo-shipping-location-for-woocommerce') ?>"
+                                       id="cslfw_google_api_key"
+                                       name="cslfw_google_api_key"
+                                       value="<?php echo esc_attr( get_option('cslfw_google_api_key') )?>" />
                             </label>
 						</div>
 					</td>
@@ -316,7 +252,7 @@ $cslfw_shipping = new CSLFW_Shipping;
 									foreach (wc_get_order_statuses() as $key => $value) {
 										$selected = get_option('cargo_order_status') == $key ? 'selected' : '';
 										?>
-										<option value="<?php echo $key ?>" <?php echo $selected ?>><?php echo $value ?></option>
+										<option value="<?php echo esc_attr($key) ?>" <?php echo $selected ?>><?php echo esc_html($value) ?></option>
 										<?php
 									}
 									?>

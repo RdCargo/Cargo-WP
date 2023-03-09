@@ -114,7 +114,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 					    && get_option('disable_order_status') ) {
 						foreach( $order_id_array as $key => $order_id){
 							$order = wc_get_order( $order_id );
-							$order->update_status( $_REQUEST['old_stutus']); //
+							$order->update_status( sanitize_text_field($_REQUEST['old_stutus']) ); //
 						}
 
                        echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
@@ -248,7 +248,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 			}
 
 	    	$order_id   = sanitize_text_field($_POST['orderId']);
-            $response = $this->createShipment($order_id, (int) $_POST['shipment_type'], (int) $_POST['double_delivery'], (int) $_POST['no_of_parcel']);
+            $response = $this->createShipment($order_id, (int) sanitize_text_field($_POST['shipment_type']), (int) sanitize_text_field($_POST['double_delivery']), (int) sanitize_text_field($_POST['no_of_parcel']) );
 
             echo json_encode($response);
 			exit();
@@ -398,14 +398,14 @@ if( !class_exists('CSLFW_Shipping') ) {
 				<div class="cargo-button">
 					<a href="#"
                        class="submit-cargo-shipping"
-                       data-id="<?php echo $post->ID; ?>"><?php _e('שלח ל CARGO', 'cargo-shipping-location-for-woocommerce') ?></a>
+                       data-id="<?php echo esc_attr($post->ID); ?>"><?php _e('שלח ל CARGO', 'cargo-shipping-location-for-woocommerce') ?></a>
 				</div>
 
                 <?php endif; ?>
 
                 <div class="cargo-button">
 				<?php if ( $value ) : ?>
-                    <a href="#" class="label-cargo-shipping"  data-id="<?php echo $value; ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
+                    <a href="#" class="label-cargo-shipping"  data-id="<?php echo esc_attr($value); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
 				<?php endif ?>
 				</div>
 
@@ -469,7 +469,7 @@ if( !class_exists('CSLFW_Shipping') ) {
          */
 		function get_shipment_label() {
 			$options = [
-				'body'        => wp_json_encode( array( 'deliveryId' => (int) $_POST['shipmentId'] ) ),
+				'body'        => wp_json_encode( array( 'deliveryId' => (int) sanitize_text_field($_POST['shipmentId']) ) ),
 				'headers'     => [
 					'Content-Type' => 'application/json',
 				],
@@ -499,7 +499,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 		*/
 		function getOrderStatusFromCargo() {
 			$post_data = array(
-                'deliveryId' => (int) $_POST['deliveryId'],
+                'deliveryId' => (int) sanitize_text_field($_POST['deliveryId']),
                 'DeliveryType' => sanitize_text_field($_POST['type']),
                 'customerCode' => sanitize_text_field($_POST['customerCode']),
             );
@@ -895,7 +895,7 @@ if( !class_exists('CSLFW_Shipping') ) {
          */
         public function custom_checkout_field_update_order_meta($order_id){
             $order = wc_get_order( $order_id );
-            $shippingMethod = explode(':',$_POST['shipping_method'][0]);
+            $shippingMethod = explode(':', sanitize_text_field($_POST['shipping_method'][0]) );
             if( reset($shippingMethod) == 'woo-baldarp-pickup') {
 
                 if ( isset($_POST['DistributionPointID']) ) {
@@ -935,8 +935,10 @@ if( !class_exists('CSLFW_Shipping') ) {
 					)
 				);
 
-				// TODO remove api key and use client's api key
-				wp_enqueue_script( 'baldarp-map-jquery', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyATriqvOSeSLdO-eVqCquY7dYlp6p2jAzU&language=he&libraries=places&v=weekly', null, null, true );
+                if ( get_option('cslfw_google_api_key') ) {
+                    $maps_key = get_option('cslfw_google_api_key');
+                    wp_enqueue_script( 'baldarp-map-jquery', "https://maps.googleapis.com/maps/api/js?key=$maps_key&language=he&libraries=places&v=weekly", null, null, true );
+                }
 				wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css');
 
 				if ( get_option('bootstrap_enalble') == 1 ) {
@@ -1117,8 +1119,8 @@ if( !class_exists('CSLFW_Shipping') ) {
                 return;
             } else {
                 if ( $chosen_method_ids == 'woo-baldarp-pickup') {
-                    $pointId    = $_COOKIE['cargoPointID'] ?? '';
-                    $city       = $_COOKIE['CargoCityName'] ?? '';
+                    $pointId    = isset($_COOKIE['cargoPointID']) ? sanitize_text_field($_COOKIE['cargoPointID']) : '';
+                    $city       = isset($_COOKIE['CargoCityName']) ? sanitize_text_field($_COOKIE['CargoCityName']) : '';
                     $cargo_box_style = get_option('cargo_box_style');
                     ?>
                     <div class="cargo-map-wrap">
@@ -1137,7 +1139,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 
                                     <select name="cargo_city" id="cargo_city" class="select2">
                                         <?php foreach ($cities->PointsDetails as $key => $value) : ?>
-                                            <option value="<?php echo $value->CityName ?>" <?php if ($city === $value->CityName) echo 'selected="selected"'; ?>><?php echo $value->CityName ?></option>
+                                            <option value="<?php echo esc_attr($value->CityName) ?>" <?php if ($city === $value->CityName) echo 'selected="selected"'; ?>><?php echo esc_html($value->CityName) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </p>
@@ -1151,8 +1153,8 @@ if( !class_exists('CSLFW_Shipping') ) {
 
                                     <select name="cargo_pickup_point" id="cargo_pickup_point" class="select2 w-100">
                                         <?php foreach ($points->PointsDetails as $key => $value) : ?>
-                                            <option value="<?php echo $value->DistributionPointID ?>" <?php if ($pointId === $value->DistributionPointID) echo 'selected="selected"' ?>>
-                                                <?php echo $value->DistributionPointName ?>, <?php echo $value->StreetName ?> <?php echo $value->StreetNum ?>
+                                            <option value="<?php echo esc_attr($value->DistributionPointID) ?>" <?php if ($pointId === $value->DistributionPointID) echo 'selected="selected"' ?>>
+                                                <?php echo esc_html($value->DistributionPointName) ?>, <?php echo esc_html($value->StreetName) ?> <?php echo esc_html($value->StreetNum) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -1165,15 +1167,15 @@ if( !class_exists('CSLFW_Shipping') ) {
                             $chosen_point = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickUpPoints", array('pointId' => $pointId));
                             $chosen_point = $chosen_point->PointsDetails[0];
                         ?>
-                        <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?php echo $chosen_point->DistributionPointID ?>' >
-                        <input type='hidden' id='DistributionPointName' name='DistributionPointName' value='<?php echo $chosen_point->DistributionPointName ?>'>
-                        <input type='hidden' id='CityName' name='CityName' value='<?php echo $chosen_point->CityName ?>'>
-                        <input type='hidden' id='StreetName' name='StreetName' value='<?php echo $chosen_point->StreetName ?>'>
-                        <input type='hidden' id='StreetNum' name='StreetNum' value='<?php echo $chosen_point->StreetNum ?>'>
-                        <input type='hidden' id='Comment' name='Comment' value='<?php echo $chosen_point->Comment ?>' >
-                        <input type='hidden' id='cargoPhone' name='cargoPhone' value='<?php echo $chosen_point->Phone ?>' >
-                        <input type='hidden' id='Latitude' name='Latitude' value='<?php echo $chosen_point->Latitude ?>' >
-                        <input type='hidden' id='Longitude' name='Longitude' value='<?php echo $chosen_point->Longitude ?>'>
+                        <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?php echo esc_attr( $chosen_point->DistributionPointID )?>'>
+                        <input type='hidden' id='DistributionPointName' name='DistributionPointName' value='<?php echo esc_attr( $chosen_point->DistributionPointName ) ?>'>
+                        <input type='hidden' id='CityName' name='CityName' value='<?php echo esc_attr( $chosen_point->CityName ) ?>'>
+                        <input type='hidden' id='StreetName' name='StreetName' value='<?php echo esc_attr( $chosen_point->StreetName ) ?>'>
+                        <input type='hidden' id='StreetNum' name='StreetNum' value='<?php echo esc_attr( $chosen_point->StreetNum ) ?>'>
+                        <input type='hidden' id='Comment' name='Comment' value='<?php echo esc_attr( $chosen_point->Comment )?>'>
+                        <input type='hidden' id='cargoPhone' name='cargoPhone' value='<?php echo esc_attr( $chosen_point->Phone )?>'>
+                        <input type='hidden' id='Latitude' name='Latitude' value='<?php echo esc_attr( $chosen_point->Latitude )?>'>
+                        <input type='hidden' id='Longitude' name='Longitude' value='<?php echo esc_attr( $chosen_point->Longitude ) ?>'>
                     </div>
                      <?php
                 }
@@ -1192,13 +1194,8 @@ if( !class_exists('CSLFW_Shipping') ) {
         }
 
         public function cslfw_shipping_api_settings_init() {
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_api_username');
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_api_pwd');
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_api_int1');
             register_setting('cslfw_shipping_api_settings_fg', 'cargo_order_status');
-            register_setting('cslfw_shipping_api_settings_fg', 'cargo_consumer_key');
-            register_setting('cslfw_shipping_api_settings_fg', 'cargo_consumer_secret_key');
-            register_setting('cslfw_shipping_api_settings_fg', 'cargo_google_api_key');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_google_api_key');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_box');
             register_setting('cslfw_shipping_api_settings_fg', 'from_street');
@@ -1235,13 +1232,8 @@ if( !class_exists('CSLFW_Shipping') ) {
         public function cslfw_uninstall() {
             //flush permalinks
 			flush_rewrite_rules();
-            delete_option('shipping_api_username');
-            delete_option('shipping_api_pwd');
-            delete_option('shipping_api_int1');
             delete_option('cargo_order_status');
-            delete_option('cargo_consumer_key');
-            delete_option('cargo_consumer_secret_key');
-            delete_option('cargo_google_api_key');
+            delete_option('cslfw_google_api_key');
             delete_option('shipping_cargo_express');
             delete_option('shipping_cargo_box');
             delete_option('website_name_cargo');

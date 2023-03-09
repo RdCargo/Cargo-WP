@@ -10,11 +10,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  */
 function single_uninstall() {
 	$options_to_delete = array(
-		'shipping_api_username',
-		'shipping_api_pwd',
-		'shipping_api_int1',
 		'cargo_order_status',
-		'cargo_consumer_key',
 		'cargo_consumer_secret_key',
 		'cargo_google_api_key',
 	);
