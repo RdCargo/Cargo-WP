@@ -8,7 +8,8 @@
 	})
 
 	$(document).ready(function(){
-		$(document).on('click','.send-status',function(){
+		$(document).on('click','.send-status',function(e){
+			e.preventDefault();
 			var orderId = $(this).data('id');
 			var cargoDeliveryId = $(this).data('deliveryid');
 			var CargoCustomerCode = $(this).data('customercode');

@@ -62,7 +62,7 @@ defined( 'ABSPATH' ) || exit;
 
 				<li class="woocommerce-order-overview__total total">
 					<?php esc_html_e( 'Total:', 'woocommerce' ); ?>
-					<strong><?php echo esc_html($order->get_formatted_order_total()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
+					<strong><?php echo wp_kses_post($order->get_formatted_order_total() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
 				</li>
 
 				<?php if ( $order->get_payment_method_title() ) : ?>
@@ -78,10 +78,6 @@ defined( 'ABSPATH' ) || exit;
 						<strong><?php echo esc_html($order->get_meta('cargo_shipping_id')); ?></strong>
 					</li>
 				<?php endif; ?>
-				<li class="woocommerce-order-overview__payment-method method">
-					<?php esc_html_e( 'Delivery IDsss :', 'woocommerce' ); ?>
-					<strong>123456</strong>
-				</li>
 			</ul>
 
 		<?php endif; ?>

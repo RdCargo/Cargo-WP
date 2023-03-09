@@ -364,11 +364,7 @@ if( !class_exists('CSLFW_Shipping') ) {
         	$shipping_method_id = $shippingMethod['method_id'];
 
 			if( $shipping_method_id == 'cargo-express' || $shipping_method_id == 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
-				?>
-                <div class="cargo-button">
-					<a href="javascript:void(0);" class="edit-address-cargo btn"><?php _e( 'בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce' ); ?></a>
-                </div>
-                <?php if ( !$value ) : ?>
+                if ( !$value ) : ?>
                 <div class="cargo-button">
                     <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
                     <label for="cargo_double-delivery">
@@ -414,7 +410,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                         $customerCode       = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
                         $type               = $shipping_method_id == 'woo-baldarp-pickup' ? "BOX" : "EXPRESS";
                         if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
-                            echo wp_kses_post("<a href='javascript:void(0);' class='btn btn-success send-status' data-orderlist='0' data-id=".$post->ID." data-customerCode=".$customerCode." data-type=".$type." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true).">בקש סטטוס משלוח</a>");
+                            echo wp_kses_post("<a href='#' class='btn btn-success send-status' data-orderlist='0' data-id=".$post->ID." data-customerCode=".$customerCode." data-type=".$type." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true).">בקש סטטוס משלוח</a>");
                         }
 					?>
 				</div>
@@ -424,7 +420,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 						<h2 style="padding:0;">
 						    <strong><?php echo wp_kses_post( get_post_meta($post->ID,'DistributionPointName',TRUE) ) ?></strong>
 						</h2>
-						<h4 style="margin:0;"><?php echo wp_kses_post(get_post_meta($post->ID,'StreetNum', TRUE).' '.get_post_meta($post->ID,'StreetName',TRUE).' '.get_post_meta($post->ID,'CityName',TRUE) ) ?></h4>
+						<h4 style="margin:0;"><?php echo wp_kses_post( get_post_meta($post->ID,'StreetNum', TRUE).' '.get_post_meta( $post->ID,'StreetName',TRUE).' '.get_post_meta($post->ID,'CityName',TRUE) ) ?></h4>
 						<h4 style="margin:0;"><?php echo wp_kses_post( get_post_meta($post->ID,'store_comment', TRUE) ) ?></h4>
 						<h3 style="margin:0;"><?php echo wp_kses_post( get_post_meta($post->ID,'cargoPhone',TRUE) ) ?></h3>
 					</div>
