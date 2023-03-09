@@ -208,7 +208,7 @@ if( !class_exists('CSLFW_Shipping') ) {
             $order_id           = $order->get_id();
             $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
             if ( $cargo_delivery_id )
-                echo wp_kses_post('<a href="javascript:void(0);" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
         }
 
 		/**
@@ -224,7 +224,7 @@ if( !class_exists('CSLFW_Shipping') ) {
         	$customer_id        = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
 
 			if( $cargo_delivery_id ) {
-				echo wp_kses_post('<a href="javascript:void(0);" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+				echo wp_kses_post('<a href="#" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
 			}
 		}
 
@@ -572,18 +572,18 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 					if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
                         if ( get_post_meta($post->ID, 'get_status_cargo', true) ) {
-                            echo '<p>Status - ' . get_post_meta($post->ID, 'get_status_cargo_text', true) . '</p>';
+                            echo wp_kses_post('<p>Status - ' . get_post_meta($post->ID, 'get_status_cargo_text', true) . '</p>');
                         }
-						echo "<a href='javascript:void(0);' class='btn btn-success send-status' data-orderlist='1' data-id=".$post->ID." data-customerCode=".$customerCode."  data-type=".$type." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true)."> בדוק מצב הזמנה</a>";
+						echo wp_kses_post("<a href='#' class='btn btn-success send-status' data-orderlist='1' data-id=".$post->ID." data-customerCode=".$customerCode."  data-type=".$type." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true)."> בדוק מצב הזמנה</a>");
 					}
 				}
 
 				if ( 'send_to_cargo' === $column ) {
 					if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
-                            echo "<p>". get_post_meta($post->ID, 'cargo_shipping_id',true). "</p>";
-                            echo '<a  href="javascript:void(0)" class="btn btn-success label-cargo-shipping" data-id="'.get_post_meta($post->ID,'cargo_shipping_id',true).'">הדפס תווית</a>';
+                            echo wp_kses_post("<p>". get_post_meta($post->ID, 'cargo_shipping_id',true). "</p>");
+                            echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-id="'.get_post_meta($post->ID,'cargo_shipping_id',true).'">הדפס תווית</a>');
                         } else {
-						echo "<a href='javascript:void(0);' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>";
+						echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>");
 					}
 				}
 			}
