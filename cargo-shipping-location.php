@@ -856,8 +856,9 @@ if( !class_exists('CSLFW_Shipping') ) {
             $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
             $chosen_method_id = explode(':', $chosen_shipping_methods[0]);
             $chosen_method_id = reset($chosen_method_id);
+            $cargo_box_style = get_option('cargo_box_style');
 
-            if ( $chosen_method_id == 'woo-baldarp-pickup' ) {
+            if ( $chosen_method_id === 'woo-baldarp-pickup' && $cargo_box_style !== 'cargo_automatic') {
                 if ( sanitize_text_field($_POST['DistributionPointID']) === '' ) {
                     wc_add_notice( __( 'Please select Shipping Collection Points' ), 'error' );
                 }
@@ -1157,21 +1158,23 @@ if( !class_exists('CSLFW_Shipping') ) {
                                 </p>
 
                             <?php } ?>
-                        <?php else : ?>
+                    <?php else : ?>
                     <?php endif; ?>
                         <?php
                             $chosen_point = $this->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", array('pointId' => $pointId));
                             $chosen_point = $chosen_point->PointsDetails[0];
+                            if ($cargo_box_style !== 'cargo_automatic') :
                         ?>
-                        <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?php echo esc_attr( $chosen_point->DistributionPointID )?>'>
-                        <input type='hidden' id='DistributionPointName' name='DistributionPointName' value='<?php echo esc_attr( $chosen_point->DistributionPointName ) ?>'>
-                        <input type='hidden' id='CityName' name='CityName' value='<?php echo esc_attr( $chosen_point->CityName ) ?>'>
-                        <input type='hidden' id='StreetName' name='StreetName' value='<?php echo esc_attr( $chosen_point->StreetName ) ?>'>
-                        <input type='hidden' id='StreetNum' name='StreetNum' value='<?php echo esc_attr( $chosen_point->StreetNum ) ?>'>
-                        <input type='hidden' id='Comment' name='Comment' value='<?php echo esc_attr( $chosen_point->Comment )?>'>
-                        <input type='hidden' id='cargoPhone' name='cargoPhone' value='<?php echo esc_attr( $chosen_point->Phone )?>'>
-                        <input type='hidden' id='Latitude' name='Latitude' value='<?php echo esc_attr( $chosen_point->Latitude )?>'>
-                        <input type='hidden' id='Longitude' name='Longitude' value='<?php echo esc_attr( $chosen_point->Longitude ) ?>'>
+                            <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?php echo esc_attr( $chosen_point->DistributionPointID )?>'>
+                            <input type='hidden' id='DistributionPointName' name='DistributionPointName' value='<?php echo esc_attr( $chosen_point->DistributionPointName ) ?>'>
+                            <input type='hidden' id='CityName' name='CityName' value='<?php echo esc_attr( $chosen_point->CityName ) ?>'>
+                            <input type='hidden' id='StreetName' name='StreetName' value='<?php echo esc_attr( $chosen_point->StreetName ) ?>'>
+                            <input type='hidden' id='StreetNum' name='StreetNum' value='<?php echo esc_attr( $chosen_point->StreetNum ) ?>'>
+                            <input type='hidden' id='Comment' name='Comment' value='<?php echo esc_attr( $chosen_point->Comment )?>'>
+                            <input type='hidden' id='cargoPhone' name='cargoPhone' value='<?php echo esc_attr( $chosen_point->Phone )?>'>
+                            <input type='hidden' id='Latitude' name='Latitude' value='<?php echo esc_attr( $chosen_point->Latitude )?>'>
+                            <input type='hidden' id='Longitude' name='Longitude' value='<?php echo esc_attr( $chosen_point->Longitude ) ?>'>
+                        <?php endif; ?>
                     </div>
                      <?php
                 }
