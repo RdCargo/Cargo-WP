@@ -1124,7 +1124,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <a class='baldrap-btn btn button wp-element-button' id='mapbutton'><?php _e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?></a>
                         <div id='selected_cargo'></div>
                     <?php elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
-                        $cities = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickupCities");
+                        $cities = $this->cargoAPI("https://api.carg0.co.il/Webservice/getPickupCities");
 
                             if ( $cities->Result === 'OK' ) {
                             ?>
@@ -1140,7 +1140,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                                     </select>
                                 </p>
                             <?php
-                                $points = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickUpPoints", array('city' => $city));
+                                $points = $this->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", array('city' => $city));
                             ?>
                                 <p class="form-row form-row-wide">
                                     <label for="cargo_pickup_point">
@@ -1160,7 +1160,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <?php else : ?>
                     <?php endif; ?>
                         <?php
-                            $chosen_point = $this->cargoAPI("http://cargomainapi.loc/Webservice/getPickUpPoints", array('pointId' => $pointId));
+                            $chosen_point = $this->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", array('pointId' => $pointId));
                             $chosen_point = $chosen_point->PointsDetails[0];
                         ?>
                         <input type='hidden' id='DistributionPointID' name='DistributionPointID' value='<?php echo esc_attr( $chosen_point->DistributionPointID )?>'>
