@@ -71,11 +71,14 @@ defined( 'ABSPATH' ) || exit;
 						<strong><?php echo wp_kses_post( $order->get_payment_method_title() ); ?></strong>
 					</li>
 				<?php endif; ?>
-				<?php $deliveryId = $order->get_meta('cargo_shipping_id'); ?>
+				<?php
+                    $deliveryId = $order->get_meta('cargo_shipping_id');
+                    $deliveryId = is_array($deliveryId) ? implode(',', $deliveryId) : '';
+				?>
 				<?php if ( ! empty($deliveryId) ) : ?>
 					<li class="woocommerce-order-overview__payment-method method">
 						<?php esc_html_e( 'Delivery ID :', 'woocommerce' ); ?>
-						<strong><?php echo esc_html($order->get_meta('cargo_shipping_id')); ?></strong>
+						<strong><?php echo esc_html($deliveryId); ?></strong>
 					</li>
 				<?php endif; ?>
 			</ul>

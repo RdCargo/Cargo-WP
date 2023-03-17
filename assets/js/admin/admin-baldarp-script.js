@@ -64,10 +64,9 @@
 			e.preventDefault();
 			let orderID = $(this).data('id');
 			let doubleDelivery = $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1;
-			let shipmentType = $('input[name="cargo_shipment_type"]:checked').val();
-			let noOfParcel = $('input[name="cargo_shipment_type"]:checked').val();
-			console.log(doubleDelivery);
-			console.log(shipmentType);
+			let shipmentType = $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]').val() : 1;
+			let noOfParcel = $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0;
+
 			ToggleLoading(true);
 			$.ajax({
 				type : "post",
@@ -104,6 +103,7 @@
 		$(document).on('click','.label-cargo-shipping',function(e){
 			e.preventDefault();
 			var shipmentId = $(this).data('id');
+			console.log(shipmentId);
 			if(shipmentId){
 				ToggleLoading(true);
 				$.ajax({
@@ -112,6 +112,7 @@
 					url : admin_cargo_obj.ajaxurl,
 					data : {action: "get_shipment_label", shipmentId : shipmentId},
 					success: function(response) {
+						console.log(response);
 						ToggleLoading(false);
 						if(response.pdfLink != "") {
 							window.open(response.pdfLink, '_blank');
@@ -119,10 +120,6 @@
 						else {
 						  alert(response.error_msg);
 						}
-					   if(orderpage == 1){
-							location.reload();
-					   }
-
 					}
 				});
 			}else{

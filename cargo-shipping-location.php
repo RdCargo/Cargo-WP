@@ -208,7 +208,13 @@ if( !class_exists('CSLFW_Shipping') ) {
             $order_id           = $order->get_id();
             $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
             if ( $cargo_delivery_id )
-                echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                if ( is_array($cargo_delivery_id) ) {
+                    foreach($cargo_delivery_id as $key => $value) {
+                        echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $value .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                    }
+                } else {
+                    echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                }
         }
 
 		/**
@@ -219,12 +225,15 @@ if( !class_exists('CSLFW_Shipping') ) {
 		function add_account_orders_column_rows( $order ) {
 			$order_id           = $order->get_id();
 			$cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
-			$shippingMethod     = @array_shift($order->get_shipping_methods());
-        	$shipping_method_id = $shippingMethod['method_id'];
-        	$customer_id        = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
 
 			if( $cargo_delivery_id ) {
-				echo wp_kses_post('<a href="#" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+			    if (is_array($cargo_delivery_id)) {
+			        foreach ( $cargo_delivery_id as $key => $value ) {
+                        echo wp_kses_post('<a href="#" class="btn woocommerce-button js-cargo-track" data-delivery="' . $value . '">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                    }
+                } else {
+                    echo wp_kses_post('<a href="#" class="btn woocommerce-button js-cargo-track" data-delivery="' . $cargo_delivery_id . '">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                }
 			}
 		}
 
@@ -248,6 +257,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 			}
 
 	    	$order_id   = sanitize_text_field($_POST['orderId']);
+
             $response = $this->createShipment($order_id, (int) sanitize_text_field($_POST['shipment_type']), (int) sanitize_text_field($_POST['double_delivery']), (int) sanitize_text_field($_POST['no_of_parcel']) );
 
             echo json_encode($response);
@@ -358,13 +368,13 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 	    public function render_meta_box_content( $post ) {
 	        // Use get_post_meta to retrieve an existing value from the database.
-	        $value = get_post_meta( $post->ID, 'cargo_shipping_id', true );
+            $cargo_shipping_id = get_post_meta( $post->ID, 'cargo_shipping_id', true );
 	 		$order = wc_get_order($post->ID);
 		    $shippingMethod = @array_shift($order->get_shipping_methods());
         	$shipping_method_id = $shippingMethod['method_id'];
 
 			if( $shipping_method_id == 'cargo-express' || $shipping_method_id == 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
-                if ( !$value ) : ?>
+                if ( !$cargo_shipping_id ) : ?>
                 <div class="cargo-button">
                     <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
                     <label for="cargo_double-delivery">
@@ -397,20 +407,30 @@ if( !class_exists('CSLFW_Shipping') ) {
                        data-id="<?php echo esc_attr($post->ID); ?>"><?php _e('שלח ל CARGO', 'cargo-shipping-location-for-woocommerce') ?></a>
 				</div>
 
+                <?php else :
+                    $cargo_shipping_id = is_array($cargo_shipping_id) ? implode(',', $cargo_shipping_id) : $cargo_shipping_id;
+                ?>
+                    <div class="cargo-button">
+                        <div><strong><?php _e('Shipping ID\'s: ', 'cargo-shipping-location-for-woocommerce' ) ?></strong><?php echo esc_html($cargo_shipping_id) ?></div>
+                        <a href="#" class="label-cargo-shipping"  data-id="<?php echo esc_attr($cargo_shipping_id); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
+                    </div>
                 <?php endif; ?>
 
-                <div class="cargo-button">
-				<?php if ( $value ) : ?>
-                    <a href="#" class="label-cargo-shipping"  data-id="<?php echo esc_attr($value); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
-				<?php endif ?>
-				</div>
+
 
 				<div class="checkstatus-section">
 					<?php
                         $customerCode       = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
                         $type               = $shipping_method_id == 'woo-baldarp-pickup' ? "BOX" : "EXPRESS";
-                        if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
-                            echo wp_kses_post("<a href='#' class='btn btn-success send-status' data-orderlist='0' data-id=".$post->ID." data-customerCode=".$customerCode." data-type=".$type." data-deliveryId=".get_post_meta($post->ID,'cargo_shipping_id',true).">בקש סטטוס משלוח</a>");
+                        $cargo_shipping_id = get_post_meta( $post->ID, 'cargo_shipping_id', true );
+                        if ( $cargo_shipping_id ) {
+                            if ( is_array($cargo_shipping_id) ) {
+                                foreach ($cargo_shipping_id as $key => $value) {
+                                    echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 10px;' data-orderlist='0' data-id=" . $post->ID . " data-customerCode=" . $customerCode . " data-type=" . $type . " data-deliveryId=" . $value . ">" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
+                                }
+                            } else {
+                                echo wp_kses_post("<a href='#' class='btn btn-success send-status' data-orderlist='0' data-id=".$post->ID." data-customerCode=".$customerCode." data-type=".$type." data-deliveryId=".$cargo_shipping_id.">בקש סטטוס משלוח</a>");
+                            }
                         }
 					?>
 				</div>
@@ -465,7 +485,11 @@ if( !class_exists('CSLFW_Shipping') ) {
          */
 		function get_shipment_label() {
 			$options = [
-				'body'        => wp_json_encode( array( 'deliveryId' => (int) sanitize_text_field($_POST['shipmentId']) ) ),
+				'body'        => wp_json_encode( array(
+                                                    'deliveryId' => sanitize_text_field($_POST['shipmentId']),
+                                                    'shipmentId' => sanitize_text_field($_POST['shipmentId'])
+                                                    )
+                                                ),
 				'headers'     => [
 					'Content-Type' => 'application/json',
 				],
@@ -476,8 +500,11 @@ if( !class_exists('CSLFW_Shipping') ) {
 				'sslverify'   => false,
 				'data_format' => 'body',
 			];
+
 			$response = wp_remote_post( "https://api.carg0.co.il/Webservice/generateShipmentLabel",  $options);
 			$arrData = wp_remote_retrieve_body($response) or die("Error: Cannot create object");
+//			var_dump($arrData);
+//			var_dump(sanitize_text_field($_POST['shipmentId']));
 			$data = (array) json_decode($arrData);
 			if ( $data['error_msg']  == '') {
 				echo json_encode(array("error_msg" => "","pdfLink" => $data['pdfLink'] ));
@@ -536,6 +563,7 @@ if( !class_exists('CSLFW_Shipping') ) {
        		$cargo_shipping_id = $order->get_meta('cargo_shipping_id');
 
 		    if ( ! empty($cargo_shipping_id) ) {
+                $cargo_shipping_id = is_array( $cargo_shipping_id ) ? implode(',', $cargo_shipping_id) : $cargo_shipping_id;
 		        echo wp_kses_post('<p><strong>'.__('מזהה משלוח', 'cargo-shipping-location-for-woocommerce').':</strong> ' . $cargo_shipping_id . '</p>');
 		    }
        	}
@@ -580,7 +608,9 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 				if ( 'send_to_cargo' === $column ) {
 					if ( get_post_meta($post->ID,'cargo_shipping_id',true) ) {
-                            echo wp_kses_post("<p>". get_post_meta($post->ID, 'cargo_shipping_id',true). "</p>");
+					        $cargo_shipping_id = get_post_meta($post->ID, 'cargo_shipping_id',true);
+					        $cargo_shipping_id = is_array($cargo_shipping_id) ? implode(',', $cargo_shipping_id) : $cargo_shipping_id;
+                            echo wp_kses_post("<p>". $cargo_shipping_id . "</p>");
                             echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-id="'.get_post_meta($post->ID,'cargo_shipping_id',true).'">הדפס תווית</a>');
                         } else {
 						echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>");
@@ -728,6 +758,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 			$name = $orderData['shipping']['first_name'] ? $orderData['shipping']['first_name']. ' ' . $orderData['shipping']['last_name'] : $orderData['billing']['first_name']. ' ' . $orderData['billing']['last_name'];
             $data['Method'] = "ship";
+            var_dump($no_of_parcel);
 
             $data['Params'] = array(
                 'shipping_type'         => $shipping_type,
