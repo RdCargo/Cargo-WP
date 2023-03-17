@@ -122,7 +122,7 @@ div#mapmodelcargo #FlyingCargo_confirm {
 .modal .modal-content {
     background-color: #fff;
     width: 100%;
-    max-width: 500px;
+    max-width: 100%;
     min-height: 300px;
     margin: 0 auto;
 }

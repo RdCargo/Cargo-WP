@@ -960,12 +960,15 @@ if( !class_exists('CSLFW_Shipping') ) {
 
         public function cslfw_script_checkout() {
 			if ( is_checkout() || is_cart() ){
+			    $cargo_size = get_option('cslfw_map_size');
+			    $cargo_size_custom = get_option('cslfw_custom_map_size');
+			    $cargo_size_custom = $cargo_size === 'map_custom' ? "style=width:$cargo_size_custom" : '';
 			?>
             <input type="hidden" id="default_markers" value="<?php echo CSLFW_URL.'assets/image/cargo-icon-svg.svg' ?>" >
         	<input type="hidden" id="selected_marker" value="<?php echo CSLFW_URL.'assets/image/selected_new.png' ?>" >
-            <div class="modal" id="mapmodelcargo" tabindex="-1" role="dialog" style="display:none;" style="z-index:9999999;">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
+            <div class="modal" id="mapmodelcargo" tabindex="-1" role="dialog" style="display:none;">
+                <div class="modal-dialog"  role="document">
+                    <div class="modal-content <?php echo esc_attr($cargo_size) ?>" <?php echo esc_attr($cargo_size_custom) ?>>
                         <div class="modal-header">
                             <div class="cargo-logo">
                                 <img src="<?php echo CSLFW_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
@@ -993,7 +996,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                     </div>
                 </div>
             </div>
-            <div class="modal descript" tabindex="-1" role="dialog" style="margin-top: 90px;display:none;" >
+            <div class="modal descript" tabindex="-1" role="dialog" style="margin-top: 0px;display:none;    z-index: 2222222222;" >
                 <div class="modal-dialog" role="document" style="max-width: 700px; width: 100%;">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -1195,6 +1198,8 @@ if( !class_exists('CSLFW_Shipping') ) {
         public function cslfw_shipping_api_settings_init() {
             register_setting('cslfw_shipping_api_settings_fg', 'cargo_order_status');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_google_api_key');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_map_size');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_custom_map_size');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_box');
             register_setting('cslfw_shipping_api_settings_fg', 'from_street');
@@ -1233,6 +1238,8 @@ if( !class_exists('CSLFW_Shipping') ) {
 			flush_rewrite_rules();
             delete_option('cargo_order_status');
             delete_option('cslfw_google_api_key');
+            delete_option('cslfw_map_size');
+            delete_option('cslfw_custom_map_size');
             delete_option('shipping_cargo_express');
             delete_option('shipping_cargo_box');
             delete_option('website_name_cargo');

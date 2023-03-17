@@ -74,6 +74,7 @@ $cslfw_shipping = new CSLFW_Shipping;
                         </div>
                     </td>
                 </tr>
+
 				<tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' ? 'table-row' : 'none' ?>">
 					<th scope="row" align="left" >
                         <label for="cslfw-google-api-key"><?php _e('Google maps API key:', 'cargo-shipping-location-for-woocommerce') ?></label>
@@ -90,7 +91,46 @@ $cslfw_shipping = new CSLFW_Shipping;
 						</div>
 					</td>
 				</tr>
-
+                <tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' ? 'table-row' : 'none' ?>">
+                    <th scope="row" align="left" >
+                        <label for="cargo_box_style"><?php _e('Map size presets', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_map_size" style="vertical-align: top;">
+                                <?php
+                                $cargo_map_style = get_option('cslfw_map_size');
+                                $cargo_map_style_options = array(
+                                    'small'        => __('Small', 'cargo-shipping-location-for-woocommerce'),
+                                    'middle'      => __('Middle size', 'cargo-shipping-location-for-woocommerce'),
+                                    'wide'        => __('Wide', 'cargo-shipping-location-for-woocommerce'),
+                                    'map_custom'  => __('Custom', 'cargo-shipping-location-for-woocommerce')
+                                );
+                                ?>
+                                <select name="cslfw_map_size">
+                                    <?php foreach ( $cargo_map_style_options as $key => $value ) : ?>
+                                        <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cargo_map_style) echo esc_attr('selected="selected"'); ?>><?php echo $value ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="cslfw-map-size" style="display: <?php echo $cargo_map_style === 'map_custom' ? 'table-row' : 'none' ?>">
+                    <th scope="row" align="left" >
+                        <label for="cslfw_custom_map_size"><?php _e('Map custom size', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_custom_map_size" style="vertical-align: top;">
+                                <?php
+                                    $cargo_map_custom_size = get_option('cslfw_custom_map_size');
+                                ?>
+                                <input type="text" name="cslfw_custom_map_size" value="<?php echo esc_attr($cargo_map_custom_size) ?>" placeholder="px,%,vw or any units">
+                            </label>
+                        </div>
+                    </td>
+                </tr>
 				<tr>
 					<th scope="row" align="left" >
                         <label for="from_street"><?php _e('From Street Number', 'cargo-shipping-location-for-woocommerce') ?></label>

@@ -7,6 +7,14 @@
 		}
 	})
 
+	$('select[name="cslfw_map_size"]').change(function() {
+		if ( $(this).val() === 'map_custom' ) {
+			$('.cslfw-map-size').show();
+		} else {
+			$('.cslfw-map-size').hide();
+		}
+	})
+
 	$(document).ready(function(){
 		$(document).on('click','.send-status',function(e){
 			e.preventDefault();
