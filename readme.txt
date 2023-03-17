@@ -23,3 +23,7 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 = 2.0 =
 * Stable version, with Cargo BOX and Express shipment.
 
+
+= 2.1.0 =
+* Added map customisation.
+* fixes for Cargo BOX shipment when using more than 1 package.
