@@ -1244,6 +1244,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                                     </label>
 
                                     <select name="cargo_city" id="cargo_city" class="select2">
+                                        <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
                                         <?php foreach ($cities->result->records as $key => $value) : ?>
                                             <option value="<?php echo esc_attr($value->שם_ישוב) ?>" <?php if (trim($city_dd) === trim( $value->שם_ישוב ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value->שם_ישוב) ?></option>
                                         <?php endforeach; ?>
