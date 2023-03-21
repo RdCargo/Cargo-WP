@@ -18,8 +18,8 @@ function toRad(Value) {
 function initMap() {
     if(Cookies.get('cargoPointID') != null) {
         var myloc = new google.maps.LatLng(Cookies.get('cargoLatitude'),Cookies.get('cargoLongitude'));
-        $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
-        $("#FlyingCargo_loc_name").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
+        // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
+        // $("#FlyingCargo_loc_name").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
         $("#selected_cargo").show();
 
     }else{
@@ -301,7 +301,7 @@ function addLocationSection(shippingMethod){
     // console.log("Shipping value ",$('input[name="shipping_method[0]"]:checked').val());
     if(shippingMethod.split(':')[0] == 'woo-baldarp-pickup') {
         if( Cookies.get('cargoPointID') != null ) {
-            $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
+            // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
         } else {
             if ($('#mapmodelcargo').is(":hidden")) {
                 checkLocationSet(shippingMethod);
@@ -329,7 +329,7 @@ function resetCargo() {
 function changeShipping(){
     setTimeout(function(){
         if(Cookies.get('cargoPointID') != null) {
-            $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
+            // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
         }else{
             if($('#mapmodelcargo').is(":hidden")){
                 checkLocationSet();

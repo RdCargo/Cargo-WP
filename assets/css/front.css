@@ -339,11 +339,20 @@ body.map-open-popup {
         width: 99%;
         padding-left: 60px;
     }
-
-    .cargo_location_list {
-        width:100%;
-        display:none;
+    div#mapmodelcargo .modal-body #map.opened-list {
+        width: 100%;
     }
+    div#mapmodelcargo .modal-body #map.opened-list {
+        height: 60%;
+    }
+    .cargo_location_list {
+        position: relative;
+        width: 100%;
+        display:none;
+        height: 40%;
+    }
+
+
 
     .cargo_map_section {
         width:100%;
@@ -361,9 +370,24 @@ body.map-open-popup {
         padding: 0;
         width: 100%;
         position: relative;
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-left: 0px;
+        padding-right: 0px;
         box-sizing: border-box;
+    }
+    .cargo_content_main {
+        flex-direction: column;
+    }
+    .open-how-it-works {
+        right: -30px;
+    }
+
+    .cargo_input_div button {
+        position: absolute;
+        padding-right: 10px;
+        padding-left: 10px;
+        margin-right: 0px;
+        left: 0;
+        height: 49px;
     }
 
     .cargo_header_logo {
@@ -378,31 +402,14 @@ body.map-open-popup {
         display: block;
     }
 
-    .cargo_admin .cargo_location_list {
-        width: 100%;
-        display: none;
-        z-index: 2222222;
-        width: 100%;
-        position: absolute;
-        padding-top: 0;
-        height: 30vh;
-        padding-top: 20px;
-    }
-
     .cargo_map_close {
         width: 40px;
     }
 
-    .cargo_input_div button {
-        position: absolute;
-        padding-right: 10px;
-        padding-left: 10px;
-        margin-right: 0px;
-        left: calc(1% + 15px);
-        height: 40px;
-    }
     .cargo_location_list_row{
         position: relative;
+        padding: 10px;
+        font-size: 12px;
     }
 
     .cargo_location_list_row button,

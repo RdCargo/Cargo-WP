@@ -32,3 +32,6 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 * Map settings and presets.
 * Map Cargo Box search improvement.
 * BUGFIXES for Cargo BOX checkout.
+
+= 2.1.1 =
+* Added map customisation.
