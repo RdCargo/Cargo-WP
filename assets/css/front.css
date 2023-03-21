@@ -43,11 +43,6 @@ div#mapmodelcargo #FlyingCargo_confirm {
         transform: rotate(360deg);
     }
 }
-#search-input-cus{
-    height: 50px;
-    border-radius: 70px;
-    border: 1px solid #144378;
-}
 
 .modal-search .input-text{
     width: 100%;
@@ -135,9 +130,16 @@ div#mapmodelcargo .modal-header,
     padding: 10px;
     height: 70px;
 }
-
+div#mapmodelcargo .modal-body {
+    font-size: 14px;
+}
 div#mapmodelcargo .modal-body #map{
     height: 100%;
+    width: 100%;
+}
+
+div#mapmodelcargo .modal-body #map.opened-list {
+    width: calc(100% - 400px);
 }
 div#mapmodelcargo .modal-body {
     height: calc(100% - 70px);
@@ -150,6 +152,19 @@ div#mapmodelcargo .modal-content {
     width: 100%;
     max-height: 80%;
     height: 100%;
+}
+
+.modal .modal-dialog.middle {
+    max-width: 1000px;
+}
+
+.modal .modal-dialog.wide {
+    max-width: 1200px;
+    width: 100%;
+}
+
+.modal .modal-dialog.small {
+    max-width: 600px;
 }
 
 .open-how-it-works {
@@ -204,6 +219,201 @@ body.map-open-popup {
     padding: 20px;
 }
 
-.pac-container {
-    z-index: 9999999999;
+/* cargo map styles */
+.cargo_input_div {
+    display: block;
+    width: 100%;
+    position: relative;
+}
+.cargo-map-wrap .select2-container {
+    width: 100% !important;
+}
+.cargo-map-wrap {
+    position: relative;
+}
+.cargo_input_div input[type="text"] {
+    width: 100%;
+    border-radius: 30px;
+    padding: 15px;
+    flex: 1;
+    border-style: solid;
+    border-color: #144378;
+}
+.cargo_input_div button {
+    background: #257ab5;
+    border-radius: 30px;
+    color: #fff;
+    font-size: 16px;
+    margin-right: 10px;
+    padding: 15px 30px;
+    border: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.cargo_location_list_row button {
+    border-style: s;
+    background: #257ab5;
+    color: #fff;
+    border-radius: 30px;
+    float: left;
+    font-size: 15px;
+    padding: 10px 20px;
+    opacity:0;
+    transition:600ms all;
+    border: 0;
+    cursor: pointer;
+    display: none;
+}
+.cargo_location_list_row button:hover {
+    color:#fff;
+}
+.cargo_location_list_row:hover button{
+    opacity:1;
+    margin-top: -35px;
+}
+.cargo_content_main {
+    display: flex;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    flex-direction: row-reverse;
+}
+
+.cargo_location_list {
+    flex: 1;
+    max-width: 400px;
+    border-left: 1px solid #e3e3e3;
+    overflow-y: auto;
+    height: 100%;
+    padding-top: 22px;
+    z-index: 999;
+    display: none;
+}
+.cargo_location_list {
+    scrollbar-width: thin;
+    scrollbar-color: #e0e0e0 #144378;
+}
+
+/* Works on Chrome/Edge/Safari */
+.cargo_location_list::-webkit-scrollbar {
+    width: 12px;
+}
+.cargo_location_list::-webkit-scrollbar-track {
+    background: #e0e0e0;
+
+}
+.cargo_location_list::-webkit-scrollbar-thumb {
+    background-color: #144378;
+
+    border-radius: 0px;
+    border: 0px solid #ffc600;
+}
+
+.cargo_location_list_row {
+    padding: 20px;
+    background: rgb(255,255,255);
+    background: linear-gradient(227deg, rgba(255,255,255,1) 0%, rgba(242,242,242,1) 69%, rgba(235,235,235,1) 100%);
+    border-bottom: 1px solid #e3e3e3;
+    cursor: pointer;
+}
+
+.cargo_location_list_row.selected {
+    background: rgb(255,255,255);
+    background: linear-gradient(227deg, rgb(214 214 214) 0%, rgb(203 203 203) 69%, rgb(184 184 184) 100%);
+    border-bottom: 1px solid #e3e3e3;
+
+}
+.js-toggle-locations-list {
+    position: absolute;
+    z-index: 22222222;
+    background: #ccc;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .cargo_input_div input[type="text"] {
+        width: 99%;
+        padding-left: 60px;
+    }
+
+    .cargo_location_list {
+        width:100%;
+        display:none;
+    }
+
+    .cargo_map_section {
+        width:100%;
+    }
+
+    .cargo_inner_content {
+        margin:0;
+        width: 100%;
+        height: 100%;
+        max-width:90%;
+    }
+
+    .cargo_input_div {
+        margin:0;
+        padding: 0;
+        width: 100%;
+        position: relative;
+        padding-left: 15px;
+        padding-right: 15px;
+        box-sizing: border-box;
+    }
+
+    .cargo_header_logo {
+        width: 151px;
+        background-size: 70px;
+        display: none;
+    }
+
+    .cargo_admin .cargo_header_logo {
+        width: 50px;
+        background-size: 50px;
+        display: block;
+    }
+
+    .cargo_admin .cargo_location_list {
+        width: 100%;
+        display: none;
+        z-index: 2222222;
+        width: 100%;
+        position: absolute;
+        padding-top: 0;
+        height: 30vh;
+        padding-top: 20px;
+    }
+
+    .cargo_map_close {
+        width: 40px;
+    }
+
+    .cargo_input_div button {
+        position: absolute;
+        padding-right: 10px;
+        padding-left: 10px;
+        margin-right: 0px;
+        left: calc(1% + 15px);
+        height: 40px;
+    }
+    .cargo_location_list_row{
+        position: relative;
+    }
+
+    .cargo_location_list_row button,
+    .cargo_location_list_row:hover button{
+        opacity: 1;
+        margin-top: 0;
+        position: absolute;
+        left: 10px;
+        top: 15px;
+        padding: 5px 20px;
+        display: inline-block;
+        z-index:1;
+    }
 }

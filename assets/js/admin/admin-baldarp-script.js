@@ -1,12 +1,29 @@
 (function($) {
-	$('select[name="cargo_box_style"]').change(function() {
-		if ( $(this).val() === 'cargo_map' ) {
-			$('.cslfw-google-maps').show();
-		} else {
-			$('.cslfw-google-maps').hide();
+	$('#seting_cargo').on('submit', function(e) {
+		if ( $(this).find('#shipping_cargo_express').val().length < 1 && $(this).find('#shipping_cargo_box').val().length < 1 ) {
+			e.preventDefault();
+			alert('Fill in cargo box or cargo express to proceed');
 		}
 	})
 
+	$('select[name="cargo_box_style"]').change(function() {
+		if ( $(this).val() === 'cargo_map' ) {
+			$('.cslfw-google-maps').show();
+			$('#cslfw_google_api_key').prop('required', true)
+		} else {
+			$('.cslfw-google-maps').hide();
+			$('#cslfw_google_api_key').prop('required', false)
+
+		}
+	})
+	$('input[name="cargo_cod"]').change(function() {
+		if ( $(this).is(':checked') ) {
+			$('.cargo_cod_type').show();
+		} else {
+			$('.cargo_cod_type').hide();
+			$('input[name="cargo_cod_type"]').prop('checked', false);
+		}
+	})
 	$('select[name="cslfw_map_size"]').change(function() {
 		if ( $(this).val() === 'map_custom' ) {
 			$('.cslfw-map-size').show();
@@ -60,24 +77,29 @@
 				}
 			});
 		});
+
 		$(document).on('click','.submit-cargo-shipping',function(e){
 			e.preventDefault();
 			let orderID = $(this).data('id');
 			let doubleDelivery = $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1;
 			let shipmentType = $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]').val() : 1;
 			let noOfParcel = $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0;
+			let cargoCOD = $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? 1 : 0 : 0;
+			let cargoCODType = $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]:checked').val() : '';
 
 			ToggleLoading(true);
 			$.ajax({
 				type : "post",
-				// dataType : "json",
+				dataType : "json",
 				url : admin_cargo_obj.ajaxurl,
 				data : {
 					action: "sendOrderCARGO",
 					orderId : orderID,
 					double_delivery: doubleDelivery,
 					shipment_type: shipmentType,
-					no_of_parcel: noOfParcel
+					no_of_parcel: noOfParcel,
+					cargo_cod: cargoCOD,
+					cargo_cod_type: cargoCODType
 				},
 				success: function(response) {
 					//location.reload();
@@ -171,4 +193,5 @@
 			$('#loader').remove();
 		}
 	}
+
 })(window.jQuery)
