@@ -446,26 +446,19 @@ $(document).on('change', '#cargo_city', function() {
                             $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').remove();
                             if ( response.error === false ) {
                                 if ( response.closest_points.length > 0 ) {
-                                    let html = '';
                                     setPointCookie(response.closest_points[0].point_details);
-                                    // response.closest_points.forEach(point => {
-                                    //     point = point.point_details
-                                    //     html +=`<option value="${point.DistributionPointID}">
-                                    //         ${point.DistributionPointName}, ${point.StreetName} ${point.StreetNum}
-                                    //     </option>`;
-                                    // });
-                                    $('#cargo_pickup_point').html(html).parent().show();
+
                                 } else {
                                     $('#cargo_pickup_point').parent().hide();
-                                    // $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').show();
-                                    $('#cargo_pickup_point').parent().parent().append(`<p class="woocommerce-info 1">לא נמצאו כתובות ברדיוס של 5 ק״מ נא לבחור עיר אחרת</p>`);
+                                    $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').show();
                                 }
                             } else {
                                 $('#cargo_pickup_point').parent().hide();
-                                // $('#cargo_pickup_point').empty();
                                 alert(response.error);
                             }
-
+                            setTimeout(function() {
+                                $( document.body ).trigger( 'update_checkout' );
+                            }, 200)
                         },
                         error: function (jqXhr, textStatus, errorMessage) {
                             console.log(textStatus);
@@ -473,7 +466,6 @@ $(document).on('change', '#cargo_city', function() {
                     });
                 } else {
                     $('#cargo_pickup_point').parent().hide();
-                    $('#cargo_pickup_point').parent().parent().append(`<p class="woocommerce-info 1">לא נמצאו כתובות ברדיוס של 5 ק״מ נא לבחור עיר אחרת</p>`);
                 }
 
             } else {
@@ -484,10 +476,6 @@ $(document).on('change', '#cargo_city', function() {
             console.log(e);
         }
     })
-
-    setTimeout(function() {
-        $( document.body ).trigger( 'update_checkout' );
-    }, 200)
 })
 $(document).on('change', '#cargo_pickup_point', function() {
     Cookies.set('cargoPointID', $(this).val(), {expires: 10,path: '/'})

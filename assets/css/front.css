@@ -102,7 +102,9 @@ div#mapmodelcargo #FlyingCargo_confirm {
     height: 100%;
     background: #0000008a;
 }
-
+.select-wrap {
+    position: relative;
+}
 .modal .modal-dialog {
     margin: 0 auto;
     overflow: auto;
@@ -111,7 +113,7 @@ div#mapmodelcargo #FlyingCargo_confirm {
     align-items: center;
     flex-wrap: wrap;
     max-width: 95%;
-    width: 1000px;
+    width: 100%;
     max-height: 100%;
 }
 .modal .modal-content {
