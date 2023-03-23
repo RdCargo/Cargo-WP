@@ -439,7 +439,7 @@ $(document).on('change', '#cargo_city', function() {
                         type: 'POST',  // http method
                         data: JSON.stringify( {
                             lat: location.lat,
-                            long : location.lng ,
+                            long : location.lng,
                         }),
                         success: function (response, status, xhr) {
                             console.log(response);

@@ -105,7 +105,7 @@
 					//location.reload();
 					console.log(response);
 					ToggleLoading(false);
-					if(response.shipmentId != "") {
+					if( response.shipmentId != "" ) {
 						$(window).scrollTop(0);
 						$('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(500).queue(function(n) {
 							$('.removeClass').hide();

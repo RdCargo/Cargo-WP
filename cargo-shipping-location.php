@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 2.1.2
+ * Version: 2.1.3
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -35,7 +35,6 @@ if( !class_exists('CSLFW_Shipping') ) {
                 add_action( 'woocommerce_after_shipping_rate', array( $this, 'cslfw_after_shipping_rate' ), 20, 2) ;
                 add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'custom_checkout_field_update_order_meta' ));
                 add_action( 'woocommerce_checkout_process', array( $this, 'action_woocommerce_checkout_process' ),10,1);
-                add_action(' woocommerce_order_status_changed', array( $this, 'cargo_status_change_event' ),10,3);
                 add_filter( 'handle_bulk_actions-edit-shop_order', array( $this, 'bulk_order_cargo_shipment' ), 10, 3);
                 add_action( 'admin_notices', array( $this, 'cargo_bulk_action_admin_notice') );
                 add_action( 'woocommerce_checkout_order_processed', array( $this, 'transfer_order_data_for_shipment' ), 10, 1);
@@ -45,7 +44,6 @@ if( !class_exists('CSLFW_Shipping') ) {
                 add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_shipping_info' ) );
                 add_filter( 'woocommerce_locate_template', array( $this, 'intercept_wc_template' ), 10, 3 );
                 add_action( 'init', array( $this, 'register_order_status_for_cargo' ) );
-                add_filter( 'wc_order_statuses', array( $this, 'custom_order_status') );
                 add_filter( 'bulk_actions-edit-shop_order', array( $this, 'custom_dropdown_bulk_actions_shop_order' ), 20, 1 );
                 add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
                 add_action( 'add_meta_boxes', array( $this, 'remove_shop_order_meta_box' ), 90  );
@@ -103,43 +101,6 @@ if( !class_exists('CSLFW_Shipping') ) {
             setcookie("cargoStreetNum", "", time()-3600);
             setcookie("CargoCityName", "", time()-3600);
             setcookie("cargoPointName", "", time()-3600);
-        }
-
-	    /**
-        * Add Bulk Action in admin panel.
-        */
-		function cargo_bulk_action_admin_notice() {
-            global $pagenow;
-
-            if ( 'edit.php' === $pagenow
-                && isset($_GET['post_type'])
-                && 'shop_order' === $_GET['post_type']
-                && isset($_GET['cargo_send']) ) {
-
-                $count = intval( sanitize_text_field($_REQUEST['processed_count']) );
-
-				if( isset($_REQUEST['processed_ids']) ){
-					$order_id_array = explode(",", sanitize_text_field($_REQUEST['processed_ids']) );
-
-					if( sanitize_text_field($_REQUEST['old_stutus']) != ""
-					    && sanitize_text_field($_REQUEST['is_cargo']) === '1'
-					    && sanitize_text_field($_REQUEST['new_status']) === 'send-cargo'
-					    && get_option('disable_order_status') ) {
-						foreach( $order_id_array as $key => $order_id){
-							$order = wc_get_order( $order_id );
-							$order->update_status( sanitize_text_field($_REQUEST['old_stutus']) ); //
-						}
-
-                       echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
-                            _n( '%s Order Sent for Shipment',
-                                '%s Orders Sent For Shipment',
-                                $count,
-                                'woocommerce'
-                            ) . '</p></div>', $count ) );
-					}
-				}
-
-            }
         }
 
         /**
@@ -405,7 +366,7 @@ if( !class_exists('CSLFW_Shipping') ) {
             $payment_method     = $order->get_payment_method();
             $payment_method_check = get_option( 'cslfw_cod_check' ) ?  get_option( 'cslfw_cod_check' ) : 'cod';
 
-			if( $shipping_method_id == 'cargo-express' || $shipping_method_id == 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
+			if( $shipping_method_id === 'cargo-express' || $shipping_method_id === 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
                 if ( !$cargo_shipping_id ) : ?>
                 <div class="cargo-button">
                     <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
@@ -414,6 +375,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
                     </label>
                 </div>
+                <?php if ( $shipping_method_id === 'cargo-express' ) : ?>
                 <div class="cargo-button">
                     <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
                     <label for="cargo_cod">
@@ -438,6 +400,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                         </label>
                     <?php endforeach; ?>
                 </div>
+                <?php endif; // End express check ?>
                 <div class="cargo-radio">
                     <strong><?php _e('Shipment Type', 'cargo-shipping-location-for-woocommerce') ?></strong>
                     <label for="cargo_shipment_type_regular">
@@ -510,17 +473,6 @@ if( !class_exists('CSLFW_Shipping') ) {
 				<?php }
 			}
 	    }
-
-        /**
-         * @param $order_statuses
-         * @return mixed
-         *
-         * Add order status in Array
-         */
-		function custom_order_status( $order_statuses ) {
-		    $order_statuses['wc-send-cargo'] = _x( 'Send to CARGO', 'Order status', 'cargo-shipping-location-for-woocommerce' );
-		    return $order_statuses;
-		}
 
         /**
          * @param $actions
@@ -731,6 +683,30 @@ if( !class_exists('CSLFW_Shipping') ) {
         }
 
         /**
+         * Add Bulk Action in admin panel.
+         */
+        function cargo_bulk_action_admin_notice() {
+            global $pagenow;
+
+            if ( 'edit.php' === $pagenow
+                && isset($_GET['post_type'])
+                && 'shop_order' === $_GET['post_type']
+                && isset( $_GET['cargo_send']) ) {
+
+                $count = intval( sanitize_text_field($_REQUEST['processed_count']) );
+
+                if( isset($_REQUEST['processed_ids']) ){
+                    echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
+                        _n( '%s Order Sent for Shipment',
+                            '%s Orders Sent For Shipment',
+                            $count,
+                            'woocommerce'
+                        ) . '</p></div>', $count ) );
+                }
+            }
+        }
+
+        /**
          * @param $redirect_to
          * @param $action
          * @param $ids
@@ -740,77 +716,25 @@ if( !class_exists('CSLFW_Shipping') ) {
         public function bulk_order_cargo_shipment($redirect_to, $action, $ids) {
 			$is_cargo = 0;
 			$old_status = "";
-			$new_status = "";
             if ( false !== strpos( $action, 'mark_' ) ) {
-                $new_status     = substr( $action, 5 ); // Get the status name from action.
-                $report_action  = 'wc-' . $new_status;
-                if ( 'wc-send-cargo' == $report_action || get_option('cargo_order_status') == $report_action ) {
-
+                $action_name     = substr( $action, 5 ); // Get the status name from action.
+                if ($action_name === 'send-cargo') {
+                    $is_cargo = 1;
                     foreach ($ids as $key => $order_id) {
 						$this->createShipment($order_id);
                     }
-                } else if ( 'wc-cancel-cargo' === $report_action ) {
-                	return;
                 }
             }
 
 			$redirect_to = add_query_arg(
                 array(
-                    'cargo_send'     => '1',
+                    'cargo_send'     => $is_cargo,
                     'old_stutus'     => $old_status,
-                    'is_cargo'       => $is_cargo,
-                    'new_status'     => $new_status,
                     'processed_count' => count( $ids ),
                     'processed_ids'  => implode( ',', $ids ),
                 ),
                 $redirect_to );
             return $redirect_to;
-        }
-
-        /**
-         * @param $order_id
-         * @param $old_status
-         * @param $new_status
-         *
-         * Change Event
-         */
-        public function cargo_status_change_event($order_id, $old_status, $new_status)
-        {
-        	if ( !is_checkout() ) {
-        		if ( 'wc-send-cargo' == 'wc-'.$new_status ) {
-					if( trim(get_option('from_street')) != ''
-                        && trim(get_option('from_street_name')) != ''
-                        && trim(get_option('from_city')) != ''
-                        && trim(get_option('phonenumber_from')) != ''
-                        && trim(get_option('shipping_cargo_express')) != ''
-                        && trim(get_option('shipping_cargo_box')) != '') {
-
-						$this->createShipment($order_id);
-					}
-
-					$order = wc_get_order( $order_id );
-					$old_status = $order->get_status();
-					if ( get_option('disable_order_status') ){
-						$order->update_status( $old_status);
-					}
-	            } else if ('wc-cancel-cargo' == 'wc-'.$new_status) {
-                	return;
-                } else {
-					if ( get_option('cargo_order_status') == 'wc-'.$new_status ) {
-						if ( get_post_meta($order_id, 'cargo_shipping_id', TRUE) ) {
-                    		return;
-                    	}
-					    $this->createShipment($order_id);
-					}
-				}
-        	} else {
-				$order = wc_get_order($order_id);
-				if ( get_option('cargo_order_status') == "wc-".$order->get_status() ){
-					if ( !get_post_meta($order_id, 'cargo_shipping_id', TRUE) ) {
-						$this->createShipment($order_id);
-					}
-				}
-			}
         }
 
 		function createShipment($order_id, $args = []) {
@@ -895,6 +819,48 @@ if( !class_exists('CSLFW_Shipping') ) {
                     );
 
                     $data['Params']['boxPointId'] = get_post_meta($order_id, 'DistributionPointID', TRUE) ? get_post_meta($order_id, 'DistributionPointID', TRUE) :  get_post_meta($order_id, 'cargo_DistributionPointID', TRUE);
+                } else {
+                    $address = $data['Params']['to_address']['city'] . ',' . $data['Params']['to_address']['street2'] . ' ' . $data['Params']['to_address']['street1'];
+                    $geocoding = $this->cargoAPI('https://api.carg0.co.il/Webservice/cargoGeocoding', array('address' => $address) );
+                    if ( $geocoding->error === false ) {
+
+                        if ( !empty($geocoding->data->results) ) {
+                            $geocoding = $geocoding->data->results[0]->geometry->location;
+                            $closest_point = $this->cargoAPI('https://api.carg0.co.il/Webservice/findClosestPoints', array('lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 30) );
+
+                            if ( $closest_point->error === false ) {
+                                if ( !empty($closest_point->closest_points) ) {
+                                    // THE SUCCESS FOR DETERMINE CARGO POINT ID IN AUTOMATIC MODE.
+                                    $chosen_point = $closest_point->closest_points[0]->point_details;
+                                    $data['Params']['boxPointId'] = $chosen_point->DistributionPointID;
+
+                                    $order->update_meta_data( 'cargo_DistributionPointID', sanitize_text_field($chosen_point->DistributionPointID) );
+                                    $order->update_meta_data( 'cargo_DistributionPointName', sanitize_text_field($chosen_point->DistributionPointName) );
+                                    $order->update_meta_data( 'cargo_CityName', sanitize_text_field($chosen_point->CityName) );
+                                    $order->update_meta_data( 'cargo_StreetName', sanitize_text_field($chosen_point->StreetName) );
+                                    $order->update_meta_data( 'cargo_StreetNum', sanitize_text_field($chosen_point->StreetNum) );
+                                    $order->update_meta_data( 'cargo_Comment', sanitize_text_field($chosen_point->Comment) );
+                                    $order->update_meta_data( 'cargoPhone', sanitize_text_field($chosen_point->Phone) );
+                                    $order->update_meta_data( 'cargo_Latitude', sanitize_text_field($chosen_point->Latitude) );
+                                    $order->update_meta_data( 'cargo_Longitude', sanitize_text_field($chosen_point->Longitude) );
+                                } else {
+                                    $this->add_log_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );
+                                    return array('shipmentId' => "", 'error_msg' => 'No closest points found by the radius.');
+                                }
+                            } else {
+                                $this->add_log_message("ERROR.FAIL: 'Failed to find closest points." . PHP_EOL );
+                                return array('shipmentId' => "", 'error_msg' => 'Failed to find closest points. Contact support please.');
+                            }
+                        } else {
+                            $this->add_log_message("ERROR.FAIL: Empty geocoding data." . PHP_EOL );
+                            return array('shipmentId' => "", 'error_msg' => 'Empty geocoding data.');
+                        }
+
+                    } else {
+                        $this->add_log_message("ERROR.FAIL: Address geocoding fail for address $address" . PHP_EOL );
+                        return array('shipmentId' => "", 'error_msg' => 'Failed to create geocoding. Contact support please.');
+                    }
+
                 }
             }
 
@@ -912,23 +878,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                 $message .= "ORDER ID : $order_id | DELIVERY ID  : {$response['shipmentId']} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." SHIPMENT TYPE : $CarrierName | CUSTOMER CODE : $customerCode" . PHP_EOL;
 
                 if( $shipping_method_id == 'woo-baldarp-pickup' ) {
-                    $box_point_id = is_array( end($response['baldarResponse']) ) ? end( end($response['baldarResponse']) ) : end($response['baldarResponse']);
-                    if ( $cargo_box_style === 'cargo_automatic' ) {
-                        if ( !empty($box_point_id) ) {
-                            $chosen_point = $this->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", array('pointId' => $box_point_id));
-                            $chosen_point = $chosen_point->PointsDetails[0];
-                            $order->update_meta_data( 'cargo_DistributionPointID', sanitize_text_field($chosen_point->DistributionPointID) );
-                            $order->update_meta_data( 'cargo_DistributionPointName', sanitize_text_field($chosen_point->DistributionPointName) );
-                            $order->update_meta_data( 'cargo_CityName', sanitize_text_field($chosen_point->CityName) );
-                            $order->update_meta_data( 'cargo_StreetName', sanitize_text_field($chosen_point->StreetName) );
-                            $order->update_meta_data( 'cargo_StreetNum', sanitize_text_field($chosen_point->StreetNum) );
-                            $order->update_meta_data( 'cargo_Comment', sanitize_text_field($chosen_point->Comment) );
-                            $order->update_meta_data( 'cargoPhone', sanitize_text_field($chosen_point->Phone) );
-                            $order->update_meta_data( 'cargo_Latitude', sanitize_text_field($chosen_point->Latitude) );
-                            $order->update_meta_data( 'cargo_Longitude', sanitize_text_field($chosen_point->Longitude) );
-                        }
-                    }
-
+                    $box_point_id = get_post_meta($order_id,'cargo_DistributionPointID',TRUE) ?? get_post_meta($order_id,'DistributionPointID',TRUE);
                     $message    .= "CARGO BOX POINT ID : $box_point_id". PHP_EOL;
 				}
                 $order->save();
@@ -1234,9 +1184,13 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <a class='baldrap-btn btn button wp-element-button' id='mapbutton'><?php _e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?></a>
                         <div id='selected_cargo'></div>
                     <?php elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
-                        $cities = $this->cargoAPI("https://data.gov.il/api/3/action/datastore_search?resource_id=5c78e9fa-c2e2-4771-93ff-7f400a12f7ba&limit=1500");
+                        $cities = json_decode(json_encode( $this->cargoAPI("https://data.gov.il/api/3/action/datastore_search?resource_id=5c78e9fa-c2e2-4771-93ff-7f400a12f7ba&limit=1500") ), 1);
 
-                            if ( $cities->success ) {
+                            if ( $cities['success'] ) {
+                                $cities = array_map(function($element){
+                                    return $element['שם_ישוב'];
+                                }, $cities['result']['records']);
+                                sort($cities, SORT_STRING );
                             ?>
                                 <p class="form-row form-row-wide">
                                     <label for="cargo_city">
@@ -1245,8 +1199,8 @@ if( !class_exists('CSLFW_Shipping') ) {
 
                                     <select name="cargo_city" id="cargo_city" class="select2">
                                         <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
-                                        <?php foreach ($cities->result->records as $key => $value) : ?>
-                                            <option value="<?php echo esc_attr($value->שם_ישוב) ?>" <?php if (trim($city_dd) === trim( $value->שם_ישוב ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value->שם_ישוב) ?></option>
+                                        <?php foreach ($cities as $key => $value) : ?>
+                                            <option value="<?php echo esc_attr($value) ?>" <?php if (trim($city_dd) === trim( $value ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </p>
@@ -1264,7 +1218,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                                                 $point = $value->point_details;
                                                 ?>
                                                 <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($pointId === $point->DistributionPointID) echo 'selected="selected"' ?>>
-                                                    <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
+                                                    <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
