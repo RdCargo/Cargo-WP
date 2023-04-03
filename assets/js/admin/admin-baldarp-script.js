@@ -80,27 +80,23 @@
 
 		$(document).on('click','.submit-cargo-shipping',function(e){
 			e.preventDefault();
-			let orderID = $(this).data('id');
-			let doubleDelivery = $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1;
-			let shipmentType = $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]').val() : 1;
-			let noOfParcel = $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0;
-			let cargoCOD = $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? 1 : 0 : 0;
-			let cargoCODType = $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]:checked').val() : '';
 
+			let data = {
+				action: "sendOrderCARGO",
+				orderId : $(this).data('id'),
+				double_delivery: $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1,
+				shipment_type: $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]').val() : 1,
+				no_of_parcel: $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0,
+				cargo_cod: $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? 1 : 0 : 0,
+				cargo_cod_type: $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]:checked').val() : ''
+			};
+			console.log(data);
 			ToggleLoading(true);
 			$.ajax({
 				type : "post",
 				dataType : "json",
 				url : admin_cargo_obj.ajaxurl,
-				data : {
-					action: "sendOrderCARGO",
-					orderId : orderID,
-					double_delivery: doubleDelivery,
-					shipment_type: shipmentType,
-					no_of_parcel: noOfParcel,
-					cargo_cod: cargoCOD,
-					cargo_cod_type: cargoCODType
-				},
+				data : data,
 				success: function(response) {
 					//location.reload();
 					console.log(response);
@@ -225,4 +221,9 @@
 		}
 	}
 
+	$('.cslfw-create-new-shipment').click(function(e) {
+		e.preventDefault();
+		$(this).hide();
+		$('.cargo-submit-form-wrap').show();
+	})
 })(window.jQuery)

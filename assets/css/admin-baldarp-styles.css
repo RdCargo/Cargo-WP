@@ -28,7 +28,6 @@ a.btn.btn-success.send-status {
 
 #cargo_custom_box a.btn.btn-success.send-status {
     border: 1px solid green;
-    padding: 7px 4px;
     font-size: 15px;
     color: white !important;
     text-decoration: none !important;
@@ -44,7 +43,6 @@ a.btn.btn-success.send-status {
 .cargo-button .label-cargo-shipping {
     border: 1px solid #e1d111;
     /* border-radius: 18px; */
-    padding: 6px 26px;
     font-size: 15px;
     border-radius: 4px;
     background-color: #e1d111;
@@ -87,7 +85,6 @@ a.edit-address-cargo{
     text-decoration: none;
 }
 #cargo_custom_box .inside .btn{
-    padding: 7px 11px;
     background-color: #1bc39c;
     border: 1px solid #1bc39c;
     border-radius: 4px;

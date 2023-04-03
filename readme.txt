@@ -44,4 +44,8 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 * Remove wc_sent-cargo status.
 * Removed COD for box shipment.
 
+== 2.1.4 =
+* Contact form for reporting the bugs.
+* Bulk shipment with double delivery.
+* Ability to create additional shipment for order.
 

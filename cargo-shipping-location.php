@@ -248,8 +248,8 @@ if( !class_exists('CSLFW_Shipping') ) {
 				exit;
 			}
 
-	    	$order_id   = sanitize_text_field($_POST['orderId']);
-            $order = wc_get_order($order_id);
+	    	$order_id = sanitize_text_field($_POST['orderId']);
+            $order    = wc_get_order($order_id);
             $shippingMethod = @array_shift($order->get_shipping_methods() );
             $shipping_method_id = $shippingMethod['method_id'];
             if ( $shipping_method_id == 'cargo-express' && trim( get_option('shipping_cargo_express') ) == '' ) {
@@ -386,95 +386,99 @@ if( !class_exists('CSLFW_Shipping') ) {
             $payment_method     = $order->get_payment_method();
             $payment_method_check = get_option( 'cslfw_cod_check' ) ?  get_option( 'cslfw_cod_check' ) : 'cod';
 
-			if ( $shipping_method_id === 'cargo-express' || $shipping_method_id === 'woo-baldarp-pickup') {
-                if ( !$cargo_shipping_id ) : ?>
-                <div class="cargo-button">
-                    <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
-                    <label for="cargo_double-delivery">
-                        <input type="checkbox" name="cargo_double_delivery" id="cargo_double-delivery" />
-                        <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
-                    </label>
-                </div>
-                <?php
-                    if ( $shipping_method_id === 'cargo-express' ) : ?>
-                <div class="cargo-button">
-                    <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
-                    <label for="cargo_cod">
-                        <input type="checkbox" name="cargo_cod" id="cargo_cod" <?php if ($payment_method === $payment_method_check) echo esc_attr('checked'); ?> />
-                        <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
-                    </label>
-                </div>
-                <?php
-                    $cod_type_array = array(
-                        '0' => __('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
-                        '1' => __('Cashier\'s check', 'cargo-shipping-location-for-woocommerce'),
-                        '2' => __('Check', 'cargo-shipping-location-for-woocommerce'),
-                        '3' => __('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
-                    );
-                ?>
-                <div class="cargo-button cargo_cod_type" style="display: <?php echo esc_html($payment_method === $payment_method_check ? 'block' : 'none' ) ?>">
-                    <strong><?php _e('Cash on delivery Type', 'cargo-shipping-location-for-woocommerce') ?></strong>
-                    <?php foreach ($cod_type_array as $key=>$value) : ?>
-                        <label for="cargo_cod_type_<?php echo esc_attr($key) ?>">
-                            <input type="radio" name="cargo_cod_type" id="cargo_cod_type_<?php echo esc_attr($key) ?>" value="<?php echo esc_attr($key) ?>" />
-                            <span><?php echo esc_html($value) ?></span>
-                        </label>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif; // End express check ?>
-                <div class="cargo-radio">
-                    <strong><?php _e('Shipment Type', 'cargo-shipping-location-for-woocommerce') ?></strong>
-                    <label for="cargo_shipment_type_regular">
-                        <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_regular" checked value="1" />
-                        <span><?php _e('Regular', 'cargo-shipping-location-for-woocommerce') ?></span>
-                    </label>
-                    <?php if ( $shipping_method_id !== 'woo-baldarp-pickup' ) : ?>
-                    <label for="cargo_shipment_type_pickup">
-                        <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_pickup" value="2" />
-                        <span><?php _e('Pickup', 'cargo-shipping-location-for-woocommerce') ?></span>
-                    </label>
-                    <?php endif; ?>
-                </div>
-
-                <div class="cargo-button">
-                    <strong><?php _e('Packages', 'cargo-shipping-location-for-woocommerce') ?></strong>
-                    <input type="number" name="cargo_packages" id="cargo_packages" value="1" min="1" max="100" style="max-width: 80px;"/>
-                </div>
-
-				<div class="cargo-button">
-					<a href="#"
-                       class="submit-cargo-shipping"
-                       data-id="<?php echo esc_attr($post->ID); ?>"><?php _e('שלח ל CARGO', 'cargo-shipping-location-for-woocommerce') ?></a>
-				</div>
-
-                <?php else :
-                    $cargo_shipping_id = is_array($cargo_shipping_id) ? implode(',', $cargo_shipping_id) : $cargo_shipping_id;
-                ?>
+			if ( $shipping_method_id === 'cargo-express' || $shipping_method_id === 'woo-baldarp-pickup') { ?>
+                <div class="cargo-submit-form-wrap" <?php if ( $cargo_shipping_id ) echo 'style="display: none;"'; ?> >
                     <div class="cargo-button">
-                        <div><strong><?php _e('Shipping ID\'s: ', 'cargo-shipping-location-for-woocommerce' ) ?></strong><?php echo esc_html($cargo_shipping_id) ?></div>
-                        <a href="#" class="label-cargo-shipping"  data-id="<?php echo esc_attr($cargo_shipping_id); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
+                        <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
+                        <label for="cargo_double-delivery">
+                            <input type="checkbox" name="cargo_double_delivery" id="cargo_double-delivery" />
+                            <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
+                        </label>
                     </div>
-                <?php endif; ?>
+                    <?php
+                        if ( $shipping_method_id === 'cargo-express' ) : ?>
+                    <div class="cargo-button">
+                        <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
+                        <label for="cargo_cod">
+                            <input type="checkbox" name="cargo_cod" id="cargo_cod" <?php if ($payment_method === $payment_method_check) echo esc_attr('checked'); ?> />
+                            <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
+                        </label>
+                    </div>
+                    <?php
+                        $cod_type_array = array(
+                            '0' => __('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
+                            '1' => __('Cashier\'s check', 'cargo-shipping-location-for-woocommerce'),
+                            '2' => __('Check', 'cargo-shipping-location-for-woocommerce'),
+                            '3' => __('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
+                        );
+                    ?>
+                    <div class="cargo-button cargo_cod_type" style="display: <?php echo esc_html($payment_method === $payment_method_check ? 'block' : 'none' ) ?>">
+                        <strong><?php _e('Cash on delivery Type', 'cargo-shipping-location-for-woocommerce') ?></strong>
+                        <?php foreach ($cod_type_array as $key=>$value) : ?>
+                            <label for="cargo_cod_type_<?php echo esc_attr($key) ?>">
+                                <input type="radio" name="cargo_cod_type" id="cargo_cod_type_<?php echo esc_attr($key) ?>" value="<?php echo esc_attr($key) ?>" />
+                                <span><?php echo esc_html($value) ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; // End express check ?>
+                    <div class="cargo-radio">
+                        <strong><?php _e('Shipment Type', 'cargo-shipping-location-for-woocommerce') ?></strong>
+                        <label for="cargo_shipment_type_regular">
+                            <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_regular" checked value="1" />
+                            <span><?php _e('Regular', 'cargo-shipping-location-for-woocommerce') ?></span>
+                        </label>
+                        <?php if ( $shipping_method_id !== 'woo-baldarp-pickup' ) : ?>
+                        <label for="cargo_shipment_type_pickup">
+                            <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_pickup" value="2" />
+                            <span><?php _e('Pickup', 'cargo-shipping-location-for-woocommerce') ?></span>
+                        </label>
+                        <?php endif; ?>
+                    </div>
 
+                    <div class="cargo-button">
+                        <strong><?php _e('Packages', 'cargo-shipping-location-for-woocommerce') ?></strong>
+                        <input type="number" name="cargo_packages" id="cargo_packages" value="1" min="1" max="100" style="max-width: 80px;"/>
+                    </div>
+
+                    <div class="cargo-button">
+                        <a href="#"
+                           class="submit-cargo-shipping "
+                           data-id="<?php echo esc_attr($post->ID); ?>"><?php _e('שלח ל CARGO', 'cargo-shipping-location-for-woocommerce') ?></a>
+                    </div>
+                </div>
+                <?php if ( $cargo_shipping_id ) :
+                    $cargo_shipping_id = is_array($cargo_shipping_id) ? implode(', ', $cargo_shipping_id) : $cargo_shipping_id;
+                ?>
+
+                <div class="cargo-button">
+
+                    <div><strong><?php _e('Shipping ID\'s: ', 'cargo-shipping-location-for-woocommerce' ) ?></strong><?php echo esc_html($cargo_shipping_id) ?></div>
+                    <a href="#" class="label-cargo-shipping button"  data-id="<?php echo esc_attr($cargo_shipping_id); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
+                </div>
 
 
 				<div class="checkstatus-section">
 					<?php
                         $customerCode       = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
                         $type               = $shipping_method_id == 'woo-baldarp-pickup' ? "BOX" : "EXPRESS";
-                        $cargo_shipping_id = get_post_meta( $post->ID, 'cargo_shipping_id', true );
-                        if ( $cargo_shipping_id ) {
-                            if ( is_array($cargo_shipping_id) ) {
-                                foreach ($cargo_shipping_id as $key => $value) {
-                                    echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 10px;' data-orderlist='0' data-id=" . $post->ID . " data-customerCode=" . $customerCode . " data-type=" . $type . " data-deliveryId=" . $value . ">" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
-                                }
-                            } else {
-                                echo wp_kses_post("<a href='#' class='btn btn-success send-status' data-orderlist='0' data-id=".$post->ID." data-customerCode=".$customerCode." data-type=".$type." data-deliveryId=".$cargo_shipping_id.">בקש סטטוס משלוח</a>");
+                        if ( is_array($cargo_shipping_id) ) {
+                            foreach ($cargo_shipping_id as $key => $value) {
+                                echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-orderlist='0' data-id=" . $post->ID . " data-customerCode=" . $customerCode . " data-type=" . $type . " data-deliveryId=" . $value . ">" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
                             }
+                        } else {
+                            echo wp_kses_post("<a href='#' class='btn btn-success send-status button' data-orderlist='0' data-id=".$post->ID." data-customerCode=".$customerCode." data-type=".$type." data-deliveryId=".$cargo_shipping_id.">בקש סטטוס משלוח</a>");
                         }
 					?>
 				</div>
-				<?php if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
+
+                <div class="cargo-button">
+                    <a href="#" class="cslfw-create-new-shipment button button-primary"><?php _e('יצירת משלוח חדש', 'cargo-shipping-location-for-woocommerce') ?></a>
+                    <p style="font-size: 12px;"><?php _e('פעולה זו לא תבטל את המשלוח הקודם (יש לפנות לשירות הלקוחות) אלא תיצור משלוח חדש', 'cargo-shipping-location-for-woocommerce') ?></p>
+                </div>
+                <?php endif; ?>
+
+                <?php if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
                     $DistributionPointName = get_post_meta($post->ID,'cargo_DistributionPointName',TRUE) ?? get_post_meta($post->ID,'DistributionPointName',TRUE);
                     $DistributionPointID = get_post_meta($post->ID,'cargo_DistributionPointID',TRUE) ?? get_post_meta($post->ID,'DistributionPointID',TRUE);
 				    ?>
@@ -512,6 +516,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 		        if ('mark_processing' === $key) {
 		            $new_actions['mark_send-cargo'] = __( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
+		            $new_actions['mark_send-cargo-dd'] = __( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
 		        }
 		    }
 
@@ -746,6 +751,10 @@ if( !class_exists('CSLFW_Shipping') ) {
                     foreach ($ids as $key => $order_id) {
 						$this->createShipment($order_id);
                     }
+                } elseif ($action_name === 'send-cargo-dd') {
+                    foreach ($ids as $key => $order_id) {
+                        $this->createShipment($order_id, array('double_delivery' => 2) );
+                    }
                 }
             }
 
@@ -763,9 +772,11 @@ if( !class_exists('CSLFW_Shipping') ) {
 		function createShipment($order_id, $args = []) {
 
 			$order = wc_get_order($order_id);
-			if( get_post_meta($order_id,'cargo_shipping_id',TRUE) ){
-				return;
-			}
+            $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
+            if ( $cargo_delivery_id && is_array($cargo_delivery_id) && count($cargo_delivery_id) >= 4 ) {
+                return array('shipmentId' => "", 'error_msg' => "Maximum allowed amount of shipments is 4 per order. orderID = $order_id");
+            }
+
 			$orderData          = $order->get_data();
 			$shippingMethod     = @array_shift($order->get_shipping_methods());
 			$shipping_method_id = $shippingMethod['method_id'];
@@ -893,7 +904,17 @@ if( !class_exists('CSLFW_Shipping') ) {
             if ( $response['shipmentId'] != '' ) {
 				update_post_meta( $order_id, 'get_status_cargo', 1 );
 				update_post_meta( $order_id, 'get_status_cargo_text', "Open");
-				$order->update_meta_data( 'cargo_shipping_id', $response['shipmentId']);
+                $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
+                if ( $cargo_delivery_id ) {
+                    if ( is_array($cargo_delivery_id) ) {
+                        array_push($cargo_delivery_id, $response['shipmentId']);
+                    } else {
+                        $cargo_delivery_id = [$cargo_delivery_id, $response['shipmentId']];
+                    }
+                } else {
+                    $cargo_delivery_id = $response['shipmentId'];
+                }
+				$order->update_meta_data( 'cargo_shipping_id', $cargo_delivery_id);
 				$order->update_meta_data( 'customerCode', $customerCode);
 				$order->update_meta_data( 'lineNumber', $response['linetext']);
 				$order->update_meta_data( 'drivername', $response['drivername']);
