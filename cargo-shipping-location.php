@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 2.1.3
+ * Version: 2.2
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -70,6 +70,8 @@ if( !class_exists('CSLFW_Shipping') ) {
             add_action('woocommerce_new_order', array($this, 'clean_cookies'), 10, 1);
 
             add_action( 'wp_head', array( $this, 'cslfw_script_checkout' ) );
+            add_action('woocommerce_email_customer_details', array( $this, 'additional_shipping_details'), 30, 3 );
+            add_filter( 'woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details_2'], 10, 3 );
 
             if ( is_admin() ) {
                 register_activation_hook(__FILE__, array( $this, 'activate'));
@@ -78,6 +80,42 @@ if( !class_exists('CSLFW_Shipping') ) {
                 // plugin uninstallation
                 register_uninstall_hook(__FILE__, 'cslfw_uninstall');
             }
+        }
+
+        /**
+         * Function for `woocommerce_order_formatted_shipping_address` filter-hook.
+         *
+         * @param  $raw_address
+         * @param  $that
+         *
+         * @return
+         */
+        function additional_shipping_details_2( $address, $raw_address, $order ){
+
+            $shippingMethod     = @array_shift($order->get_shipping_methods());
+            $shipping_method_id = $shippingMethod['method_id'];
+            ob_start();
+            if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
+                $DistributionPointName = get_post_meta($order->get_id(),'cargo_DistributionPointName',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointName',TRUE);
+                $DistributionPointID = get_post_meta($order->get_id(),'cargo_DistributionPointID',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointID',TRUE);
+                ?>
+                <div>
+                    <p style="margin-bottom: 5px;"><?php _e('Cargo Store Details', 'cargo-shipping-location-for-woocommerce') ?></p>
+                    <?php if (get_option('cargo_box_style') === 'cargo_automatic' && !$DistributionPointName) { ?>
+                        <p><?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?></p>
+                    <?php } else { ?>
+                        <p style="padding:0;">
+                            <strong><?php echo wp_kses_post( $DistributionPointName ) ?> : <?php echo wp_kses_post($DistributionPointID ) ?></strong>
+                        </p>
+                        <p style="margin:0;"><?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_StreetNum', TRUE).' '.get_post_meta( $order->get_id(),'cargo_StreetName',TRUE).' '.get_post_meta($order->get_id(),'cargo_CityName',TRUE) ) ?></p>
+                        <p style="margin:0;"><?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_Comment', TRUE) ) ?></p>
+                        <p style="margin:0;"><?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_cargoPhone',TRUE) ) ?></p>
+                    <?php } ?>
+                </div>
+            <?php }
+            $cargo_details = ob_get_clean();
+            $address .= $cargo_details;
+            return $address ;
         }
 
         function send_email() {
