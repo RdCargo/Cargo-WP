@@ -14,7 +14,17 @@ a.btn.btn-success.send-status {
 #cargo_custom_box .inside {
     margin-top: 20px;
 }
-
+.input-field label {
+    margin-bottom: 5px;
+}
+.input-field input,
+.input-field textarea {
+    border: none;
+    border-radius: 10px;
+    min-height: 40px;
+    background-color: #fff;
+    border: 1px solid #257ab5;
+}
 
 #cargo_custom_box a.btn.btn-success.send-status {
     border: 1px solid green;

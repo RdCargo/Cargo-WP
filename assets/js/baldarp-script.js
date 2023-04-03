@@ -538,6 +538,7 @@ function getlocationfromSearch(lat,long) {
             // datalogics_shipping_id : datalogics_shipping_id
         },  // data to submit
         success: function (data, status, xhr) {
+            console.log(data);
             $(".cargo_location_list").html(data);
             $(".cargo_location_list").show();
             $(".js-toggle-locations-list").show();

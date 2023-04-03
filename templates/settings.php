@@ -334,7 +334,4 @@ $cslfw_shipping = new CSLFW_Shipping;
 
 		</form>
 	</div>
-	<h3>
-        <a href="https://api.cargo.co.il/Webservice/pluginInstruction" target="_blank"><?php _e('כיצד להגדיר תוסף CARGO?', 'cargo-shipping-location-for-woocommerce') ?></a>
-    </h3>
 </div>

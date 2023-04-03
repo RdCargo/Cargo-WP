@@ -169,6 +169,37 @@
 			}
 		});
 	});
+
+
+	$(document).on('submit', '.cslfw-send-email', function(e) {
+		console.log(admin_cargo_obj.ajaxurl);
+		e.preventDefault();
+		ToggleLoading(true);
+
+		$.ajax({
+			type : "post",
+			url: 'http://cargowp.loc/wp-admin/admin-ajax.php',
+			data : {action: 'cslfw_send_email', form_data: $(this).serialize()},
+			success: function(response) {
+				console.log(response);
+				response = JSON.parse(response);
+				ToggleLoading(false);
+
+				console.log(response);
+				$('.cslfw-send-email .notice').remove();
+				let html = '';
+				if ( response.error === 'false' ) {
+					html = `<div class="notice notice-success"><p>${response.message}</p> </div>`;
+				} else {
+					html = `<div class="notice notice-success"><p>${response.message}</p> </div>`;
+				}
+
+				$('.cslfw-send-email').append(html);
+
+			}
+		});
+	})
+
 	function ToggleLoading(bool,elem){
 		if(bool){
 			if(elem != null){

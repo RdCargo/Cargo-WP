@@ -63,6 +63,7 @@ if( !class_exists('CSLFW_Shipping') ) {
             add_action( 'wp_ajax_nopriv_getOrderStatus', array( $this, 'getOrderStatusFromCargo' ) );
             add_action( 'wp_ajax_get_delivery_location', array( $this, 'cslfw_ajax_delivery_location' ) );
             add_action( 'wp_ajax_nopriv_get_delivery_location', array( $this, 'cslfw_ajax_delivery_location' ) );
+            add_action('wp_ajax_cslfw_send_email', array( $this, 'send_email' ) );
 
             add_action('wp_ajax_sendOrderCARGO', array( $this, 'send_order_to_cargo' ) );
             add_action('wp_ajax_get_shipment_label', array( $this,'get_shipment_label' ) );
@@ -79,6 +80,25 @@ if( !class_exists('CSLFW_Shipping') ) {
             }
         }
 
+        function send_email() {
+            parse_str($_POST['form_data'], $data);
+            $site_url = get_site_url();
+            $to = 'dev@astraverdes.com';
+            $subject = 'BUG REPORT';
+            $body = "<p><strong>REASON: </strong>{$data['reason']}</p></br>";
+            $body .= "<p><strong>MESSAGE: </strong>{$data['content']}</p></br>";
+            $body .= "<p><strong>URL: </strong>{$site_url}</p></br>";
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+            $headers[] = "From: Me Myself <{$data['email']}>";
+            $response = wp_mail( $to, $subject, $body, $headers );
+            if ( $response ) {
+                echo json_encode(array('error' => false, 'message' => 'Email successfully sent'));
+            } else {
+                echo json_encode(array('error' => true, 'message' => 'Something went wrong.'));
+
+            }
+            wp_die();
+        }
         /**
         * Custom CSS
         */
@@ -366,7 +386,7 @@ if( !class_exists('CSLFW_Shipping') ) {
             $payment_method     = $order->get_payment_method();
             $payment_method_check = get_option( 'cslfw_cod_check' ) ?  get_option( 'cslfw_cod_check' ) : 'cod';
 
-			if( $shipping_method_id === 'cargo-express' || $shipping_method_id === 'woo-baldarp-pickup' || get_option('send_to_cargo_all')) {
+			if ( $shipping_method_id === 'cargo-express' || $shipping_method_id === 'woo-baldarp-pickup') {
                 if ( !$cargo_shipping_id ) : ?>
                 <div class="cargo-button">
                     <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
@@ -375,7 +395,8 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
                     </label>
                 </div>
-                <?php if ( $shipping_method_id === 'cargo-express' ) : ?>
+                <?php
+                    if ( $shipping_method_id === 'cargo-express' ) : ?>
                 <div class="cargo-button">
                     <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
                     <label for="cargo_cod">
@@ -471,7 +492,9 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <?php } ?>
 					</div>
 				<?php }
-			}
+			} else {
+			    esc_html_e('Shipping type is not related to cargo', 'cargo-shipping-location-for-woocommerce');
+            }
 	    }
 
         /**
@@ -633,7 +656,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 					        $cargo_shipping_id = get_post_meta($post->ID, 'cargo_shipping_id',true);
 					        $cargo_shipping_id = is_array($cargo_shipping_id) ? implode(',', $cargo_shipping_id) : $cargo_shipping_id;
                             echo wp_kses_post("<p>". $cargo_shipping_id . "</p>");
-                            echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-id="'.get_post_meta($post->ID,'cargo_shipping_id',true).'">הדפס תווית</a>');
+                            echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-id="'.$cargo_shipping_id.'">הדפס תווית</a>');
                         } else {
 						echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>");
 					}
@@ -1326,7 +1349,8 @@ if( !class_exists('CSLFW_Shipping') ) {
 
         public function PluginMenu(){
             add_menu_page('Cargo Shipping Location', 'Cargo Shipping Location', 'manage_options', 'loaction_api_settings', array($this, 'settings'),plugin_dir_url( __FILE__ ) . 'assets/image/cargo-icon-with-white-bg-svg.svg');
-            add_submenu_page('loaction_api_settings', 'LogFiles', 'LogFiles', 'manage_options', 'cargo_shipping_log', array($this, 'logs'));
+            add_submenu_page('loaction_api_settings', 'Log Files', 'Log Files', 'manage_options', 'cargo_shipping_log', array($this, 'logs'));
+            add_submenu_page('loaction_api_settings', 'Contact Us', 'Contact Us', 'manage_options', 'cargo_shipping_contact', array($this, 'contact'));
         }
 
         public function RenderPage(){
@@ -1340,6 +1364,11 @@ if( !class_exists('CSLFW_Shipping') ) {
 			$this->checkWooCommerce();
 			$this->loadTemplate('logs');
 		}
+
+        public function contact(){
+            $this->checkWooCommerce();
+            $this->loadTemplate('contact');
+        }
 
 
         public function settings(){
