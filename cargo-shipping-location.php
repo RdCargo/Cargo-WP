@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 2.2.1
+ * Version: 2.3
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -93,40 +93,39 @@ if( !class_exists('CSLFW_Shipping') ) {
 
             $shippingMethod     = @array_shift($order->get_shipping_methods());
             $shipping_method_id = $shippingMethod['method_id'];
-            ob_start();
-            if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
-                $DistributionPointName = get_post_meta($order->get_id(),'cargo_DistributionPointName',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointName',TRUE);
-                $DistributionPointID = get_post_meta($order->get_id(),'cargo_DistributionPointID',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointID',TRUE);
-                ?>
-                <div>
-								<br><strong><?php _e('Cargo Store Details', 'cargo-shipping-location-for-woocommerce') ?></strong><br>
-                    <?php if (get_option('cargo_box_style') === 'cargo_automatic' && !$DistributionPointName) { ?>
-                        <p><?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?></p></br>
-                    <?php } else { ?>
-                        <p style="padding:0;">
-                            <strong><?php echo wp_kses_post( $DistributionPointName ) ?> : <?php echo wp_kses_post($DistributionPointID ) ?></strong>
-												</p></br>
-								<p style="margin:0;"><?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_StreetNum', TRUE).' '.get_post_meta( $order->get_id(),'cargo_StreetName',TRUE).' '.get_post_meta($order->get_id(),'cargo_CityName',TRUE) ) ?></p></div>br>
-                        <p style="margin:0;"><?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_Comment', TRUE) ) ?></p></br>
-                        <p style="margin:0;"><?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_cargoPhone',TRUE) ) ?></p></br>
-                    <?php } ?>
-                </div>
-            <?php }
-            $cargo_details = ob_get_clean();
-            $address .= strip_tags($cargo_details, ['<br>']);
+            $cslfw_box_info = get_option('cslfw_box_info_email');
+            if (!$cslfw_box_info) {
+                ob_start();
+                if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
+                    $DistributionPointName = get_post_meta($order->get_id(),'cargo_DistributionPointName',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointName',TRUE);
+                    $DistributionPointID = get_post_meta($order->get_id(),'cargo_DistributionPointID',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointID',TRUE);
+                    ?>
+                        <br><?php _e('Cargo Point Details', 'cargo-shipping-location-for-woocommerce') ?><br>
+                        <?php if (get_option('cargo_box_style') === 'cargo_automatic' && !$DistributionPointName) { ?>
+                            <?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?><br>
+                        <?php } else { ?>
+                            <?php echo wp_kses_post( $DistributionPointName ) ?> : <?php echo wp_kses_post($DistributionPointID ) ?> <br>
+                            <?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_StreetNum', TRUE).' '.get_post_meta( $order->get_id(),'cargo_StreetName',TRUE).' '.get_post_meta($order->get_id(),'cargo_CityName',TRUE) ) ?><br>
+                            <?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_Comment', TRUE) ) ?><br>
+                            <?php echo wp_kses_post( get_post_meta($order->get_id(),'cargo_cargoPhone',TRUE) ) ?><br>
+                        <?php } ?>
+                <?php }
+                $cargo_details = ob_get_clean();
+                $address .= strip_tags($cargo_details, ['</br>']);
+            }
             return $address;
         }
 
         function send_email() {
             parse_str($_POST['form_data'], $data);
             $site_url = get_site_url();
-            $to = 'dev@astraverdes.com';
+            $to = 'rd@cargo.co.il';
             $subject = 'BUG REPORT';
             $body = "<p><strong>REASON: </strong>{$data['reason']}</p></br>";
             $body .= "<p><strong>MESSAGE: </strong>{$data['content']}</p></br>";
             $body .= "<p><strong>URL: </strong>{$site_url}</p></br>";
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            $headers[] = "From: Me Myself <{$data['email']}>";
+            $headers[] = "From: CARGO PLUGIN <{$data['email']}>";
             $response = wp_mail( $to, $subject, $body, $headers );
             if ( $response ) {
                 echo json_encode(array('error' => false, 'message' => 'Email successfully sent'));
@@ -140,13 +139,13 @@ if( !class_exists('CSLFW_Shipping') ) {
         * Custom CSS
         */
         function custom_changes_css() {
-	      	echo '<style>
-		        a.edit-address-cargo::after {
-				    font-family: Dashicons;
-				    content: "\f464";
-				}
-		      </style>';
-	    }
+        echo '<style>
+          a.edit-address-cargo::after {
+            font-family: Dashicons;
+            content: "\f464";
+          }
+          </style>';
+        }
 
         function clean_cookies( $order_id ) {
             setcookie("cargoPointID", "", time()-3600);
@@ -170,11 +169,11 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 	    function get_order_tracking_details() {
 	    	if ( !isset($_POST['shipping_id']) || sanitize_text_field($_POST['shipping_id']) === '' ) {
-	    	    echo json_encode( array(
+                echo json_encode( array(
                     'status'    => 'fail',
                     'message'   => __('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
                 ));
-	    	    wp_die();
+                wp_die();
             }
 
 	    	$data['deliveryId'] = (int) $_POST['shipping_id'];
@@ -235,10 +234,10 @@ if( !class_exists('CSLFW_Shipping') ) {
          *
          * @return void
          */
-        function tracking_button( $order ){
+        function tracking_button( $order ) {
             $order_id           = $order->get_id();
             $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
-            if ( $cargo_delivery_id )
+            if ( $cargo_delivery_id ) {
                 if ( is_array($cargo_delivery_id) ) {
                     foreach($cargo_delivery_id as $key => $value) {
                         echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $value .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
@@ -246,6 +245,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                 } else {
                     echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $cargo_delivery_id .'">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
                 }
+            }
         }
 
 		/**
@@ -520,7 +520,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                     $DistributionPointID = get_post_meta($post->ID,'cargo_DistributionPointID',TRUE) ?? get_post_meta($post->ID,'DistributionPointID',TRUE);
 				    ?>
 					<div>
-						<h3 style="margin-bottom: 5px;"><?php _e('Cargo Store Details', 'cargo-shipping-location-for-woocommerce') ?></h3>
+						<h3 style="margin-bottom: 5px;"><?php _e('Cargo Point Details', 'cargo-shipping-location-for-woocommerce') ?></h3>
                         <?php if (get_option('cargo_box_style') === 'cargo_automatic' && !$DistributionPointName) { ?>
                             <p><?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?></p>
                         <?php } else { ?>
@@ -554,6 +554,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 		        if ('mark_processing' === $key) {
 		            $new_actions['mark_send-cargo'] = __( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
 		            $new_actions['mark_send-cargo-dd'] = __( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
+		            $new_actions['mark_cargo-print-label'] = __( 'Print cargo labels', 'cargo-shipping-location-for-woocommerce' );
 		        }
 		    }
 
@@ -563,13 +564,16 @@ if( !class_exists('CSLFW_Shipping') ) {
         /**
          *
          */
-		function get_shipment_label() {
+		function get_shipment_label($shipmentId = false) {
+            $ajax = $shipmentId ? false : true;
+		    $shipmentId = $shipmentId ? $shipmentId : sanitize_text_field($_POST['shipmentId']);
 			$options = [
-				'body'        => wp_json_encode( array(
-                                                    'deliveryId' => sanitize_text_field($_POST['shipmentId']),
-                                                    'shipmentId' => sanitize_text_field($_POST['shipmentId'])
-                                                    )
-                                                ),
+				'body'        => wp_json_encode(
+				                    array(
+                                        'deliveryId' => $shipmentId,
+                                        'shipmentId' => $shipmentId
+                                    )
+                                ),
 				'headers'     => [
 					'Content-Type' => 'application/json',
 				],
@@ -583,15 +587,15 @@ if( !class_exists('CSLFW_Shipping') ) {
 
 			$response = wp_remote_post( "https://api.carg0.co.il/Webservice/generateShipmentLabel",  $options);
 			$arrData = wp_remote_retrieve_body($response) or die("Error: Cannot create object");
-//			var_dump($arrData);
-//			var_dump(sanitize_text_field($_POST['shipmentId']));
+
 			$data = (array) json_decode($arrData);
-			if ( $data['error_msg']  == '') {
-				echo json_encode(array("error_msg" => "","pdfLink" => $data['pdfLink'] ));
-			} else {
-				echo json_encode(array("error_msg" => "יצירת התווית נכשלה","pdfLink" => ''));
-			}
-			exit;
+            $response = $data['error_msg']  === '' ? array( "error_msg" => "","pdfLink" => $data['pdfLink'] ) : array("error_msg" => "יצירת התווית נכשלה", "pdfLink" => '');
+            if ($ajax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                return $response;
+            }
 		}
 
 		/**
@@ -772,6 +776,28 @@ if( !class_exists('CSLFW_Shipping') ) {
         }
 
         /**
+         * @param array $order_ids
+         * @return array
+         */
+        function order_ids_to_shipment_ids($order_ids = []) {
+            if ( !empty($order_ids) ) {
+                $shipment_ids = [];
+                foreach ($order_ids as $order_id) {
+                    $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
+                    if ( $cargo_delivery_id ) {
+                        if ( is_array($cargo_delivery_id) ) {
+                            array_push($shipment_ids,  ...$cargo_delivery_id);
+                        } else {
+                            $shipment_ids[] = $cargo_delivery_id;
+                        }
+                    }
+                }
+                return $shipment_ids;
+            } else {
+                wp_die('Empty order_ids array passed to order_ids_to_shipment_ids');
+            }
+        }
+        /**
          * @param $redirect_to
          * @param $action
          * @param $ids
@@ -792,6 +818,12 @@ if( !class_exists('CSLFW_Shipping') ) {
                     foreach ($ids as $key => $order_id) {
                         $this->createShipment($order_id, array('double_delivery' => 2) );
                     }
+                } elseif ($action_name === 'cargo-print-label') {
+                    $shipment_ids = $this->order_ids_to_shipment_ids($ids);
+                    $pdf_label = $this->get_shipment_label( implode( ',', $shipment_ids ) );
+                    $redirect_to = $pdf_label['error_msg']  === '' ? $pdf_label['pdfLink'] : $redirect_to;
+                    return $redirect_to;
+
                 }
             }
 
@@ -801,8 +833,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                     'old_stutus'     => $old_status,
                     'processed_count' => count( $ids ),
                     'processed_ids'  => implode( ',', $ids ),
-                ),
-                $redirect_to );
+                ), $redirect_to );
             return $redirect_to;
         }
 
@@ -897,7 +928,7 @@ if( !class_exists('CSLFW_Shipping') ) {
 
                         if ( !empty($geocoding->data->results) ) {
                             $geocoding = $geocoding->data->results[0]->geometry->location;
-                            $closest_point = $this->cargoAPI('https://api.carg0.co.il/Webservice/findClosestPoints', array('lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 30) );
+                            $closest_point = $this->cargoAPI('https://api.carg0.co.il/Webservice/findClosestPoints', array('lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 10) );
 
                             if ( $closest_point->error === false ) {
                                 if ( !empty($closest_point->closest_points) ) {
@@ -941,28 +972,26 @@ if( !class_exists('CSLFW_Shipping') ) {
             if ( $response['shipmentId'] != '' ) {
 				update_post_meta( $order_id, 'get_status_cargo', 1 );
 				update_post_meta( $order_id, 'get_status_cargo_text', "Open");
-                $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
-                if ( $cargo_delivery_id ) {
-                    if ( is_array($cargo_delivery_id) ) {
-                        array_push($cargo_delivery_id, $response['shipmentId']);
-                    } else {
-                        $cargo_delivery_id = [$cargo_delivery_id, $response['shipmentId']];
-                    }
-                } else {
-                    $cargo_delivery_id = $response['shipmentId'];
-                }
+        $cargo_delivery_id  = get_post_meta( $order_id, 'cargo_shipping_id', true );
+        if ( $cargo_delivery_id ) {
+          if ( is_array($cargo_delivery_id) ) {
+            array_push($cargo_delivery_id, $response['shipmentId']);
+          } else {
+            $cargo_delivery_id = [$cargo_delivery_id, $response['shipmentId']];
+          }
+        } else {
+          $cargo_delivery_id = $response['shipmentId'];
+        }
 				$order->update_meta_data( 'cargo_shipping_id', $cargo_delivery_id);
 				$order->update_meta_data( 'customerCode', $customerCode);
 				$order->update_meta_data( 'lineNumber', $response['linetext']);
 				$order->update_meta_data( 'drivername', $response['drivername']);
-
-                $message .= "ORDER ID : $order_id | DELIVERY ID  : {$response['shipmentId']} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." SHIPMENT TYPE : $CarrierName | CUSTOMER CODE : $customerCode" . PHP_EOL;
-
-                if( $shipping_method_id == 'woo-baldarp-pickup' ) {
-                    $box_point_id = get_post_meta($order_id,'cargo_DistributionPointID',TRUE) ?? get_post_meta($order_id,'DistributionPointID',TRUE);
-                    $message    .= "CARGO BOX POINT ID : $box_point_id". PHP_EOL;
-				}
-                $order->save();
+        $message .= "ORDER ID : $order_id | DELIVERY ID  : {$response['shipmentId']} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." SHIPMENT TYPE : $CarrierName | CUSTOMER CODE : $customerCode" . PHP_EOL;
+        if( $shipping_method_id == 'woo-baldarp-pickup' ) {
+          $box_point_id = get_post_meta($order_id,'cargo_DistributionPointID',TRUE) ?? get_post_meta($order_id,'DistributionPointID',TRUE);
+          $message    .= "CARGO BOX POINT ID : $box_point_id". PHP_EOL;
+        }
+        $order->save();
 			}
 
             $message .= "Shipment Data : ".json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
@@ -1265,14 +1294,8 @@ if( !class_exists('CSLFW_Shipping') ) {
                         <a class='baldrap-btn btn button wp-element-button' id='mapbutton'><?php _e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?></a>
                         <div id='selected_cargo'></div>
                     <?php elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
-                        $cities = json_decode(json_encode( $this->cargoAPI("https://data.gov.il/api/3/action/datastore_search?resource_id=5c78e9fa-c2e2-4771-93ff-7f400a12f7ba&limit=1500") ), 1);
-
-                            if ( $cities['success'] ) {
-                                $cities = array_map(function($element){
-                                    return $element['שם_ישוב'];
-                                }, $cities['result']['records']);
-                                sort($cities, SORT_STRING );
-                            ?>
+                        $cities = json_decode(json_encode( $this->cargoAPI("https://api.carg0.co.il/Webservice/getCitiesForPlugin") ), 1);
+                            if ( $cities['success'] ) { ?>
                                 <p class="form-row form-row-wide">
                                     <label for="cargo_city">
                                         <span><?php _e('בחירת עיר', 'cargo-shipping-location-for-woocommerce') ?></span>
@@ -1280,13 +1303,13 @@ if( !class_exists('CSLFW_Shipping') ) {
 
                                     <select name="cargo_city" id="cargo_city" class="select2">
                                         <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
-                                        <?php foreach ($cities as $key => $value) : ?>
-                                            <option value="<?php echo esc_attr($value) ?>" <?php if (trim($city_dd) === trim( $value ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value) ?></option>
+                                        <?php foreach ($cities['data'] as $key => $value) : ?>
+                                            <option value="<?php echo esc_attr($value['city_name']) ?>" <?php if (trim($city_dd) === trim( $value['city_name'] ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value['city_name']) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </p>
                             <?php }
-                                $points = $this->cargoAPI("https://api.carg0.co.il/Webservice/findClosestPoints", array('lat' => $lat, 'long' => $lng));
+                                $points = $this->cargoAPI("https://api.carg0.co.il/Webservice/findClosestPoints", array('lat' => $lat, 'long' => $lng, 'distance' => 10));
                                 if ( $points->error === false && !empty($points->closest_points) ) {
                             ?>
                                 <div class="form-row form-row-wide">
@@ -1306,7 +1329,7 @@ if( !class_exists('CSLFW_Shipping') ) {
                                     </p>
                                 </div>
                                 <?php } else { ?>
-                                    <p class="woocommerce-info 1">לא נמצאו כתובות ברדיוס של 5 ק״מ נא לבחור עיר אחרת</p>
+                                    <p class="woocommerce-info 1"><?php _e('לא נמצאו כתובות ברדיוס של 10 ק״מ נא לבחור עיר אחרת', 'cargo-shipping-location-for-woocommerce') ?></p>
                                 <?php } ?>
                     <?php else : ?>
                     <?php endif; ?>
@@ -1357,6 +1380,7 @@ if( !class_exists('CSLFW_Shipping') ) {
             register_setting('cslfw_shipping_api_settings_fg', 'from_city');
             register_setting('cslfw_shipping_api_settings_fg', 'phonenumber_from');
             register_setting('cslfw_shipping_api_settings_fg', 'website_name_cargo');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_box_info_email');
 			register_setting('cslfw_shipping_api_settings_fg', 'bootstrap_enalble');
 			register_setting('cslfw_shipping_api_settings_fg', 'send_to_cargo_all');
 			register_setting('cslfw_shipping_api_settings_fg', 'cargo_box_style');
@@ -1394,6 +1418,7 @@ if( !class_exists('CSLFW_Shipping') ) {
             delete_option('shipping_cargo_express');
             delete_option('shipping_cargo_box');
             delete_option('website_name_cargo');
+            delete_option('cslfw_box_info_email');
 			delete_option('bootstrap_enalble');
 			delete_option('send_to_cargo_all');
 			delete_option('cargo_box_style');

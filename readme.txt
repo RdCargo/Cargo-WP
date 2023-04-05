@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 2.1.0
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 2.2.1
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,3 +52,8 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 
 == 2.2.1 =
 * Bug fix for shipping location thank you page.
+
+== 2.3 =
+* fixes to cities dropdown. (show only cities with the point)
+* Disable cargo point details in email settings.
+* Bulk Shipment option in cargo summary page.

@@ -444,6 +444,7 @@ $(document).on('change', '#cargo_city', function() {
                         success: function (response, status, xhr) {
                             console.log(response);
                             $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').remove();
+                            console.log(response.error);
                             if ( response.error === false ) {
                                 if ( response.closest_points.length > 0 ) {
                                     setPointCookie(response.closest_points[0].point_details);
@@ -454,7 +455,7 @@ $(document).on('change', '#cargo_city', function() {
                                 }
                             } else {
                                 $('#cargo_pickup_point').parent().hide();
-                                alert(response.error);
+                                alert('response.error');
                             }
                             setTimeout(function() {
                                 $( document.body ).trigger( 'update_checkout' );
@@ -469,6 +470,7 @@ $(document).on('change', '#cargo_city', function() {
                 }
 
             } else {
+                console.log('error')
                 alert(response.error);
             }
         },

@@ -75,7 +75,7 @@ $cslfw_shipping = new CSLFW_Shipping;
                     </td>
                 </tr>
 
-				<tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' ? 'table-row' : 'none' ?>">
+				<tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' || !$cargo_box_style ? 'table-row' : 'none' ?>">
 					<th scope="row" align="left" style="vertical-align: top;">
                         <label for="cslfw-google-api-key"><?php _e('Google maps API key:', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
@@ -219,6 +219,25 @@ $cslfw_shipping = new CSLFW_Shipping;
 				</tr>
                 <tr>
                     <th scope="row" align="left" >
+                        <label for="cslfw_cod_check"><?php _e('Disable CARGO box info in email', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_box_info_email" style="vertical-align: top;">
+                                <?php
+                                    $cslfw_box_info = get_option('cslfw_box_info_email');
+                                    $checked = $cslfw_box_info ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_box_info_email">
+                                    <input type="checkbox" id="cslfw_box_info_email" name="cslfw_box_info_email" <?php echo esc_attr($checked) ?>>
+                                    <span><?php _e('Disable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" align="left" >
                         <label for="cslfw_cod_check"><?php _e('Automatic check for COD', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
@@ -314,7 +333,7 @@ $cslfw_shipping = new CSLFW_Shipping;
 							<label for="cargo_order_status" style="vertical-align: top;">
 								<select name="cargo_order_status">
 									<option value=""><?php _e('Status Selection', 'cargo-shipping-location-for-woocommerce') ?></option>
-									<?php 
+									<?php
 									foreach (wc_get_order_statuses() as $key => $value) {
 										$selected = get_option('cargo_order_status') == $key ? 'selected' : '';
 										?>
@@ -330,7 +349,7 @@ $cslfw_shipping = new CSLFW_Shipping;
 			</table>
 
 				<?php wp_nonce_field( 'shippingwoo-settings-save', 'cslfw_shipping_api_settings_fg' ); ?>
-				<?php submit_button(); ?>	
+				<?php submit_button(); ?>
 
 		</form>
 	</div>
