@@ -1,6 +1,8 @@
 <?php
-require CSLFW_PATH . '/includes/cslfw-helpers.php';
-
+/**
+ * Contact class
+ *
+ */
 if ( class_exists( 'CSLFW_Contact', false ) ) {
     return new CSLFW_Contact();
 }

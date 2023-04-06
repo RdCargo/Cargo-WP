@@ -1,6 +1,8 @@
 <?php
-require CSLFW_PATH . '/includes/cslfw-helpers.php';
-
+/**
+ * Logs class
+ *
+ */
 if ( class_exists( 'CSLFW_Logs', false ) ) {
     return new CSLFW_Logs();
 }
