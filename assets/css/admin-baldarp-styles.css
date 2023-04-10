@@ -67,14 +67,7 @@ td.column-send_to_cargo a.submit-cargo-shipping{
 .send_to_cargo.column-send_to_cargo,.delivery_status.column-delivery_status,.send_to_cargo.column-send_to_cargo{
     text-align: center;
 }
-a.edit-address-cargo::after{
-    content: none !important;
-    
-}
-a.edit-address-cargo{
-    color: white !important;
-    text-decoration: none !important;
-}
+
 .cargo-button .submit-cargo-shipping{
     padding: 7px 15px;
     background-color: #2878b1;

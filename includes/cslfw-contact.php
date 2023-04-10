@@ -32,7 +32,7 @@ if( !class_exists('CSLFW_Contact') ) {
         }
 
         public function render() {
-            $this->helpers->loadTemplate('contact');
+            $this->helpers->load_template('contact');
         }
 
         function add_menu_link() {

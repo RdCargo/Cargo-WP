@@ -27,8 +27,8 @@ if( !class_exists('CSLFW_Settings') ) {
         }
 
         public function settings(){
-            $this->helpers->checkWooCommerce();
-            $this->helpers->loadTemplate('settings');
+            $this->helpers->check_woo();
+            $this->helpers->load_template('settings');
         }
 
         public function cslfw_shipping_api_settings_init() {
@@ -46,7 +46,6 @@ if( !class_exists('CSLFW_Settings') ) {
             register_setting('cslfw_shipping_api_settings_fg', 'website_name_cargo');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_box_info_email');
             register_setting('cslfw_shipping_api_settings_fg', 'bootstrap_enalble');
-            register_setting('cslfw_shipping_api_settings_fg', 'send_to_cargo_all');
             register_setting('cslfw_shipping_api_settings_fg', 'cargo_box_style');
             register_setting('cslfw_shipping_api_settings_fg', 'disable_order_status');
         }
@@ -64,7 +63,6 @@ if( !class_exists('CSLFW_Settings') ) {
             delete_option('website_name_cargo');
             delete_option('cslfw_box_info_email');
             delete_option('bootstrap_enalble');
-            delete_option('send_to_cargo_all');
             delete_option('cargo_box_style');
             delete_option('disable_order_status');
         }

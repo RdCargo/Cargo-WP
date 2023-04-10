@@ -1,7 +1,3 @@
-<?php
-$cslfw_shipping = new CSLFW_Shipping;
-?>
-
 <div>
 	<h2><?php _e('Shipping API Location - Settings', 'cargo-shipping-location-for-woocommerce') ?></h2>
 	<div class="wrap">
@@ -286,28 +282,9 @@ $cslfw_shipping = new CSLFW_Shipping;
 					</td>
 				</tr>
 
-                <tr style="display: none">
-                    <th scope="row" align="left" >
-                        <label for="send_to_cargo_all"><?php _e('Enable for All orders', 'cargo-shipping-location-for-woocommerce') ?></label>
-                    </th>
-                    <td >
-                        <div style="display: inline-block; margin-right: 15px;" class="text">
-                            <label for="send_to_cargo_all" style="vertical-align: top;">
-                                <input type="checkbox"
-                                       placeholder=""
-                                       id="send_to_cargo_all"
-                                       value="1"
-                                       name="send_to_cargo_all"
-                                       value="1" <?php if( get_option('send_to_cargo_all')) {echo esc_attr("checked"); } ?> >
-                            </label>
-                        </div>
-                        <div class='validation' style='color:red;margin-bottom: 10px; direction:ltr;'></div>
-                    </td>
-                </tr>
-
 				<tr style="display: none">
                     <th scope="row" align="left" >
-                        <label for="send_to_cargo_all"><?php _e('Disable order status when sent to cargo', 'cargo-shipping-location-for-woocommerce') ?></label>
+                        <label for="disable_order_status"><?php _e('Disable order status when sent to cargo', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
                         <div style="display: inline-block; margin-right: 15px;" class="text">

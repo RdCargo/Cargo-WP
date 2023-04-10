@@ -22,8 +22,6 @@ if( !class_exists('CSLFW_Logs') ) {
             $this->result      = [];
             $this->handles     = [];
             $this->viewed_log  = '';
-
-            add_action('admin_menu', array($this, 'add_menu_link'), 100);
         }
 
         public function add_menu_link() {
@@ -31,8 +29,29 @@ if( !class_exists('CSLFW_Logs') ) {
         }
 
         public function logs(){
-            $this->helpers->checkWooCommerce();
-            $this->helpers->loadTemplate('logs');
+            $this->helpers->check_woo();
+            $this->helpers->load_template('logs');
+        }
+
+        /**
+         * @param $msg
+         *
+         * Add Log for Order
+         */
+        function add_log_message($msg) {
+            $upload = wp_upload_dir();
+            $upload_dir = $upload['basedir'];
+            $upload_dir = $upload_dir . '/cargo-shipping-location';
+
+            if (! is_dir($upload_dir)) {
+                mkdir( $upload_dir, 0700 );
+            }
+            $path = $upload_dir.'/order_log_' . date('Ymd') . '.txt';
+            if (!file_exists($path)) {
+                $file = fopen($path, 'w') or die("Can't create file");
+            }
+
+            file_put_contents($path, $msg, FILE_APPEND) or die('failed to put');
         }
 
         public function get_logs() {
@@ -52,10 +71,10 @@ if( !class_exists('CSLFW_Logs') ) {
                 $this->viewed_log = current( $this->result );
             }
 
-            $handle = ! empty( $this->viewed_log ) ? $this->cslfw_get_log_file_handle_op( $this->viewed_log ) : '';
+            $handle = ! empty( $this->viewed_log ) ? $this->get_log_file_handle_op( $this->viewed_log ) : '';
 
             if ( ! empty( $_REQUEST['handle'] ) ) { // WPCS: input var ok, CSRF ok.
-                $this->cslfw_remove_log_op();
+                $this->remove_log_op();
             }
 
 
@@ -68,24 +87,24 @@ if( !class_exists('CSLFW_Logs') ) {
             return (object) $logs;
         }
 
-        function cslfw_get_log_file_handle_op( $filename ) {
+        function get_log_file_handle_op( $filename ) {
             return substr( $filename, 0, strlen( $filename ) > 48 ? strlen( $filename ) - 48 : strlen( $filename ) - 4 );
         }
 
-        function cslfw_remove_log_op() {
+        function remove_log_op() {
             if ( empty( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['_wpnonce'] ), 'remove_log' ) ) { // WPCS: input var ok, sanitization ok.
                 wp_die( esc_html__( 'Action failed. Please refresh the page and retry.', 'woocommerce' ) );
             }
 
             if ( ! empty( $_REQUEST['handle'] ) ) {  // WPCS: input var ok.
-                $this->cslfw_remove_op( wp_unslash( $_REQUEST['handle'] ) ); // WPCS: input var ok, sanitization ok.
+                $this->remove_op( wp_unslash( $_REQUEST['handle'] ) ); // WPCS: input var ok, sanitization ok.
             }
 
             wp_safe_redirect( esc_url_raw( admin_url( 'admin.php?page=cargo_shipping_log' ) ) );
             exit();
         }
 
-        function cslfw_remove_op($handle) {
+        function remove_op($handle) {
             $removed          = false;
             $result_new = array();
 
@@ -104,27 +123,25 @@ if( !class_exists('CSLFW_Logs') ) {
             if ( isset( $result_new[ $handle ] ) && $result_new[ $handle ] ) {
                 $file = realpath( trailingslashit( $this->logs_dir ) .'/'. $result_new[ $handle ] );
                 if ( 0 === stripos( $file, realpath( trailingslashit( $this->logs_dir ) ) ) && is_file( $file ) && is_writable( $file ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_is_writable
-                    $this->cslfw_close_op( $file ); // Close first to be certain no processes keep it alive after it is unlinked.
+                    $this->close_op( $file ); // Close first to be certain no processes keep it alive after it is unlinked.
                     $removed = unlink( $file ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_unlink
                 }
             }
             return $removed;
         }
 
-        public function cslfw_close_op( $handle ) {
+        public function close_op( $handle ) {
             $this->result = false;
 
-            if ( $this->cslfw_is_open_op( $handle ) ) {
+            if ( $this->is_open_op( $handle ) ) {
                 $this->result = fclose( $this->handles[ $handle ] ); // @codingStandardsIgnoreLine.
                 unset( $this->handles[ $handle ] );
             }
             return $this->result;
         }
 
-        function cslfw_is_open_op($handle) {
+        function is_open_op($handle) {
             return array_key_exists( $handle, $this->handles ) && is_resource( $this->handles[ $handle ] );
         }
     }
-
-    $logs = new CSLFW_Logs();
 }
