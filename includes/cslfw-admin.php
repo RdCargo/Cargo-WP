@@ -35,7 +35,8 @@ if( !class_exists('CSLFW_Admin') ) {
             $screen       = get_current_screen();
             $screen_id    = $screen ? $screen->id : '';
 
-            if( $screen_id === 'toplevel_page_loaction_api_settings' ||  $screen_id === 'toplevel_page_loaction_api_settings' ) {
+
+            if( $screen_id === 'toplevel_page_loaction_api_settings' ||  $screen_id === 'cargo-shipping-location_page_cargo_shipping_contact' || $screen_id === 'cargo-shipping-location_page_cargo_orders_reindex' ) {
                 wp_enqueue_script( 'cargo-libs', CSLFW_URL . 'assets/js/libs.js', array('jquery'), '', true);
             }
             wp_enqueue_style( 'admin-baldarp-styles', CSLFW_URL . 'assets/css/admin-baldarp-styles.css' );
@@ -205,7 +206,7 @@ if( !class_exists('CSLFW_Admin') ) {
                             <div>
                                 <h3>SHIPPING <?php esc_html_e($shipping_id) ?></h3>
                                 <h4 style="margin-bottom: 5px;"><?php _e('Cargo Point Details', 'cargo-shipping-location-for-woocommerce') ?></h4>
-                                <?php if ($box_shipment_type === 'cargo_automatic') { ?>
+                                <?php if ($box_shipment_type === 'cargo_automatic' && !$chosen_point) { ?>
                                     <p><?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?></p>
                                 <?php } else { ?>
                                     <h2 style="padding:0;">
@@ -306,32 +307,31 @@ if( !class_exists('CSLFW_Admin') ) {
 
             if ( $shipping_method['method_id'] === 'cargo-express' || $shipping_method['method_id'] === 'woo-baldarp-pickup' ) {
                 $cargo_shipping = new CSLFW_Cargo_Shipping($post->ID);
-                $deliveries = $cargo_shipping->get_shipment_ids();
+                $deliveries = $cargo_shipping->get_shipment_data();
 
+                $box_point_id = get_post_meta($post->ID, 'cargo_DistributionPointID', true);
                 if ( 'delivery_status' === $column ) {
                     $type = $shipping_method['method_id'] === 'woo-baldarp-pickup' ? "BOX" : "EXPRESS";
 
                     if ( $deliveries ) {
-                        if ( get_post_meta($post->ID, 'get_status_cargo', true) ) {
-                            echo wp_kses_post('<p>Status - ' . get_post_meta($post->ID, 'get_status_cargo_text', true) . '</p>');
-                        }
-                        if ( is_array($deliveries) ) {
-                            foreach ($deliveries as $key => $value) {
-                                echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 5px;' data-id=" . $post->ID.  " data-deliveryid='$value'>$value  בדוק מצב הזמנה</a>");
-                            }
-                        } else {
-                            echo wp_kses_post("<a href='#' class='btn btn-success send-status' data-id=" . $post->ID . "> בדוק מצב הזמנה</a>");
+                        foreach ($deliveries as $key => $value) {
+                            echo wp_kses_post('<p>Status - ' . $value['status']['text'] . '</p>');
+                            echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 5px;' data-id=" . $key.  " data-deliveryid='$key'>$key  בדוק מצב הזמנה</a>");
                         }
                     }
                 }
 
                 if ( 'send_to_cargo' === $column ) {
                     if ( $deliveries ) {
-                        $deliveries = is_array($deliveries) ? implode(',', $deliveries) : $deliveries;
+                        $deliveries = implode(',', $cargo_shipping->get_shipment_ids()) ;
                         echo wp_kses_post("<p>". $deliveries . "</p>");
                         echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-order-id="'.$post->ID.'">הדפס תווית</a>');
                     } else {
-                        echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>");
+                        if ( $box_point_id ) {
+                            echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-box-point-id='$box_point_id' data-id=".$post->ID." >שלח  לCARGO</a>");
+                        } else {
+                            echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-id=".$post->ID." >שלח  לCARGO</a>");
+                        }
                     }
                 }
             }

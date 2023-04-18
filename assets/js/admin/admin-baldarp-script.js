@@ -103,13 +103,14 @@
 				cargo_cod_type: $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]:checked').val() : ''
 			};
 
-			if ( $('#cargo_pickup_point').val() !== '' ) data['box_point_id'] = $('#cargo_pickup_point option:selected').attr('value');
+			if ( $('#cargo_pickup_point option:selected').attr('value') !== '' ) data['box_point_id'] = $('#cargo_pickup_point option:selected').attr('value');
+			if ( $(this).attr('data-box-point-id') ) data['box_point_id'] =$(this).attr('data-box-point-id');
 			console.log(data);
 
 			ToggleLoading(true);
 			$.ajax({
 				type : "post",
-				// dataType : "json",
+				dataType : "json",
 				url : admin_cargo_obj.ajaxurl,
 				data : data,
 				success: function(response) {
@@ -121,7 +122,7 @@
 						$('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(500).queue(function(n) {
 							$('.removeClass').hide();
 							n();
-							// location.reload();
+							location.reload();
 						});
 					} else {
 					  alert(response.error_msg);

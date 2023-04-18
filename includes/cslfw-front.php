@@ -70,8 +70,13 @@ if( !class_exists('CSLFW_Front') ) {
          */
         public function checkout_cargo_actions( $method, $index ) {
             if( is_cart() ) { return; }
+            $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods')[ $index ];
+            $chosen_method_id = explode(':', $chosen_shipping_methods);
+            $chosen_method_id = reset($chosen_method_id);
+            $loop_method = explode(':', $method->id);
+            $loop_method = reset($loop_method);
 
-            if ( $method->method_id == 'woo-baldarp-pickup') {
+            if ( $chosen_method_id == 'woo-baldarp-pickup' && $method->method_id == 'woo-baldarp-pickup' ) {
                 $pointId    = isset($_COOKIE['cargoPointID']) ? sanitize_text_field($_COOKIE['cargoPointID']) : '';
                 $city       = isset($_COOKIE['CargoCityName']) ? sanitize_text_field($_COOKIE['CargoCityName']) : '';
                 $city_dd    = isset($_COOKIE['CargoCityName_dropdown']) ? sanitize_text_field($_COOKIE['CargoCityName_dropdown']) : '';

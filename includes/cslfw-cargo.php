@@ -52,7 +52,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'TotalValue'            => $order->get_total(),
                 'TransactionID'         => $this->order_id,
                 'ContentDescription'    => "",
-                'CashOnDelivery'        => isset($args['cargo_cod']) ? $args['cargo_cod'] : 0,
+                'CashOnDelivery'        => isset($args['cargo_cod']) ? floatval($order->get_total()) : 0,
                 'CarrierName'           => "CARGO",
                 'CarrierService'        => $CarrierName,
                 'CarrierID'             => $shipping_method_id == 'woo-baldarp-pickup' ? 0 : 1,
@@ -147,7 +147,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 }
             }
 
-            return $data;
+            return apply_filters('cslfw_cargo_order_array', $data, $this->order_id);
         }
 
         /**
@@ -160,7 +160,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         public function createShipment($args = []) {
             $logs = new CSLFW_Logs();
             $data = $this->createCargoObject($args);
-//            $order = wc_get_order( $this->order_id );
 
             if ( !isset($data['Method']) ) return $data;
 
@@ -272,8 +271,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
         function getShipmentLabel($shipment_ids = false) {
             $args = array(
-                'deliveryId' => $shipment_ids ? $shipment_ids : implode(',', $this->get_shipment_ids()),
-                'shipmentId' => $shipment_ids ? $shipment_ids : implode(',', $this->get_shipment_ids())
+                'deliveryId' => $shipment_ids ? $shipment_ids : implode(',', array_reverse($this->get_shipment_ids())),
+                'shipmentId' => $shipment_ids ? $shipment_ids : implode(',', array_reverse($this->get_shipment_ids()))
             );
             return $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/generateShipmentLabel", $args);
         }

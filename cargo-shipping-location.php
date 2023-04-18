@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 2.4
+ * Version: 3.0
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -24,12 +24,13 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 require CSLFW_PATH . '/includes/cslfw-helpers.php';
-require CSLFW_PATH . '/includes/cslfw-contact.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
+require CSLFW_PATH . '/includes/cslfw-contact.php';
 require CSLFW_PATH . '/includes/cslfw-settings.php';
 require CSLFW_PATH . '/includes/cslfw-admin.php';
 require CSLFW_PATH . '/includes/cslfw-front.php';
 require CSLFW_PATH . '/includes/cslfw-cargo.php';
+require CSLFW_PATH . '/includes/cslfw-orders-reindex.php';
 
 if( !class_exists('CSLFW_Cargo') ) {
     class CSLFW_Cargo {
@@ -37,17 +38,19 @@ if( !class_exists('CSLFW_Cargo') ) {
         function __construct() {
             $this->helpers = new CSLFW_Helpers();
             $this->logs = new CSLFW_Logs();
+            $this->reindex = new CSLFW_OrdersReindex();
 
             add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'custom_checkout_field_update_order_meta' ));
             add_action( 'woocommerce_checkout_order_processed', array( $this, 'transfer_order_data_for_shipment' ), 10, 1);
 
-            add_action( 'wp_ajax_getOrderStatus', array( $this,'getOrderStatusFromCargo' ) );
+            add_action( 'wp_ajax_getOrderStatus', array( $this, 'getOrderStatusFromCargo' ) );
             add_action( 'wp_ajax_nopriv_getOrderStatus', array( $this, 'getOrderStatusFromCargo' ) );
             add_action( 'wp_ajax_get_delivery_location', array( $this, 'cslfw_ajax_delivery_location' ) );
             add_action( 'wp_ajax_nopriv_get_delivery_location', array( $this, 'cslfw_ajax_delivery_location' ) );
             add_action('wp_ajax_sendOrderCARGO', array( $this, 'send_order_to_cargo' ) );
-            add_action('wp_ajax_get_shipment_label', array( $this,'get_shipment_label' ) );
+            add_action('wp_ajax_get_shipment_label', array( $this, 'get_shipment_label' ) );
             add_action('admin_menu', array($this->logs, 'add_menu_link'), 100);
+            add_action('admin_menu', array($this->reindex, 'add_menu_link'), 100);
 
             add_filter( 'woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
         }
@@ -65,24 +68,26 @@ if( !class_exists('CSLFW_Cargo') ) {
             $cslfw_box_info     = get_option('cslfw_box_info_email');
             if (!$cslfw_box_info) {
                 ob_start();
+                $cargo_shipping = new CSLFW_Cargo_Shipping( $order->get_id() );
+
                 if ( $shipping_method['method_id'] == 'woo-baldarp-pickup' ) {
-                    $DistributionPointID = get_post_meta($order->get_id(),'cargo_DistributionPointID',TRUE) ?? get_post_meta($order->get_id(),'DistributionPointID',TRUE);
                     $box_shipment_type   = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true);
-                    $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $DistributionPointID )]);
-                    if ( count($point->PointsDetails) ) {
-                        $chosen_point = $point->PointsDetails[0];
-                        echo __("Cargo Point Details", 'cargo-shipping-location-for-woocommerce') . PHP_EOL;
-                        if ( $box_shipment_type === 'cargo_automatic' ) {
-                            echo __('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce'). PHP_EOL;
-                        } else {
-                            echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
-                            echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;
-                            echo wp_kses_post( $chosen_point->Comment ) . PHP_EOL;
-                            echo wp_kses_post( $chosen_point->Phone ) . PHP_EOL;
+
+                    foreach ($cargo_shipping->get_shipment_data() as $shipping_id => $data) {
+                        $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
+                        if ( count($point->PointsDetails) ) {
+                            $chosen_point = $point->PointsDetails[0];
+                            echo __("Cargo Point Details", 'cargo-shipping-location-for-woocommerce') . PHP_EOL;
+                            if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
+                                echo __('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce'). PHP_EOL;
+                            } else {
+                                echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
+                                echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;
+                                echo wp_kses_post( $chosen_point->Comment ) . PHP_EOL;
+                                echo wp_kses_post( $chosen_point->Phone ) . PHP_EOL;
+                            }
                         }
                     }
-
-
                  }
                 $cargo_details = ob_get_clean();
                 $address .= $cargo_details;
@@ -192,7 +197,6 @@ if( !class_exists('CSLFW_Cargo') ) {
     			update_post_meta( $order_id, 'cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']) );
         	}
         }
-
 
         /**
          * Update Order meta
