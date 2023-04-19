@@ -44,6 +44,16 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $name = $order_data['shipping']['first_name'] ? $order_data['shipping']['first_name']. ' ' . $order_data['shipping']['last_name'] : $order_data['billing']['first_name'] . ' ' . $order_data['billing']['last_name'];
 
+            $notes = '';
+            if ( $args['fulfillment'] ) {
+                foreach ($order->get_items() as $item) {
+                    $product = wc_get_product($item->get_product_id());
+                    $notes .= '|' .  $product->get_sku() . '*' . $item->get_quantity();
+                }
+            }
+            $notes = substr($notes, 1);
+            $notes .= $order_data['customer_note'];
+
             $data['Method'] = "ship";
             $data['Params'] = array(
                 'shipping_type'         => isset($args['shipping_type']) ? $args['shipping_type'] : 1,
@@ -52,13 +62,13 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'TotalValue'            => $order->get_total(),
                 'TransactionID'         => $this->order_id,
                 'ContentDescription'    => "",
-                'CashOnDelivery'        => isset($args['cargo_cod']) ? floatval($order->get_total()) : 0,
+                'CashOnDelivery'        => isset($args['cargo_cod']) && $args['cargo_cod'] ? floatval($order->get_total()) : 0,
                 'CarrierName'           => "CARGO",
                 'CarrierService'        => $CarrierName,
                 'CarrierID'             => $shipping_method_id == 'woo-baldarp-pickup' ? 0 : 1,
                 'OrderID'               => $this->order_id,
                 'PaymentMethod'         => $order_data['payment_method'],
-                'Note'                  => $order_data['customer_note'],
+                'Note'                  => $notes,
                 'customerCode'          => $customer_code,
 
                 'to_address' => array(
@@ -129,25 +139,25 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                                     $order->save();
                                 } else {
                                     $logs->add_log_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );
-                                    return array('shipmentId' => "", 'error_msg' => 'No closest points found by the radius.');
+                                    return array('shipmentId' => "", 'error_msg' => 'No closest points found by the radius.'); die();
                                 }
                             } else {
                                 $logs->add_log_message("ERROR.FAIL: 'Failed to find closest points." . PHP_EOL );
-                                return array('shipmentId' => "", 'error_msg' => 'Failed to find closest points. Contact support please.');
+                                return array('shipmentId' => "", 'error_msg' => 'Failed to find closest points. Contact support please.'); die();
                             }
                         } else {
                             $logs->add_log_message("ERROR.FAIL: Empty geocoding data." . PHP_EOL );
-                            return array('shipmentId' => "", 'error_msg' => 'Empty geocoding data.');
+                            return array('shipmentId' => "", 'error_msg' => 'Empty geocoding data.'); die();
                         }
 
                     } else {
                         $logs->add_log_message("ERROR.FAIL: Address geocoding fail for address $address" . PHP_EOL );
-                        return array('shipmentId' => "", 'error_msg' => 'Failed to create geocoding. Contact support please.');
+                        return array('shipmentId' => "", 'error_msg' => 'Failed to create geocoding. Contact support please.'); die();
                     }
                 }
             }
 
-            return apply_filters('cslfw_cargo_order_array', $data, $this->order_id);
+            return apply_filters('cslfw_cargo_order_array', $data, $this->order_id); die();
         }
 
         /**

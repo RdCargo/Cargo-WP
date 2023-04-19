@@ -134,7 +134,8 @@ if( !class_exists('CSLFW_Cargo') ) {
                 'shipment_type'     => (int) sanitize_text_field($_POST['shipment_type']),
                 'no_of_parcel'      => (int) sanitize_text_field($_POST['no_of_parcel']),
                 'cargo_cod'         => (int) sanitize_text_field($_POST['cargo_cod']),
-                'cargo_cod_type'    => (int) sanitize_text_field($_POST['cargo_cod_type'])
+                'cargo_cod_type'    => (int) sanitize_text_field($_POST['cargo_cod_type']),
+                'fulfillment'       => (int) sanitize_text_field($_POST['fulfillment'])
             );
 
             if (isset( $_POST['box_point_id'] )) {

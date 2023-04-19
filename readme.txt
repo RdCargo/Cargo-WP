@@ -60,5 +60,7 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 
 == 3.0 ==
 * Ability to change pickup point from admin.
-* Add reindex for moving from plugin versions lower than 3.0
+* Add reindex for moving from plugin versions lower than 3.0 (REQUIRED REINDEX AFTER PLUGIN UPDATE)
 * Added filters to edit cargo parameters array.
+* Added fulfillment checkbox.
+* fix to make the cargo block display in the free shipping and flat rate shipping methods.

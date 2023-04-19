@@ -100,11 +100,12 @@
 				shipment_type: $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]').val() : 1,
 				no_of_parcel: $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0,
 				cargo_cod: $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? 1 : 0 : 0,
-				cargo_cod_type: $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]:checked').val() : ''
+                fulfillment: $('input[name="cslfw_fulfillment"]').length > 0 ? $('input[name="cslfw_fulfillment"]').is(':checked') ? 1 : 0 : 0,
+				cargo_cod_type: $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]').is(':checked') ? 1 : '' : ''
 			};
 
-			if ( $('#cargo_pickup_point option:selected').attr('value') !== '' ) data['box_point_id'] = $('#cargo_pickup_point option:selected').attr('value');
-			if ( $(this).attr('data-box-point-id') ) data['box_point_id'] =$(this).attr('data-box-point-id');
+			if ( $('#cargo_pickup_point').length > 0 &&  $('#cargo_pickup_point option:selected').attr('value') !== '' ) data['box_point_id'] = $('#cargo_pickup_point option:selected').attr('value');
+			if ( $(this).attr('data-box-point-id') ) data['box_point_id'] = $(this).attr('data-box-point-id');
 			console.log(data);
 
 			ToggleLoading(true);
