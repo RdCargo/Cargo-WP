@@ -105,7 +105,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             }
 
             if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
-                if ( $cargo_box_style !== 'cargo_automatic' ) {
+                if ( $cargo_box_style !== 'cargo_automatic' || isset($args['box_point']) ) {
                     $chosen_point = $args['box_point'];
                     $data['Params']['to_address'] = array(
                         'name'      => $name,

@@ -50,9 +50,11 @@
                     response.PointsDetails.forEach( (point) => {
                         html += `<option value="${point.DistributionPointID}">${point.DistributionPointName}, ${point.CityName}, ${point.StreetName} ${point.StreetNum}</option>`;
                     })
-                    $('#cargo_pickup_point').html(html);
+                    $('#cargo_pickup_point').html(html).show();
 
                 } else {
+                    $('#cargo_pickup_point').hide();
+
                     alert('No points found by this city');
                 }
                 ToggleLoading(false);
@@ -111,7 +113,7 @@
 			ToggleLoading(true);
 			$.ajax({
 				type : "post",
-				dataType : "json",
+				// dataType : "json",
 				url : admin_cargo_obj.ajaxurl,
 				data : data,
 				success: function(response) {

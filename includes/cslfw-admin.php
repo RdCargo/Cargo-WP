@@ -87,7 +87,7 @@ if( !class_exists('CSLFW_Admin') ) {
                             </label>
                         </div>
                         <div class="cargo-button">
-                            <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
+                            <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?> (<?php echo $order->get_formatted_order_total() ?>)</strong>
                             <label for="cargo_cod">
                                 <input type="checkbox" name="cargo_cod" id="cargo_cod" <?php if ($payment_method === $payment_method_check) echo esc_attr('checked'); ?> />
                                 <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
@@ -112,11 +112,12 @@ if( !class_exists('CSLFW_Admin') ) {
                         </div>
                     <?php else: ?>
                         <?php
-                        $DistributionPointID = get_post_meta($post->ID,'cargo_DistributionPointID',TRUE) ?? get_post_meta($post->ID,'DistributionPointID',TRUE);
-
+                        $shipment_data = $cargo_shipping->get_shipment_data();
+                        $DistributionPointID = $shipment_data ? end($shipment_data)['box_id'] : false;
                         if ( $DistributionPointID ) :
                             $cities              = json_decode(json_encode( $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickupCities") ), 1);
-                            $selected_city       = get_post_meta($post->ID,'cargo_CityName',TRUE);
+                            $points = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => $DistributionPointID]);
+                            $selected_city       = $points->PointsDetails[0]->CityName;
                             if ( count($cities['PointsDetails'] ) ) { ?>
                                 <p class="form-row form-row-wide">
                                     <label for="cargo_city">
@@ -132,13 +133,13 @@ if( !class_exists('CSLFW_Admin') ) {
                                 </p>
                             <?php }
                             $points = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['city' => $selected_city]);
-                            if ( count($points->PointsDetails ) ) { ?>
+                            ?>
                                 <div class="form-row form-row-wide">
                                     <p class="select-wrap w-100">
                                         <label for="cargo_pickup_point">
                                             <span><?php _e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
                                         </label>
-                                        <select name="cargo_pickup_point" id="cargo_pickup_point" class="select2 w-100">
+                                        <select name="cargo_pickup_point" id="cargo_pickup_point" class="select2 w-100" style="display: <?php echo esc_attr($points ? 'block' : 'none'); ?>" >
                                             <?php foreach ($points->PointsDetails as $key => $point) : ?>
                                                 <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($DistributionPointID === $point->DistributionPointID) echo 'selected="selected"' ?>>
                                                     <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
@@ -147,9 +148,7 @@ if( !class_exists('CSLFW_Admin') ) {
                                         </select>
                                     </p>
                                 </div>
-                            <?php } else { ?>
-                                <p class="woocommerce-info"><?php _e('לא נמצאו כתובות ברדיוס של 10 ק״מ נא לבחור עיר אחרת', 'cargo-shipping-location-for-woocommerce') ?></p>
-                            <?php }
+                            <?php
                         endif; ?>
                     <?php endif; // End express check ?>
                     <div class="cargo-radio">
