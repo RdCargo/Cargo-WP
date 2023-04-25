@@ -268,7 +268,7 @@
                                 $cslfw_debug_mode = get_option('cslfw_debug_mode');
                                 $checked = $cslfw_debug_mode ? 'checked' : '';
                                 ?>
-                                <label for="cslfw_box_info_email">
+                                <label for="cslfw_debug_mode">
                                     <input type="checkbox" id="cslfw_debug_mode" name="cslfw_debug_mode" <?php echo esc_attr($checked) ?>>
                                     <span><?php _e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
                                 </label>

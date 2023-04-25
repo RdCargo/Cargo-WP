@@ -120,6 +120,8 @@ if( !class_exists('CSLFW_Admin') ) {
                         <?php
                         $shipment_data = $cargo_shipping->get_shipment_data();
                         $DistributionPointID = $shipment_data ? end($shipment_data)['box_id'] : false;
+                        $DistributionPointID = !$DistributionPointID ? get_post_meta($post->ID, 'cargo_DistributionPointID', true) : $DistributionPointID;
+
                         if ( $DistributionPointID ) :
                             $cities              = json_decode(json_encode( $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickupCities") ), 1);
                             $points = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => $DistributionPointID]);
