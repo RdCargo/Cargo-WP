@@ -36,8 +36,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $order_data         = $order->get_data();
             $shipping_method    = @array_shift($order->get_shipping_methods());
             $shipping_method_id = $shipping_method['method_id'];
-            $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true);
-
+            $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true) ?? 'cargo_automatic';
+            $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
 
             $CarrierName     = $shipping_method_id == 'woo-baldarp-pickup' ? 'B0X' : 'EXPRESS';
             $customer_code   = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
@@ -126,7 +126,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     $address = $data['Params']['to_address']['city'] . ',' . $data['Params']['to_address']['street2'] . ' ' . $data['Params']['to_address']['street1'];
                     $geocoding = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/cargoGeocoding', array('address' => $address) );
                     if ( $geocoding->error === false ) {
-
                         if ( !empty($geocoding->data->results) ) {
                             $geocoding = $geocoding->data->results[0]->geometry->location;
                             $closest_point = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/findClosestPoints', array('lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 10) );
@@ -136,6 +135,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                                     // THE SUCCESS FOR DETERMINE CARGO POINT ID IN AUTOMATIC MODE.
                                     $chosen_point = $closest_point->closest_points[0]->point_details;
                                     $data['Params']['boxPointId'] = $chosen_point->DistributionPointID;
+
                                     $order->save();
                                 } else {
                                     $logs->add_log_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );

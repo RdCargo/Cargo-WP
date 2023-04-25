@@ -63,8 +63,14 @@ if( !class_exists('CSLFW_Admin') ) {
             $shipping_method    = @array_shift($order->get_shipping_methods());
             $payment_method     = $order->get_payment_method();
             $payment_method_check = get_option( 'cslfw_cod_check' ) ?  get_option( 'cslfw_cod_check' ) : 'cod';
+            $cargo_debug_mode   = get_option( 'cslfw_debug_mode' );
             $cargo_shipping     = new CSLFW_Cargo_Shipping($post->ID);
             $deliveries         = $cargo_shipping->get_shipment_ids();
+
+            if ($cargo_debug_mode) {
+                var_dump($shipping_method['method_id']);
+                var_dump($cargo_shipping->deliveries);
+            }
 
             if ( $shipping_method['method_id'] === 'cargo-express'
                 || $shipping_method['method_id'] === 'woo-baldarp-pickup'
