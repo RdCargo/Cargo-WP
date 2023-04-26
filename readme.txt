@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 2.1.0
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 3.1.2
+Stable tag: 3.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,5 +73,10 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 * Debug mode (display data on order admin page)
 * Make default automatic choice of pickup point by customer address.
 
-== 3.1.2 ==
+== 3.2 ==
 * Cargo box fix.
+
+== 3.2.2 ==
+* Added cargo send status.
+* Option to change status after shipment creat.
+

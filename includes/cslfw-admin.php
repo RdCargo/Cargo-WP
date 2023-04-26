@@ -17,6 +17,7 @@ if( !class_exists('CSLFW_Admin') ) {
             add_action( 'admin_enqueue_scripts', array( $this, 'import_assets' ) );
 
             add_action( 'init', array( $this, 'register_order_status_for_cargo' ) );
+            add_filter( 'wc_order_statuses', array( $this, 'custom_order_status') );
             add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
             add_action( 'add_meta_boxes', array( $this, 'remove_shop_order_meta_box' ), 90  );
             add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_shipping_info' ) );
@@ -64,6 +65,7 @@ if( !class_exists('CSLFW_Admin') ) {
             $payment_method     = $order->get_payment_method();
             $payment_method_check = get_option( 'cslfw_cod_check' ) ?  get_option( 'cslfw_cod_check' ) : 'cod';
             $cargo_debug_mode   = get_option( 'cslfw_debug_mode' );
+            $cslfw_fulfill_all  = get_option('cslfw_fulfill_all');
             $cargo_shipping     = new CSLFW_Cargo_Shipping($post->ID);
             $deliveries         = $cargo_shipping->get_shipment_ids();
 
@@ -77,6 +79,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 || $shipping_method['method_id'] === 'flat_rate'
                 || $shipping_method['method_id'] === 'free_shipping' ) { ?>
                 <div class="cargo-submit-form-wrap" <?php if ( $deliveries ) echo 'style="display: none;"'; ?> >
+                    <?php if (!$cslfw_fulfill_all) { ?>
                     <div class="cargo-button">
                         <strong><?php _e('Fulfillment (SKU * Quantity in Notes)', 'cargo-shipping-location-for-woocommerce') ?></strong>
                         <label for="cslfw_fulfillment">
@@ -84,6 +87,7 @@ if( !class_exists('CSLFW_Admin') ) {
                             <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
                         </label>
                     </div>
+                    <?php } ?>
                     <?php if ( $shipping_method['method_id'] !== 'woo-baldarp-pickup' ) : ?>
                         <div class="cargo-button">
                             <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
@@ -258,6 +262,16 @@ if( !class_exists('CSLFW_Admin') ) {
         }
 
         /**
+         * @param $order_statuses
+         * @return mixed
+         *
+         * Add order status in Array
+         */
+        function custom_order_status( $order_statuses ) {
+            $order_statuses['wc-send-cargo'] = _x( 'Send to CARGO', 'Order status', 'cargo-shipping-location-for-woocommerce' );
+            return $order_statuses;
+        }
+        /**
          * @param $post_type
          *
          * Add Meta box in admin order
@@ -302,7 +316,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 $new_actions[$key] = $action;
 
                 if ('mark_processing' === $key) {
-                    $new_actions['mark_send-cargo'] = __( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
+                    $new_actions['mark_send-cargo-shipping'] = __( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
                     $new_actions['mark_send-cargo-dd'] = __( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
                     $new_actions['mark_cargo-print-label'] = __( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' );
                 }
@@ -470,15 +484,14 @@ if( !class_exists('CSLFW_Admin') ) {
 
             if ( false !== strpos( $action, 'mark_' ) ) {
                 $action_name     = substr( $action, 5 ); // Get the status name from action.
-                if ($action_name === 'send-cargo') {
-                    $is_cargo = 1;
+                if ($action_name === 'send-cargo-shipping') {
                     foreach ($ids as $key => $order_id) {
-                        $cargo_shipping     = new CSLFW_Cargo_Shipping($order_id);
+                        $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
                         $cargo_shipping->createShipment();
                     }
                 } elseif ($action_name === 'send-cargo-dd') {
                     foreach ($ids as $key => $order_id) {
-                        $cargo_shipping     = new CSLFW_Cargo_Shipping($order_id);
+                        $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
                         $cargo_shipping->createShipment(array('double_delivery' => 2));
                     }
                 } elseif ($action_name === 'cargo-print-label') {

@@ -37,6 +37,7 @@ if( !class_exists('CSLFW_Settings') ) {
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_map_size');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_cod_check');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_debug_mode');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_fulfill_all');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_custom_map_size');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_box');
@@ -59,6 +60,7 @@ if( !class_exists('CSLFW_Settings') ) {
             delete_option('cslfw_map_size');
             delete_option('cslfw_cod_check');
             delete_option('cslfw_debug_mode');
+            delete_option('cslfw_fulfill_all');
             delete_option('cslfw_custom_map_size');
             delete_option('shipping_cargo_express');
             delete_option('shipping_cargo_box');

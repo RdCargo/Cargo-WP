@@ -26,6 +26,12 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             return $this->shipping_id;
         }
 
+        /**
+         * Making object for cargo API
+         *
+         * @param array $args
+         * @return string[]
+         */
         function createCargoObject($args = []) {
             $logs = new CSLFW_Logs();
             $order = wc_get_order( $this->order_id );
@@ -45,7 +51,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $name = $order_data['shipping']['first_name'] ? $order_data['shipping']['first_name']. ' ' . $order_data['shipping']['last_name'] : $order_data['billing']['first_name'] . ' ' . $order_data['billing']['last_name'];
 
             $notes = '';
-            if ( $args['fulfillment'] ) {
+            $cslfw_fulfill_all = get_option('cslfw_fulfill_all');
+            if ( $args['fulfillment'] || $cslfw_fulfill_all ) {
                 foreach ($order->get_items() as $item) {
                     $product = wc_get_product($item->get_product_id());
                     $notes .= '|' .  $product->get_sku() . '*' . $item->get_quantity();
@@ -161,6 +168,17 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         }
 
         /**
+         * Updating wc order status based on option select
+         */
+        public function update_wc_status() {
+            $order          = wc_get_order($this->order_id);
+            $cargo_status   = get_option('cargo_order_status');
+            if ($cargo_status) {
+                $order->update_status($cargo_status);
+            }
+        }
+
+        /**
          * Main create shipment function
          *
          * @param $order_id
@@ -178,6 +196,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             if ( $response['shipmentId'] != '' ) {
                 $response['all_data'] = $this->addShipment($data['Params'], $response);
+                $this->update_wc_status();
                 $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response['shipmentId']} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." SHIPMENT TYPE : {$data['Params']['CarrierName']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
                 if( $data['Params']['CarrierName'] === 'BOX' ) {
                     $message    .= "CARGO BOX POINT ID : {$data['Params']['boxPointId']}". PHP_EOL;
@@ -243,21 +262,27 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         function getOrderStatusFromCargo( $shipping_id ) {
             // TODO continue to work here.
             $order = wc_get_order($this->order_id);
+            $shipping_method    = @array_shift($order->get_shipping_methods());
 
             $post_data = array(
                 'deliveryId' => (int) $shipping_id,
-                'DeliveryType' => (int) $this->deliveries[$shipping_id]['box_id'] ? 'BOX' : 'EXPRESS',
-                'customerCode' => (int) $this->deliveries[$shipping_id]['box_id'] ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express'),
+                'DeliveryType' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? 'BOX' : 'EXPRESS',
+                'customerCode' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express'),
             );
 
             $data = (array) $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/CheckShipmentStatus",  $post_data);
+
             if ( $data['errorMsg']  == '' && $shipping_id) {
                 if ( (int) $data['deliveryStatus'] === 8 ) {
                     if ( $this->deliveries ) {
-                        $index = array_search($shipping_id, $this->deliveries);
-                        unset($this->deliveries[$index]);
+                        unset($this->deliveries[$shipping_id]);
                         update_post_meta( $this->order_id, 'cslfw_shipping', $this->deliveries );
                     }
+                    $response = array(
+                        "type" => "success",
+                        "data" => $data['DeliveryStatusText'],
+                        "orderStatus" => (int)$data['deliveryStatus']
+                    );
                 } elseif ( (int) $data['deliveryStatus'] > 0) {
                     $this->deliveries[$shipping_id]['status']['number'] = (int) $data['deliveryStatus'];
                     $this->deliveries[$shipping_id]['status']['text'] = sanitize_text_field( $data['DeliveryStatusText']);

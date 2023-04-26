@@ -215,6 +215,25 @@
 				</tr>
                 <tr>
                     <th scope="row" align="left" >
+                        <label for="cslfw_fulfill_all"><?php _e('Fullfill all orders', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_fulfill_all" style="vertical-align: top;">
+                                <?php
+                                $cslfw_fulfill_all = get_option('cslfw_fulfill_all');
+                                $checked = $cslfw_fulfill_all ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_fulfill_all">
+                                    <input type="checkbox" id="cslfw_fulfill_all" name="cslfw_fulfill_all" <?php echo esc_attr($checked) ?>>
+                                    <span><?php _e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" align="left" >
                         <label for="cslfw_box_info_email"><?php _e('Disable CARGO box info in email', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
@@ -322,7 +341,7 @@
                     </td>
                 </tr>
 
-                <tr style="display: none">
+                <tr>
 					<th scope="row" align="left" >
                         <label for="cargo_order_status"><?php _e('Order Status:', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
@@ -330,7 +349,7 @@
 						<div style="display: inline-block; margin-right: 15px;" class="text">
 							<label for="cargo_order_status" style="vertical-align: top;">
 								<select name="cargo_order_status">
-									<option value=""><?php _e('Status Selection', 'cargo-shipping-location-for-woocommerce') ?></option>
+									<option value=""><?php _e('Default status', 'cargo-shipping-location-for-woocommerce') ?></option>
 									<?php
 									foreach (wc_get_order_statuses() as $key => $value) {
 										$selected = get_option('cargo_order_status') == $key ? 'selected' : '';
