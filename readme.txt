@@ -79,4 +79,4 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 == 3.2.2 ==
 * Added cargo send status.
 * Option to change status after shipment creat.
-
+* Bugfixes for check status button in order admin page.
