@@ -350,7 +350,7 @@ if( !class_exists('CSLFW_Admin') ) {
                     if ( $deliveries ) {
                         foreach ($deliveries as $key => $value) {
                             echo wp_kses_post('<p>Status - ' . $value['status']['text'] . '</p>');
-                            echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 5px;' data-id=" . $key.  " data-deliveryid='$key'>$key  בדוק מצב הזמנה</a>");
+                            echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 5px;' data-id=" . $post->ID.  " data-deliveryid='$key'>$key  בדוק מצב הזמנה</a>");
                         }
                     }
                 }
@@ -431,22 +431,31 @@ if( !class_exists('CSLFW_Admin') ) {
                 }
             }
 
-
-
             if ( 'edit.php' === $pagenow
                 && isset($_GET['post_type'])
                 && 'shop_order' === $_GET['post_type']
                 && isset( $_GET['cargo_send']) ) {
 
-                $count = intval( sanitize_text_field($_REQUEST['processed_count']) );
+                $processed_count = intval( sanitize_text_field($_REQUEST['processed_count']) );
 
-                if( isset($_REQUEST['processed_ids']) ){
+                if ( isset($_REQUEST['processed_count']) ) {
                     echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
                         _n( '%s Order Sent for Shipment',
                             '%s Orders Sent For Shipment',
-                            $count,
+                            $processed_count,
                             'woocommerce'
-                        ) . '</p></div>', $count ) );
+                        ) . '</p></div>', $processed_count ) );
+                }
+
+                $skipped_count = intval( sanitize_text_field($_REQUEST['skipped_count']) );
+
+                if ( isset($_REQUEST['skipped_count']) ) {
+                    echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
+                        _n( '%s Were skipped because they already have shipment created.',
+                            '%s Were skipped because they already have shipment created.',
+                            $skipped_count,
+                            'woocommerce'
+                        ) . '</p></div>', $skipped_count ) );
                 }
             }
         }
@@ -482,23 +491,68 @@ if( !class_exists('CSLFW_Admin') ) {
         public function bulk_order_cargo_shipment($redirect_to, $action, $ids) {
             $is_cargo = 0;
 
+            $processed_count = 0;
+            $skipped_count = 0;
+
             if ( false !== strpos( $action, 'mark_' ) ) {
                 $action_name     = substr( $action, 5 ); // Get the status name from action.
                 if ($action_name === 'send-cargo-shipping') {
                     foreach ($ids as $key => $order_id) {
                         $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
-                        $cargo_shipping->createShipment();
+                        if (!$cargo_shipping->get_shipment_data()) {
+
+                            $distribution_point = get_post_meta($order_id, 'cargo_DistributionPointID', true);
+                            if ( intval($distribution_point) ) {
+                                $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
+                                if ( count($point->PointsDetails) ) {
+                                    $chosen_point      = $point->PointsDetails[0];
+                                    $args['box_point'] = $chosen_point;
+                                    $cargo_shipping->createShipment($args);
+
+                                }
+                            } else {
+                                $cargo_shipping->createShipment();
+                            }
+
+                            $processed_count++;
+                        } else {
+                            $skipped_count++;
+                        }
                     }
                 } elseif ($action_name === 'send-cargo-dd') {
                     foreach ($ids as $key => $order_id) {
                         $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
-                        $cargo_shipping->createShipment(array('double_delivery' => 2));
+                        if (!$cargo_shipping->get_shipment_data()) {
+                            $distribution_point = get_post_meta($order_id, 'cargo_DistributionPointID', true);
+                            if ( intval($distribution_point) ) {
+                                $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
+                                if ( count($point->PointsDetails) ) {
+                                    $chosen_point      = $point->PointsDetails[0];
+                                    $args['box_point'] = $chosen_point;
+                                    $args['double_delivery'] = 2;
+                                    $cargo_shipping->createShipment($args);
+                                }
+                            } else {
+                                $cargo_shipping->createShipment(array('double_delivery' => 2));
+                            }
+                            $processed_count++;
+                        } else {
+                            $skipped_count++;
+                        }
                     }
                 } elseif ($action_name === 'cargo-print-label') {
                     $cargo_shipping     = new CSLFW_Cargo_Shipping();
                     $shipment_ids   = $cargo_shipping->order_ids_to_shipment_ids($ids);
                     $pdf_label      = $cargo_shipping->getShipmentLabel( implode( ',', $shipment_ids ) );
+                    $processed_count++;
+                    $redirect_to    = $pdf_label->pdfLink;
 
+                    return $redirect_to;
+                } elseif ($action_name === 'cargo-print-label') {
+                    $cargo_shipping     = new CSLFW_Cargo_Shipping();
+                    $shipment_ids   = $cargo_shipping->order_ids_to_shipment_ids($ids);
+                    $pdf_label      = $cargo_shipping->getShipmentLabel( implode( ',', $shipment_ids ) );
+                    $processed_count++;
                     $redirect_to    = $pdf_label->pdfLink;
 
                     return $redirect_to;
@@ -509,7 +563,8 @@ if( !class_exists('CSLFW_Admin') ) {
                 array(
                     'cargo_send'     => $is_cargo,
                     'old_stutus'     => '',
-                    'processed_count' => count( $ids ),
+                    'processed_count' => $processed_count,
+                    'skipped_count' => $skipped_count,
                     'processed_ids'  => implode( ',', $ids ),
                 ), $redirect_to );
             return $redirect_to;
