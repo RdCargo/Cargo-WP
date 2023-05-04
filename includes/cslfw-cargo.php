@@ -127,7 +127,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                         'email'     =>  !empty( $order_data['shipping']['email'] ) ? $order_data['shipping']['email'] : $order_data['billing']['email'],
                     );
 
-                    $data['Params']['boxPointId'] = get_post_meta($this->order_id, 'DistributionPointID', TRUE) ?? get_post_meta($this->order_id, 'cargo_DistributionPointID', TRUE);
+                    $data['Params']['boxPointId'] = get_post_meta($this->order_id, 'cargo_DistributionPointID', TRUE);
                     $data['Params']['boxPointId'] = isset($args['box_point']) ? $chosen_point->DistributionPointID : $data['Params']['boxPointId'];
                 } else {
                     $address = $data['Params']['to_address']['city'] . ',' . $data['Params']['to_address']['street2'] . ' ' . $data['Params']['to_address']['street1'];
