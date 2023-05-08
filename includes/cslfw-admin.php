@@ -68,17 +68,16 @@ if( !class_exists('CSLFW_Admin') ) {
             $cslfw_fulfill_all  = get_option('cslfw_fulfill_all');
             $cargo_shipping     = new CSLFW_Cargo_Shipping($post->ID);
             $deliveries         = $cargo_shipping->get_shipment_ids();
-
-            if ($cargo_debug_mode) {
-                var_dump($shipping_method['method_id']);
-                var_dump($cargo_shipping->deliveries);
-            }
+            $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
             if ( $shipping_method ) {
+                if ($cargo_debug_mode) {
+                    var_dump($shipping_method['method_id']);
+                    var_dump($cargo_shipping->deliveries);
+                }
                 if ( $shipping_method['method_id'] === 'cargo-express'
                     || $shipping_method['method_id'] === 'woo-baldarp-pickup'
-                    || $shipping_method['method_id'] === 'flat_rate'
-                    || $shipping_method['method_id'] === 'free_shipping' ) { ?>
+                    || in_array($shipping_method['method_id'], $cslfw_shiping_methods) ) { ?>
                     <div class="cargo-submit-form-wrap" <?php if ( $deliveries ) echo 'style="display: none;"'; ?> >
                         <?php if (!$cslfw_fulfill_all) { ?>
                             <div class="cargo-button">
@@ -285,8 +284,11 @@ if( !class_exists('CSLFW_Admin') ) {
                 $shippingMethod = @array_shift($order->get_shipping_methods() );
                 if ($shippingMethod){
                     $shipping_method_id = $shippingMethod['method_id'];
+                    $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
-                    if ( $shipping_method_id == 'cargo-express' || $shipping_method_id == 'woo-baldarp-pickup' || $shipping_method_id == 'flat_rate' || $shipping_method_id =='free_shipping') {
+                    if ( $shipping_method_id === 'cargo-express'
+                        || $shipping_method_id === 'woo-baldarp-pickup'
+                        || in_array($shipping_method_id, $cslfw_shiping_methods) ) {
                         add_meta_box(
                             'cargo_custom_box',
                             '<img src="'.CSLFW_URL."assets/image/howitworks.png".'" alt="Cargo" width="100" style="width:50px;">CARGO',
@@ -338,19 +340,18 @@ if( !class_exists('CSLFW_Admin') ) {
             global $post;
             $order              = wc_get_order($post->ID);
             $shipping_method    = @array_shift($order->get_shipping_methods());
-            $customerCode       = $shipping_method['method_id'] === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
+
 
             if ( $shipping_method ) {
                 if ( $shipping_method['method_id'] === 'cargo-express'
                     || $shipping_method['method_id'] === 'woo-baldarp-pickup'
-                    || $shipping_method['method_id'] === 'flat_rate'
-                    || $shipping_method['method_id'] === 'free_shipping' ) {
+                    || in_array($shipping_method['method_id'], $cslfw_shiping_methods) ) {
                     $cargo_shipping = new CSLFW_Cargo_Shipping($post->ID);
                     $deliveries = $cargo_shipping->get_shipment_data();
 
                     $box_point_id = get_post_meta($post->ID, 'cargo_DistributionPointID', true);
                     if ( 'delivery_status' === $column ) {
-                        $type = $shipping_method['method_id'] === 'woo-baldarp-pickup' ? "BOX" : "EXPRESS";
 
                         if ( $deliveries ) {
                             foreach ($deliveries as $key => $value) {

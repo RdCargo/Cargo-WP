@@ -50,6 +50,7 @@ if( !class_exists('CSLFW_Settings') ) {
             register_setting('cslfw_shipping_api_settings_fg', 'bootstrap_enalble');
             register_setting('cslfw_shipping_api_settings_fg', 'cargo_box_style');
             register_setting('cslfw_shipping_api_settings_fg', 'disable_order_status');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_shipping_methods');
         }
 
         public function cslfw_uninstall() {
@@ -69,6 +70,7 @@ if( !class_exists('CSLFW_Settings') ) {
             delete_option('bootstrap_enalble');
             delete_option('cargo_box_style');
             delete_option('disable_order_status');
+            delete_option('cslfw_shipping_methods');
         }
 
         public function cargo_settings_link( $links_array ) {

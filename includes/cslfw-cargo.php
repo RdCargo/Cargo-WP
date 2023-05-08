@@ -41,6 +41,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $order_data         = $order->get_data();
             $shipping_method    = @array_shift($order->get_shipping_methods());
+            if ( !$shipping_method ) {
+                return array('shipmentId' => "", 'error_msg' => "No shipping methods found. Contact support please.");
+            }
             $shipping_method_id = $shipping_method['method_id'];
             $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true) ?? 'cargo_automatic';
             $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
@@ -253,17 +256,18 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             }
         }
 
+
         /**
-         * Check the Shipping Setting from cargo
-         *
-         * @param $_POST DATA
-         * @return int shipping Status
+         * @param $shipping_id
+         * @return array|string[]
          */
         function getOrderStatusFromCargo( $shipping_id ) {
-            // TODO continue to work here.
             $order = wc_get_order($this->order_id);
             $shipping_method    = @array_shift($order->get_shipping_methods());
 
+            if (!$shipping_method) {
+                return array("type" => "failed","data" => 'No shipping methods found. Contact Support please.');
+            }
             $post_data = array(
                 'deliveryId' => (int) $shipping_id,
                 'DeliveryType' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? 'BOX' : 'EXPRESS',

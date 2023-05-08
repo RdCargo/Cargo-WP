@@ -295,6 +295,32 @@
                         </div>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row" align="left" >
+                        <label for="cslfw_shipping_methods"><?php _e('Shipping methods for CARGO', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_shipping_methods" style="vertical-align: top;">
+                                <?php
+                                $shipping_methods = WC()->shipping->get_shipping_methods();
+                                $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
+
+                                foreach ($shipping_methods as $method) :
+                                    $checked = in_array($method->id, $cslfw_shiping_methods) ? 'checked' : '';
+                                    if ($method->id !== 'cargo-express' && $method->id !== 'woo-baldarp-pickup') :
+                                ?>
+                                    <label for="cslfw_shipping_methods_<?php echo esc_attr($method->id) ?>" style="display: block">
+                                        <input type="checkbox" id="cslfw_shipping_methods_<?php echo esc_attr($method->id) ?>" name="cslfw_shipping_methods[]" value="<?php echo esc_attr($method->id) ?>" <?php echo esc_attr($checked) ?>>
+                                        <span><?php echo esc_html($method->method_title) ?></span>
+                                    </label>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+
                 <tr style="display: none">
 					<th scope="row" align="left" >
                         <label for="website_name_cargo"><?php _e('Bootstrap', 'cargo-shipping-location-for-woocommerce') ?></label>
