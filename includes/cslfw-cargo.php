@@ -44,6 +44,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             if ( !$shipping_method ) {
                 return array('shipmentId' => "", 'error_msg' => "No shipping methods found. Contact support please.");
             }
+            if ( $order->get_status() === 'cancelled' || $order->get_status() === 'refunded' || $order->get_status() === 'pending') {
+                return array('shipmentId' => "", 'error_msg' => "Cancelled, pending or refunded order can\'t be processed.");
+            }
+
             $shipping_method_id = $shipping_method['method_id'];
             $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true) ?? 'cargo_automatic';
             $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
@@ -57,7 +61,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $cslfw_fulfill_all = get_option('cslfw_fulfill_all');
             if ( $args['fulfillment'] || $cslfw_fulfill_all ) {
                 foreach ($order->get_items() as $item) {
-                    $product = wc_get_product($item->get_product_id());
+                    $product = $item['variation_id'] ? wc_get_product($item['variation_id']) : wc_get_product($item['product_id']);
                     $notes .= '|' .  $product->get_sku() . '*' . $item->get_quantity();
                 }
             }
@@ -268,6 +272,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             if (!$shipping_method) {
                 return array("type" => "failed","data" => 'No shipping methods found. Contact Support please.');
             }
+            if ( $order->get_status() === 'cancelled' || $order->get_status() === 'refunded' || $order->get_status() === 'pending') {
+                return array("type" => "failed","data" => 'Can\'t process order with cancelled, pending or refunded status');
+            }
+
             $post_data = array(
                 'deliveryId' => (int) $shipping_id,
                 'DeliveryType' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? 'BOX' : 'EXPRESS',

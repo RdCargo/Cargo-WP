@@ -100,7 +100,7 @@ if( !class_exists('CSLFW_Front') ) {
                                     <span><?php _e('בחירת עיר', 'cargo-shipping-location-for-woocommerce') ?></span>
                                 </label>
 
-                                <select name="cargo_city" id="cargo_city" class="select2">
+                                <select name="cargo_city" id="cargo_city" class="">
                                     <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
                                     <?php foreach ($cities['data'] as $key => $value) : ?>
                                         <option value="<?php echo esc_attr($value['city_name']) ?>" <?php if (trim($city_dd) === trim( $value['city_name'] ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value['city_name']) ?></option>
@@ -116,7 +116,7 @@ if( !class_exists('CSLFW_Front') ) {
                                     <label for="cargo_pickup_point">
                                         <span><?php _e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
                                     </label>
-                                    <select name="cargo_pickup_point" id="cargo_pickup_point" class="select2 w-100">
+                                    <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100">
                                         <?php foreach ($points->closest_points as $key => $value) :
                                             $point = $value->point_details; ?>
                                             <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($pointId === $point->DistributionPointID) echo 'selected="selected"' ?>>

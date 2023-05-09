@@ -70,7 +70,7 @@ if( !class_exists('CSLFW_Admin') ) {
             $deliveries         = $cargo_shipping->get_shipment_ids();
             $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
-            if ( $shipping_method ) {
+            if ( $shipping_method && $order->get_status() !== 'cancelled' && $order->get_status() !== 'refunded' && $order->get_status() !== 'pending' ) {
                 if ($cargo_debug_mode) {
                     var_dump($shipping_method['method_id']);
                     var_dump($cargo_shipping->deliveries);
@@ -136,7 +136,7 @@ if( !class_exists('CSLFW_Admin') ) {
                                             <span><?php _e('בחירת עיר', 'cargo-shipping-location-for-woocommerce') ?></span>
                                         </label>
 
-                                        <select name="cargo_city" id="cargo_city" class="select2">
+                                        <select name="cargo_city" id="cargo_city" class="">
                                             <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
                                             <?php foreach ($cities['PointsDetails'] as $key => $value) : ?>
                                                 <option value="<?php echo esc_attr($value['CityName']) ?>" <?php if (trim($selected_city) === trim( $value['CityName'] ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value['CityName']) ?></option>
@@ -151,7 +151,7 @@ if( !class_exists('CSLFW_Admin') ) {
                                         <label for="cargo_pickup_point">
                                             <span><?php _e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
                                         </label>
-                                        <select name="cargo_pickup_point" id="cargo_pickup_point" class="select2 w-100" style="display: <?php echo esc_attr($points ? 'block' : 'none'); ?>" >
+                                        <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100" style="display: <?php echo esc_attr($points ? 'block' : 'none'); ?>" >
                                             <?php foreach ($points->PointsDetails as $key => $point) : ?>
                                                 <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($DistributionPointID === $point->DistributionPointID) echo 'selected="selected"' ?>>
                                                     <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
@@ -282,7 +282,7 @@ if( !class_exists('CSLFW_Admin') ) {
             if( ('edit.php' === $pagenow || 'post.php' === $pagenow) && 'shop_order' === $typenow && is_admin() ) {
                 $order = wc_get_order($post->ID);
                 $shippingMethod = @array_shift($order->get_shipping_methods() );
-                if ($shippingMethod){
+                if ($shippingMethod && $order->get_status() !== 'cancelled' && $order->get_status() !== 'refunded' && $order->get_status() !== 'pending'){
                     $shipping_method_id = $shippingMethod['method_id'];
                     $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
@@ -343,7 +343,7 @@ if( !class_exists('CSLFW_Admin') ) {
             $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
 
-            if ( $shipping_method ) {
+            if ( $shipping_method && $order->get_status() !== 'cancelled' && $order->get_status() !== 'refunded' && $order->get_status() !== 'pending' ) {
                 if ( $shipping_method['method_id'] === 'cargo-express'
                     || $shipping_method['method_id'] === 'woo-baldarp-pickup'
                     || in_array($shipping_method['method_id'], $cslfw_shiping_methods) ) {

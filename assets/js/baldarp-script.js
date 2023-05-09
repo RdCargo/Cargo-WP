@@ -381,8 +381,9 @@ $(document).on('click','.open-how-it-works',function(){
 });
 
 $(document).on('updated_checkout', function() {
-    $('#cargo_city').select2();
-    $('#cargo_pickup_point').select2({minimumResultsForSearch: -1});
+    $('#cargo_city').select2({dropdownParent: $('#shipping_method')});
+    $('#cargo_pickup_point').select2({minimumResultsForSearch: -1, dropdownParent: $('#shipping_method')});
+    $('#cargo_city, #cargo_pickup_point').focusout();
 })
 
 $(document).on('change','.shipping_method', function() {

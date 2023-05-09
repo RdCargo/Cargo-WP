@@ -94,4 +94,7 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 * bugfix with warning about shipping method.
 * Added checkboxes to select which methods should have cargo block. (by default only cargo methods.)
 
-
+== 3.3.1 ==
+* Added variation SKU to shipment labels for fulfillment orders with cargo
+* Removed cargo actions for orders with cancelled, pending payment and refunded orders.
+* Checkout dropdown flyaway bugfix.

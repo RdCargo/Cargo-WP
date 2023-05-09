@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 3.3
+ * Version: 3.3.1
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -128,6 +128,12 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo json_encode( array("shipmentId" => "", "error_msg" => __('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce') ) );
                 exit;
             }
+
+            if ( $order->get_status() === 'cancelled' || $order->get_status() === 'refunded' || $order->get_status() === 'pending' ) {
+                echo json_encode( array("shipmentId" => "", "error_msg" => __('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce') ) );
+                exit;
+            }
+
             if ( $shipping_method['method_id'] === 'woo-baldarp-pickup' && trim( get_option('shipping_cargo_box') ) === '' ) {
                 echo json_encode( array("shipmentId" => "", "error_msg" => __('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce') ) );
                 exit;
@@ -203,7 +209,6 @@ if( !class_exists('CSLFW_Cargo') ) {
                     update_post_meta( $order_id, 'cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']) );
                 }
             }
-
         }
 
         /**
