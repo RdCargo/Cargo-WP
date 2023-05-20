@@ -127,8 +127,8 @@ if( !class_exists('CSLFW_Admin') ) {
                             $DistributionPointID = !$DistributionPointID ? get_post_meta($post->ID, 'cargo_DistributionPointID', true) : $DistributionPointID;
 
                             if ( $DistributionPointID ) :
-                                $cities              = json_decode(json_encode( $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickupCities") ), 1);
-                                $points = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => $DistributionPointID]);
+                                $cities              = json_decode(json_encode( $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickupCities") ), 1);
+                                $points = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => $DistributionPointID]);
                                 $selected_city       = $points->PointsDetails[0]->CityName;
                                 if ( count($cities['PointsDetails'] ) ) { ?>
                                     <p class="form-row form-row-wide">
@@ -144,7 +144,7 @@ if( !class_exists('CSLFW_Admin') ) {
                                         </select>
                                     </p>
                                 <?php }
-                                $points = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['city' => $selected_city]);
+                                $points = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['city' => $selected_city]);
                                 ?>
                                 <div class="form-row form-row-wide">
                                     <p class="select-wrap w-100">
@@ -219,7 +219,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         $box_shipment_type = get_post_meta($post->ID, 'cslfw_box_shipment_type', true);
 
                         foreach ($cargo_shipping->get_shipment_data() as $shipping_id => $data) {
-                            $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
+                            $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
 
                             if ( count($point->PointsDetails) ) {
                                 $chosen_point = $point->PointsDetails[0];
@@ -511,7 +511,7 @@ if( !class_exists('CSLFW_Admin') ) {
 
                             $distribution_point = get_post_meta($order_id, 'cargo_DistributionPointID', true);
                             if ( intval($distribution_point) ) {
-                                $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
+                                $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
                                 if ( count($point->PointsDetails) ) {
                                     $chosen_point      = $point->PointsDetails[0];
                                     $args['box_point'] = $chosen_point;
@@ -533,7 +533,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         if (!$cargo_shipping->get_shipment_data()) {
                             $distribution_point = get_post_meta($order_id, 'cargo_DistributionPointID', true);
                             if ( intval($distribution_point) ) {
-                                $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
+                                $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
                                 if ( count($point->PointsDetails) ) {
                                     $chosen_point      = $point->PointsDetails[0];
                                     $args['box_point'] = $chosen_point;

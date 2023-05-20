@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 3.3.1
+ * Version: 3.4
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -74,7 +74,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                     $box_shipment_type   = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true);
 
                     foreach ($cargo_shipping->get_shipment_data() as $shipping_id => $data) {
-                        $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
+                        $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
                         if ( count($point->PointsDetails) ) {
                             $chosen_point = $point->PointsDetails[0];
                             echo __("Cargo Point Details", 'cargo-shipping-location-for-woocommerce') . PHP_EOL;
@@ -149,7 +149,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             );
 
             if (isset( $_POST['box_point_id'] )) {
-                $point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $_POST['box_point_id'] )]);
+                $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $_POST['box_point_id'] )]);
                 if ( count($point->PointsDetails) ) {
                     $chosen_point      = $point->PointsDetails[0];
                     $args['box_point'] = $chosen_point;
@@ -239,16 +239,24 @@ if( !class_exists('CSLFW_Cargo') ) {
          * Function for map
          */
         public function cslfw_ajax_delivery_location() {
-            $results = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/getPickUpPoints');
-            $point = !empty($results->PointsDetails) ? $results->PointsDetails : '';
+            if ( WC()->session->get('chosen_shipping_methods') !== null) {
+                $results = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/getPickUpPoints');
+                $point = !empty($results->PointsDetails) ? $results->PointsDetails : '';
 
-            $response = array(
-                "info"             => "Everything is fine.",
-                "data"             => 1,
-                "dataval"          => json_encode($point),
-                'shippingMethod'   => WC()->session->get('chosen_shipping_methods')[0],
-            );
-
+                $response = array(
+                    "info"             => "Everything is fine.",
+                    "data"             => 1,
+                    "dataval"          => json_encode($point),
+                    'shippingMethod'   => WC()->session->get('chosen_shipping_methods')[0],
+                );
+            } else {
+                $response = array(
+                    "info"             => "Error",
+                    "data"             => 0,
+                    "dataval"          => '',
+                    'shippingMethod'   => '',
+                );
+            }
             echo json_encode($response);
             wp_die();
         }

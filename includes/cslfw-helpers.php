@@ -26,7 +26,7 @@ if( !class_exists('CSLFW_Helpers') ) {
                 'httpversion' => '1.1',
                 'blocking'    => true,
                 'headers' => array(
-                    'Content-Type: application/json'
+                    'Content-Type: application/json',
                 ),
             );
             if ( $data ) $args['body'] = json_encode($data);

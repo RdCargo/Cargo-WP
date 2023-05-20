@@ -381,6 +381,26 @@ $(document).on('click','.open-how-it-works',function(){
 });
 
 $(document).on('updated_checkout', function() {
+    // let cityParent = $('#cargo_city').closest('.cargo-select-wrap');
+    // let pointParent = $('#cargo_pickup_point').closest('.cargo-select-wrap');
+    // $('#cargo_city').select2({
+    //     dropdownParent: cityParent,
+    //     dropdownCss: {
+    //         top: cityParent.height() // Adjust the value as per your requirements
+    //     }
+    // }).on('select2:open', function() {
+    //     console.log($('#cargo_city').closest('.cargo-select-wrap').height());
+    //     cityParent.find('.select2-container').last().css('top', pointParent.height()+ 'px');
+    //
+    // });;
+    // $('#cargo_pickup_point').select2({
+    //     minimumResultsForSearch: -1,
+    //     dropdownParent: pointParent,
+    // }).on('select2:open', function() {
+    //     console.log(pointParent.height());
+    //
+    //     pointParent.find('.select2-container').last().css('top', pointParent.height()+ 'px');
+    // });
     $('#cargo_city').select2({dropdownParent: $('#shipping_method')});
     $('#cargo_pickup_point').select2({minimumResultsForSearch: -1, dropdownParent: $('#shipping_method')});
     $('#cargo_city, #cargo_pickup_point').focusout();
@@ -422,7 +442,7 @@ $(document).on('change', '#cargo_city', function() {
     let data = {
         address : $(this).val(),
     };
-    $.ajax('https://api.carg0.co.il/Webservice/cargoGeocoding', {
+    $.ajax('https://api.cargo.co.il/Webservice/cargoGeocoding', {
         type: 'POST',  // http method
         dataType: "json",
         data: JSON.stringify(data),
@@ -436,7 +456,7 @@ $(document).on('change', '#cargo_city', function() {
                     $('#Longitude').val(location.lat);
                     $('#Longitude').val(location.lng);
 
-                    $.ajax('https://api.carg0.co.il/Webservice/findClosestPoints', {
+                    $.ajax('https://api.cargo.co.il/Webservice/findClosestPoints', {
                         type: 'POST',  // http method
                         data: JSON.stringify( {
                             lat: location.lat,
@@ -532,7 +552,7 @@ $(document).on('click','#FlyingCargo_confirm',function () {
 
 // new map script
 function getlocationfromSearch(lat,long) {
-    $.ajax('https://api.carg0.co.il/konimbo.php', {
+    $.ajax('https://api.cargo.co.il/konimbo.php', {
         type: 'POST',  // http method
         data: {
             action: 'cargo_get_close_locations',
@@ -568,7 +588,7 @@ $(".cargo_address_check").on("click", function () {
     let data = {
         address : address,
     };
-    $.ajax('https://api.carg0.co.il/Webservice/cargoGeocoding', {
+    $.ajax('https://api.cargo.co.il/Webservice/cargoGeocoding', {
         type: 'POST',  // http method
         dataType: "json",
         data: JSON.stringify(data),

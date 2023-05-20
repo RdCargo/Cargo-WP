@@ -39,7 +39,7 @@
         ToggleLoading(true);
         $.ajax({
             type: "post",
-            url: "https://api.carg0.co.il/Webservice/getPickUpPoints",
+            url: "https://api.cargo.co.il/Webservice/getPickUpPoints",
             data: JSON.stringify(data),
             success: function(response) {
                 //location.reload();

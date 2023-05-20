@@ -155,7 +155,24 @@ div#mapmodelcargo .modal-content {
     max-height: 80%;
     height: 100%;
 }
+.cargo-map-wrap .form-row {
+    padding-left: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: 0;
+}
 
+.cargo-select-wrap {
+    position: relative;
+}
+
+/*.cargo-select-wrap .select2-container:last-child {*/
+/*    top: 0 !important;*/
+/*}*/
+
+/*.cargo-select-wrap .select2-container:last-child .select2-dropdown {*/
+/*    top: 60px !important;*/
+/*}*/
 .modal .modal-dialog.middle {
     max-width: 1000px;
 }

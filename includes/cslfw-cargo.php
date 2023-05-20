@@ -5,7 +5,6 @@
  */
 require CSLFW_PATH . '/includes/cslfw-helpers.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
-
 if( !class_exists('CSLFW_Cargo_Shipping') ) {
     class CSLFW_Cargo_Shipping
     {
@@ -18,8 +17,12 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $this->order_id  = $order_id;
             $this->deliveries = get_post_meta($order_id, 'cslfw_shipping', true) ? get_post_meta($order_id, 'cslfw_shipping', true) : [];
 
+            add_action('init',array($this, 'add_cors_http_header') );
 
             add_action('woocommerce_new_order', array($this, 'clean_cookies'), 10, 1);
+        }
+        function add_cors_http_header(){
+            header("Access-Control-Allow-Origin: *");
         }
 
         public function get_id() {
@@ -138,11 +141,11 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     $data['Params']['boxPointId'] = isset($args['box_point']) ? $chosen_point->DistributionPointID : $data['Params']['boxPointId'];
                 } else {
                     $address = $data['Params']['to_address']['city'] . ',' . $data['Params']['to_address']['street2'] . ' ' . $data['Params']['to_address']['street1'];
-                    $geocoding = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/cargoGeocoding', array('address' => $address) );
+                    $geocoding = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/cargoGeocoding', array('address' => $address) );
                     if ( $geocoding->error === false ) {
                         if ( !empty($geocoding->data->results) ) {
                             $geocoding = $geocoding->data->results[0]->geometry->location;
-                            $closest_point = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/findClosestPoints', array('lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 10) );
+                            $closest_point = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/findClosestPoints', array('lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 10) );
 
                             if ( $closest_point->error === false ) {
                                 if ( !empty($closest_point->closest_points) ) {
@@ -253,7 +256,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         public function passDataToCargo($data = []) {
             if ( !empty($data) ) {
 
-                $status = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/CreateShipment', $data);
+                $status = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CreateShipment', $data);
                 return (array) $status;
             } else {
                 return 0;
@@ -282,7 +285,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'customerCode' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express'),
             );
 
-            $data = (array) $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/CheckShipmentStatus",  $post_data);
+            $data = (array) $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/CheckShipmentStatus",  $post_data);
 
             if ( $data['errorMsg']  == '' && $shipping_id) {
                 if ( (int) $data['deliveryStatus'] === 8 ) {
@@ -321,7 +324,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'deliveryId' => $shipment_ids ? $shipment_ids : implode(',', array_reverse($this->get_shipment_ids())),
                 'shipmentId' => $shipment_ids ? $shipment_ids : implode(',', array_reverse($this->get_shipment_ids()))
             );
-            return $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/generateShipmentLabel", $args);
+            return $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/generateShipmentLabel", $args);
         }
 
         /**

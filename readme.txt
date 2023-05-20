@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 2.1.0
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 3.3.1
+Stable tag: 3.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,3 +98,7 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 * Added variation SKU to shipment labels for fulfillment orders with cargo
 * Removed cargo actions for orders with cancelled, pending payment and refunded orders.
 * Checkout dropdown flyaway bugfix.
+
+== 3.4 ==
+* Update base api url
+* added cors policy headers to the request.

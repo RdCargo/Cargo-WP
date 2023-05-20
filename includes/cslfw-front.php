@@ -93,29 +93,31 @@ if( !class_exists('CSLFW_Front') ) {
                         <div id="selected_cargo"></div>
                     <?php
                     elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
-                        $cities = json_decode(json_encode( $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getCitiesForPlugin") ), 1);
+                        $cities = json_decode(json_encode( $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getCitiesForPlugin") ), 1);
                         if ( $cities['success'] ) { ?>
-                            <p class="form-row form-row-wide">
+                            <div class="form-row form-row-wide">
                                 <label for="cargo_city">
                                     <span><?php _e('בחירת עיר', 'cargo-shipping-location-for-woocommerce') ?></span>
                                 </label>
 
-                                <select name="cargo_city" id="cargo_city" class="">
-                                    <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
-                                    <?php foreach ($cities['data'] as $key => $value) : ?>
-                                        <option value="<?php echo esc_attr($value['city_name']) ?>" <?php if (trim($city_dd) === trim( $value['city_name'] ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value['city_name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </p>
+                                <div class="cargo-select-wrap">
+                                    <select name="cargo_city" id="cargo_city" class="">
+                                        <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
+                                        <?php foreach ($cities['data'] as $key => $value) : ?>
+                                            <option value="<?php echo esc_attr($value['city_name']) ?>" <?php if (trim($city_dd) === trim( $value['city_name'] ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value['city_name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                         <?php }
-                        $points = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/findClosestPoints", array('lat' => $lat, 'long' => $lng, 'distance' => 10));
+                        $points = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/findClosestPoints", array('lat' => $lat, 'long' => $lng, 'distance' => 10));
                         if ( $points->error === false && !empty($points->closest_points) ) {
                             ?>
                             <div class="form-row form-row-wide">
-                                <p class="select-wrap w-100">
-                                    <label for="cargo_pickup_point">
-                                        <span><?php _e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
-                                    </label>
+                                <label for="cargo_pickup_point">
+                                    <span><?php _e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                                <div class="cargo-select-wrap">
                                     <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100">
                                         <?php foreach ($points->closest_points as $key => $value) :
                                             $point = $value->point_details; ?>
@@ -124,7 +126,7 @@ if( !class_exists('CSLFW_Front') ) {
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                </p>
+                                </div>
                             </div>
                         <?php } else { ?>
                             <p class="woocommerce-info"><?php _e('לא נמצאו כתובות ברדיוס של 10 ק״מ נא לבחור עיר אחרת', 'cargo-shipping-location-for-woocommerce') ?></p>
@@ -132,7 +134,7 @@ if( !class_exists('CSLFW_Front') ) {
                     <?php endif; ?>
                     <?php
                     if ( !empty($pointId) ) {
-                        $chosen_point = $this->helpers->cargoAPI("https://api.carg0.co.il/Webservice/getPickUpPoints", array('pointId' => $pointId));
+                        $chosen_point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", array('pointId' => $pointId));
                         $chosen_point = $chosen_point->PointsDetails[0];
                     }
                     if ($cargo_box_style !== 'cargo_automatic') :
@@ -212,7 +214,7 @@ if( !class_exists('CSLFW_Front') ) {
             }
 
             $data['deliveryId'] = (int) $_POST['shipping_id'];
-            $result = $this->helpers->cargoAPI('https://api.carg0.co.il/Webservice/CheckShipmentStatusAndTime', $data);
+            $result = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CheckShipmentStatusAndTime', $data);
             echo json_encode( $result );
             die();
         }
@@ -268,7 +270,7 @@ if( !class_exists('CSLFW_Front') ) {
 
             if ( $chosen_method_id === 'woo-baldarp-pickup' && $cargo_box_style !== 'cargo_automatic') {
                 if ( sanitize_text_field($_POST['DistributionPointID']) === '' ) {
-                    wc_add_notice( __( 'Please select Shipping Collection Points' ), 'error' );
+                    wc_add_notice( __( 'נא לבחור נקודת חלוקה בשיטת משלוח זה או שיטת משלוח אחרת', 'cargo-shipping-location-for-woocommerce' ), 'error' );
                 }
             }
         }
