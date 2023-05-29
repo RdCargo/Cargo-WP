@@ -140,7 +140,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     $data['Params']['boxPointId'] = get_post_meta($this->order_id, 'cargo_DistributionPointID', TRUE);
                     $data['Params']['boxPointId'] = isset($args['box_point']) ? $chosen_point->DistributionPointID : $data['Params']['boxPointId'];
                 } else {
-                    $address = $data['Params']['to_address']['city'] . ',' . $data['Params']['to_address']['street2'] . ' ' . $data['Params']['to_address']['street1'];
+                    $address = $data['Params']['to_address']['street1'] . ' ' . $data['Params']['to_address']['street2'] . ',' . $data['Params']['to_address']['city'];
                     $geocoding = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/cargoGeocoding', array('address' => $address) );
                     if ( $geocoding->error === false ) {
                         if ( !empty($geocoding->data->results) ) {
@@ -298,10 +298,15 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                         "data" => $data['DeliveryStatusText'],
                         "orderStatus" => (int)$data['deliveryStatus']
                     );
-                } elseif ( (int) $data['deliveryStatus'] > 0) {
+                } elseif ((int) $data['deliveryStatus'] > 0) {
                     $this->deliveries[$shipping_id]['status']['number'] = (int) $data['deliveryStatus'];
                     $this->deliveries[$shipping_id]['status']['text'] = sanitize_text_field( $data['DeliveryStatusText']);
                     update_post_meta( $this->order_id, 'cslfw_shipping', $this->deliveries );
+                    $cslfw_complete_orders = get_option('cslfw_complete_orders');
+
+                    if ((int) $data['deliveryStatus'] === 3 && $cslfw_complete_orders) {
+                        $order->update_status('completed');
+                    }
 
                     $response = array(
                         "type" => "success",

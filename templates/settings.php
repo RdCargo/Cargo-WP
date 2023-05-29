@@ -234,6 +234,25 @@
                 </tr>
                 <tr>
                     <th scope="row" align="left" >
+                        <label for="cslfw_complete_orders"><?php _e('Complete order in case of completed status', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_complete_orders" style="vertical-align: top;">
+                                <?php
+                                $cslfw_complete_orders = get_option('cslfw_complete_orders');
+                                $checked = $cslfw_complete_orders ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_complete_orders">
+                                    <input type="checkbox" id="cslfw_complete_orders" name="cslfw_complete_orders" <?php echo esc_attr($checked) ?>>
+                                    <span><?php _e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" align="left" >
                         <label for="cslfw_box_info_email"><?php _e('Disable CARGO box info in email', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
