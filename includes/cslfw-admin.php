@@ -184,7 +184,7 @@ if( !class_exists('CSLFW_Admin') ) {
 
                         <div class="cargo-button">
                             <a href="#"
-                               class="submit-cargo-shipping "
+                               class="submit-cargo-shipping  btn btn-success"
                                data-id="<?php echo esc_attr($post->ID); ?>"><?php _e('שלח ל CARGO', 'cargo-shipping-location-for-woocommerce') ?></a>
                         </div>
                     </div>

@@ -92,9 +92,10 @@
             });
 		});
 
-		$(document).on('click','.submit-cargo-shipping',function(e){
+		$(document).on('click','.submit-cargo-shipping:not([disabled])',function(e){
 			e.preventDefault();
 
+			$(this).attr('disabled', true);
 			let data = {
 				action: "sendOrderCARGO",
 				orderId : $(this).data('id'),
@@ -120,7 +121,8 @@
 					//location.reload();
 					console.log(response);
 					ToggleLoading(false);
-					if( response.shipmentId != "" ) {
+                    $(this).attr('disabled', false);
+                    if( response.shipmentId != "" ) {
 						$(window).scrollTop(0);
 						$('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(500).queue(function(n) {
 							$('.removeClass').hide();
