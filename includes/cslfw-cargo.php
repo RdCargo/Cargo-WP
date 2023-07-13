@@ -104,8 +104,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ),
 
                 'from_address' => array(
-                    'name'      => $name,
-                    'company'   => get_option( 'website_name_cargo' ),
+                    'name'      => get_option('website_name_cargo'),
+                    'company'   => get_option('website_name_cargo'),
                     'street1'   => get_option('from_street'),
                     'street2'   => get_option('from_street_name'),
                     'city'      => get_option('from_city'),
@@ -117,6 +117,12 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 )
             );
 
+            if ((int)$args['shipping_type'] === 2) {
+                $tmp_from_address = $data['Params']['from_address'];
+                $data['Params']['from_address'] = $data['Params']['to_address'];
+                $data['Params']['to_address'] = $tmp_from_address;
+            }
+
             if ( $data['Params']['CashOnDelivery'] ) {
                 $data['Params']['CashOnDeliveryType'] = isset($args['cargo_cod_type']) ? $args['cargo_cod_type'] : 0;
             }
@@ -124,18 +130,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
                 if ( $cargo_box_style !== 'cargo_automatic' || isset($args['box_point']) ) {
                     $chosen_point = $args['box_point'];
-                    $data['Params']['to_address'] = array(
-                        'name'      => $name,
-                        'company'   => get_option( 'website_name_cargo' ),
-                        'street1'   => isset($args['box_point']) ? $chosen_point->StreetNum : get_post_meta($this->order_id, 'StreetNum', TRUE),
-                        'street2'   => isset($args['box_point']) ? $chosen_point->StreetName : get_post_meta($this->order_id, 'StreetName', TRUE),
-                        'city'      => isset($args['box_point']) ? $chosen_point->CityName : get_post_meta($this->order_id, 'CityName', TRUE),
-                        'state'     => "",
-                        'zip'       => "",
-                        'country'   => "",
-                        'phone'     =>  !empty( $order_data['shipping']['phone'] ) ? $order_data['shipping']['phone'] : $order_data['billing']['phone'],
-                        'email'     =>  !empty( $order_data['shipping']['email'] ) ? $order_data['shipping']['email'] : $order_data['billing']['email'],
-                    );
 
                     $data['Params']['boxPointId'] = get_post_meta($this->order_id, 'cargo_DistributionPointID', TRUE);
                     $data['Params']['boxPointId'] = isset($args['box_point']) ? $chosen_point->DistributionPointID : $data['Params']['boxPointId'];

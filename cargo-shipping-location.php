@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 3.5.1
+ * Version: 3.6
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -141,7 +141,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 
 			$args = array(
                 'double_delivery'   => (int) sanitize_text_field($_POST['double_delivery']),
-                'shipment_type'     => (int) sanitize_text_field($_POST['shipment_type']),
+                'shipping_type'     => (int) sanitize_text_field($_POST['shipment_type']),
                 'no_of_parcel'      => (int) sanitize_text_field($_POST['no_of_parcel']),
                 'cargo_cod'         => (int) sanitize_text_field($_POST['cargo_cod']),
                 'cargo_cod_type'    => (int) sanitize_text_field($_POST['cargo_cod_type']),
