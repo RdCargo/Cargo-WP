@@ -315,6 +315,30 @@
                     </td>
                 </tr>
                 <tr>
+                    <th><div style="margin: 10px 0; border-bottom: 1px solid #000"> </div></th>
+                    <td><div style="margin: 10px 0; border-bottom: 1px solid #000"> </div></td>
+
+                </tr>
+                <tr>
+                    <th scope="row" align="left" >
+                        <label for="cslfw_shipping_methods_all"><?php _e('Enable cargo for all shipments', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_shipping_methods_all" style="vertical-align: top;">
+                                <?php
+                                    $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
+                                    $checked = $cslfw_shipping_methods_all ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_shipping_methods_all">
+                                    <input type="checkbox" id="cslfw_shipping_methods_all" name="cslfw_shipping_methods_all" <?php echo esc_attr($checked) ?>>
+                                    <span><?php _e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="cslfw-shipping-wrap" <?php if ($cslfw_shipping_methods_all): ?> style="display: none;" <?php endif; ?>>
                     <th scope="row" align="left" >
                         <label for="cslfw_shipping_methods"><?php _e('Shipping methods for CARGO', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>

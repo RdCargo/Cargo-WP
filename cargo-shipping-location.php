@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 3.6
+ * Version: 3.7
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -119,12 +119,14 @@ if( !class_exists('CSLFW_Cargo') ) {
 
 	    	$order_id           = sanitize_text_field($_POST['orderId']);
             $order              = wc_get_order($order_id);
-            $shipping_method    = @array_shift($order->get_shipping_methods() );
-            if (!$shipping_method) {
+            $shipping_method    = @array_shift($order->get_shipping_methods());
+            $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
+
+            if (!$shipping_method && !(bool)$cslfw_shipping_methods_all) {
                 echo json_encode( array("shipmentId" => "", "error_msg" => __('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce') ) );
                 exit;
             }
-            if ( $shipping_method['method_id'] === 'cargo-express' && trim( get_option('shipping_cargo_express') ) === '' ) {
+            if ( ($shipping_method && $shipping_method['method_id'] === 'cargo-express') && trim( get_option('shipping_cargo_express') ) === '' ) {
                 echo json_encode( array("shipmentId" => "", "error_msg" => __('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce') ) );
                 exit;
             }
@@ -134,7 +136,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 exit;
             }
 
-            if ( $shipping_method['method_id'] === 'woo-baldarp-pickup' && trim( get_option('shipping_cargo_box') ) === '' ) {
+            if ( ($shipping_method && $shipping_method['method_id'] === 'woo-baldarp-pickup') && trim( get_option('shipping_cargo_box') ) === '' ) {
                 echo json_encode( array("shipmentId" => "", "error_msg" => __('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce') ) );
                 exit;
             }

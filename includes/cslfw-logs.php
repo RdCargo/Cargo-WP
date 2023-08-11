@@ -64,6 +64,7 @@ if( !class_exists('CSLFW_Logs') ) {
                     }
                 }
             }
+            $this->result = array_reverse($this->result);
 
             if ( ! empty( $_REQUEST['log_file'] ) && isset( $this->result[ sanitize_title( wp_unslash( $_REQUEST['log_file'] ) ) ] ) ){ // WPCS: input var ok, CSRF ok.
                 $this->viewed_log = $this->result[ sanitize_title( wp_unslash( $_REQUEST['log_file'] ) ) ]; // WPCS: input var ok, CSRF ok.
@@ -78,11 +79,10 @@ if( !class_exists('CSLFW_Logs') ) {
             }
 
 
-            $this->result = array_reverse($this->result);
             $logs = array(
                 'current_view'  => $this->viewed_log,
                 'files'         => $this->result,
-                'logs_dir'         =>$this->logs_dir,
+                'logs_dir'      => $this->logs_dir,
             );
             return (object) $logs;
         }

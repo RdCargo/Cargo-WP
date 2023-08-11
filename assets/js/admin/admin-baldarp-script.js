@@ -16,6 +16,14 @@
 
 		}
 	})
+
+    $('input#cslfw_shipping_methods_all').change(function() {
+        if ( $(this).is(':checked') ) {
+            $('.cslfw-shipping-wrap').hide();
+        } else {
+            $('.cslfw-shipping-wrap').show();
+        }
+    })
 	$('input[name="cargo_cod"]').change(function() {
 		if ( $(this).is(':checked') ) {
 			$('.cargo_cod_type').show();

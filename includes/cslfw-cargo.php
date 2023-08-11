@@ -44,14 +44,20 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $order_data         = $order->get_data();
             $shipping_method    = @array_shift($order->get_shipping_methods());
-            if ( !$shipping_method ) {
+            $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
+
+            if ( !$shipping_method && !(bool)$cslfw_shipping_methods_all ) {
                 return array('shipmentId' => "", 'error_msg' => "No shipping methods found. Contact support please.");
             }
             if ( $order->get_status() === 'cancelled' || $order->get_status() === 'refunded' || $order->get_status() === 'pending') {
                 return array('shipmentId' => "", 'error_msg' => "Cancelled, pending or refunded order can\'t be processed.");
             }
 
-            $shipping_method_id = $shipping_method['method_id'];
+
+            $shipping_method_id = $shipping_method ?  $shipping_method['method_id'] : 'cargo-express';
+            $shipping_method_id = !$shipping_method && (bool) $cslfw_shipping_methods_all ? 'cargo-express' : $shipping_method_id;
+            $log_tmp = "Shipping method : ". $shipping_method_id . PHP_EOL;
+            $logs->add_log_message($log_tmp);
             $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true) ?? 'cargo_automatic';
             $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
 
@@ -265,18 +271,21 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         function getOrderStatusFromCargo( $shipping_id ) {
             $order = wc_get_order($this->order_id);
             $shipping_method    = @array_shift($order->get_shipping_methods());
+            $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
 
-            if (!$shipping_method) {
+            if (!$shipping_method && !(bool)$cslfw_shipping_methods_all) {
                 return array("type" => "failed","data" => 'No shipping methods found. Contact Support please.');
             }
             if ( $order->get_status() === 'cancelled' || $order->get_status() === 'refunded' || $order->get_status() === 'pending') {
                 return array("type" => "failed","data" => 'Can\'t process order with cancelled, pending or refunded status');
             }
+            $shipping_method_id = $shipping_method ?  $shipping_method['method_id'] : 'cargo-express';
+            $shipping_method_id = (bool) $cslfw_shipping_methods_all ? 'cargo-express' : $shipping_method_id;
 
             $post_data = array(
                 'deliveryId' => (int) $shipping_id,
-                'DeliveryType' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? 'BOX' : 'EXPRESS',
-                'customerCode' => $shipping_method['method_id'] === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express'),
+                'DeliveryType' => $shipping_method_id === 'woo-baldarp-pickup' ? 'BOX' : 'EXPRESS',
+                'customerCode' => $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express'),
             );
 
             $data = (array) $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/CheckShipmentStatus",  $post_data);
