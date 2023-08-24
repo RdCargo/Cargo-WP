@@ -388,19 +388,11 @@ $(document).on('updated_checkout', function() {
     //     dropdownCss: {
     //         top: cityParent.height() // Adjust the value as per your requirements
     //     }
-    // }).on('select2:open', function() {
-    //     console.log($('#cargo_city').closest('.cargo-select-wrap').height());
-    //     cityParent.find('.select2-container').last().css('top', pointParent.height()+ 'px');
-    //
-    // });;
+    // })
     // $('#cargo_pickup_point').select2({
     //     minimumResultsForSearch: -1,
     //     dropdownParent: pointParent,
-    // }).on('select2:open', function() {
-    //     console.log(pointParent.height());
-    //
-    //     pointParent.find('.select2-container').last().css('top', pointParent.height()+ 'px');
-    // });
+    // })
     $('#cargo_city').select2({dropdownParent: $('#shipping_method')});
     $('#cargo_pickup_point').select2({minimumResultsForSearch: -1, dropdownParent: $('#shipping_method')});
     $('#cargo_city, #cargo_pickup_point').focusout();

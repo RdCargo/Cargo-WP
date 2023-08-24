@@ -24,7 +24,7 @@ if( !class_exists('CSLFW_OrdersReindex') ) {
         }
 
         public function import_assets() {
-            wp_enqueue_script( 'cargo-reindex-orders', CSLFW_URL . 'assets/js/cslfw-reindex-orders.js', array('jquery', 'cargo-libs'), '', true);
+            wp_enqueue_script( 'cargo-reindex-orders', CSLFW_URL . 'assets/js/cslfw-reindex-orders.js', array('jquery'), '', true);
         }
         public function reindex_page() {
             $this->helpers->check_woo();

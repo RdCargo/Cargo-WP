@@ -77,6 +77,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $notes = substr($notes, 1);
             $notes .= $order_data['customer_note'];
 
+            $website = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
+            $website.= $_SERVER['HTTP_HOST'];
+
             $data['Method'] = "ship";
             $data['Params'] = array(
                 'shipping_type'         => isset($args['shipping_type']) ? $args['shipping_type'] : 1,
@@ -93,6 +96,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'PaymentMethod'         => $order_data['payment_method'],
                 'Note'                  => $notes,
                 'customerCode'          => $customer_code,
+                'website'               => $website,
+                'Platform'              => 'Wordpress',
 
                 'to_address' => array(
                     'name'      => $name,

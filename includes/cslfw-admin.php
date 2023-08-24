@@ -27,7 +27,7 @@ if( !class_exists('CSLFW_Admin') ) {
             add_filter( 'handle_bulk_actions-edit-shop_order', array( $this, 'bulk_order_cargo_shipment' ), 10, 3);
 
             add_filter( 'bulk_actions-edit-shop_order', array( $this, 'custom_dropdown_bulk_actions_shop_order' ), 20, 1 );
-            add_filter( 'manage_edit-shop_order_columns', array( $this, 'add_order_delivery_status_column_header' ), 200 );
+            add_filter( 'manage_edit-shop_order_columns', array( $this, 'add_order_delivery_status_column_header' ), 2000 );
             add_filter( 'woocommerce_shipping_methods', array( $this,'cargo_shipping_methods' ) );
 
         }

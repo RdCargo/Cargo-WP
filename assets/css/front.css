@@ -247,6 +247,12 @@ body.map-open-popup {
 .cargo-map-wrap .select2-container {
     width: 100% !important;
 }
+.cargo-map-wrap .select2-container + .select2-container {
+    top: 54px !important;
+}
+.cargo-map-wrap  .select2-container + .select2-container .select2-dropdown {
+    top: 0 !important;
+}
 .cargo-map-wrap {
     position: relative;
 }
