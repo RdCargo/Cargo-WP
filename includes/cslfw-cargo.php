@@ -61,8 +61,11 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true) ?? 'cargo_automatic';
             $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
 
+            $pickupCustomerCode = get_option('shipping_pickup_code');
+
             $CarrierName     = $shipping_method_id == 'woo-baldarp-pickup' ? 'B0X' : 'EXPRESS';
             $customer_code   = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            $customer_code   = (int)$args['shipping_type'] === 2 && $pickupCustomerCode ? $pickupCustomerCode : $customer_code;
 
             $name = $order_data['shipping']['first_name'] ? $order_data['shipping']['first_name']. ' ' . $order_data['shipping']['last_name'] : $order_data['billing']['first_name'] . ' ' . $order_data['billing']['last_name'];
 

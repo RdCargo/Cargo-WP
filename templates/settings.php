@@ -45,6 +45,23 @@
 				</tr>
 
                 <tr>
+                    <th scope="row" align="left" >
+                        <label for="shipping_pickup_code"><?php _e('Cargo Pickup code: ', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="shipping_pickup_code" style="vertical-align: top;">
+                                <input type="text"
+                                       placeholder="<?php _e('Please Insert pickup code', 'cargo-shipping-location-for-woocommerce') ?>"
+                                       id="shipping_pickup_code"
+                                       name="shipping_pickup_code"
+                                       value="<?php echo esc_attr( get_option('shipping_pickup_code') ) ?>" autocomplete="off"/>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <th scope="row" align="left"  style="vertical-align: top;">
                         <label for="cargo_box_style"><?php _e('Cargo Box Checkout Style', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>

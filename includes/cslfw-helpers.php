@@ -31,7 +31,7 @@ if( !class_exists('CSLFW_Helpers') ) {
             );
             if ( $data ) $args['body'] = json_encode($data);
             $response   = wp_remote_post($url, $args);
-            $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object");
+            $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. ORDERID = {$data['Params']['TransactionID']} <pre>" . $args['body']);
             return json_decode( $response );
         }
     }

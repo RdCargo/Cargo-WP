@@ -331,6 +331,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 if ('mark_processing' === $key) {
                     $new_actions['mark_send-cargo-shipping'] = __( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
                     $new_actions['mark_send-cargo-dd'] = __( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
+                    $new_actions['mark_send-cargo-pickup'] = __( 'Send Pickup to CARGO', 'cargo-shipping-location-for-woocommerce' );
                     $new_actions['mark_cargo-print-label'] = __( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' );
                 }
             }
@@ -526,7 +527,6 @@ if( !class_exists('CSLFW_Admin') ) {
                                     $chosen_point      = $point->PointsDetails[0];
                                     $args['box_point'] = $chosen_point;
                                     $cargo_shipping->createShipment($args);
-
                                 }
                             } else {
                                 $cargo_shipping->createShipment();
@@ -558,26 +558,43 @@ if( !class_exists('CSLFW_Admin') ) {
                             $skipped_count++;
                         }
                     }
+                } elseif ($action_name === 'send-cargo-pickup') {
+                    foreach ($ids as $key => $order_id) {
+                        $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
+                        if (!$cargo_shipping->get_shipment_data()) {
+                            $distribution_point = get_post_meta($order_id, 'cargo_DistributionPointID', true);
+                            if ( intval($distribution_point) ) {
+                                $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $distribution_point )]);
+                                if ( count($point->PointsDetails) ) {
+                                    $chosen_point      = $point->PointsDetails[0];
+                                    $args['box_point'] = $chosen_point;
+                                    $args['shipping_type'] = 2;
+                                    $cargo_shipping->createShipment($args);
+                                }
+                            } else {
+                                $cargo_shipping->createShipment(array('shipping_type' => 2));
+                            }
+                            $processed_count++;
+                        } else {
+                            $skipped_count++;
+                        }
+                    }
                 } elseif ($action_name === 'cargo-print-label') {
                     $cargo_shipping     = new CSLFW_Cargo_Shipping();
                     $shipment_ids   = $cargo_shipping->order_ids_to_shipment_ids($ids);
                     $pdf_label      = $cargo_shipping->getShipmentLabel( implode( ',', $shipment_ids ) );
-                    $processed_count++;
-                    $redirect_to    = $pdf_label->pdfLink;
 
-                    return $redirect_to;
+                    return $pdf_label->pdfLink;
                 } elseif ($action_name === 'cargo-print-label') {
                     $cargo_shipping     = new CSLFW_Cargo_Shipping();
                     $shipment_ids   = $cargo_shipping->order_ids_to_shipment_ids($ids);
                     $pdf_label      = $cargo_shipping->getShipmentLabel( implode( ',', $shipment_ids ) );
-                    $processed_count++;
-                    $redirect_to    = $pdf_label->pdfLink;
 
-                    return $redirect_to;
+                    return $pdf_label->pdfLink;
                 }
             }
 
-            $redirect_to = add_query_arg(
+            return add_query_arg(
                 array(
                     'cargo_send'     => $is_cargo,
                     'old_stutus'     => '',
@@ -585,7 +602,6 @@ if( !class_exists('CSLFW_Admin') ) {
                     'skipped_count' => $skipped_count,
                     'processed_ids'  => implode( ',', $ids ),
                 ), $redirect_to );
-            return $redirect_to;
         }
     }
 }

@@ -123,3 +123,7 @@ Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Ca
 * Added website and platform parameters to request.
 * fix for checkout dropdowns.
 * fix unused dependency.
+
+== 3.8 ===
+* Added Cargo pickup separate customer code.
+
