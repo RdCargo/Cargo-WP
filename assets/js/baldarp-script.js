@@ -407,6 +407,7 @@ $(document).on('change','.shipping_method', function() {
         $("div.blockUI").show();
 
         $("#mapbutton").show();
+        $("#mapbutton").trigger('click');
         $("#selected_cargo").show();
         changeShipping();
     } else {

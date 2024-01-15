@@ -54,17 +54,18 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             }
 
 
-            $shipping_method_id = $shipping_method ?  $shipping_method['method_id'] : 'cargo-express';
+            $shipping_method_id = $shipping_method ? $shipping_method['method_id'] : 'cargo-express';
             $shipping_method_id = !$shipping_method && (bool) $cslfw_shipping_methods_all ? 'cargo-express' : $shipping_method_id;
-            $log_tmp = "Shipping method : ". $shipping_method_id . PHP_EOL;
-            $logs->add_log_message($log_tmp);
+            $isBoxShipment = $shipping_method_id == 'woo-baldarp-pickup';
+            $isBoxShipment = false;
+
             $cargo_box_style    = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true) ?? 'cargo_automatic';
             $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
 
             $pickupCustomerCode = get_option('shipping_pickup_code');
 
-            $CarrierName     = $shipping_method_id == 'woo-baldarp-pickup' ? 'B0X' : 'EXPRESS';
-            $customer_code   = $shipping_method_id == 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            $CarrierName     = $isBoxShipment ? 'B0X' : 'EXPRESS';
+            $customer_code   = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
             $customer_code   = (int)$args['shipping_type'] === 2 && $pickupCustomerCode ? $pickupCustomerCode : $customer_code;
 
             $name = $order_data['shipping']['first_name'] ? $order_data['shipping']['first_name']. ' ' . $order_data['shipping']['last_name'] : $order_data['billing']['first_name'] . ' ' . $order_data['billing']['last_name'];
@@ -94,7 +95,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'CashOnDelivery'        => isset($args['cargo_cod']) && $args['cargo_cod'] ? floatval($order->get_total()) : 0,
                 'CarrierName'           => "CARGO",
                 'CarrierService'        => $CarrierName,
-                'CarrierID'             => $shipping_method_id == 'woo-baldarp-pickup' ? 0 : 1,
+                'CarrierID'             => $isBoxShipment ? 0 : 1,
                 'OrderID'               => $this->order_id,
                 'PaymentMethod'         => $order_data['payment_method'],
                 'Note'                  => $notes,
@@ -104,7 +105,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
                 'to_address' => array(
                     'name'      => $name,
-                    'company'   => $order_data['shipping']['company'] ?? $order_data['billing']['company'],
+                    'company'   => !empty($order_data['shipping']['company']) ? $order_data['shipping']['company'] : $name,
                     'street1'   => !empty( $order_data['shipping']['address_1'] ) ? $order_data['shipping']['address_1'] : $order_data['billing']['address_1'],
                     'street2'   => !empty( $order_data['shipping']['address_2'] ) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
                     'city'      =>  !empty( $order_data['shipping']['city'] ) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
@@ -141,7 +142,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 $data['Params']['CashOnDeliveryType'] = isset($args['cargo_cod_type']) ? $args['cargo_cod_type'] : 0;
             }
 
-            if ( $shipping_method_id == 'woo-baldarp-pickup' ) {
+            if ($isBoxShipment) {
                 if ( $cargo_box_style !== 'cargo_automatic' || isset($args['box_point']) ) {
                     $chosen_point = $args['box_point'];
 
