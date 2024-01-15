@@ -1,23 +1,36 @@
 a.btn.btn-success.send-status {
     border: 1px solid green;
-    padding: 7px 7px;
+    padding: 0px 7px;
     font-size: 12px;
     background-color: green;
     color: white;
     border-radius: 4px;
+    display: inline-block;
 }
-
+.btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 .cargo-button label{
     display: block;
 }
 #cargo_custom_box .inside {
     margin-top: 20px;
 }
-
+.input-field label {
+    margin-bottom: 5px;
+}
+.input-field input,
+.input-field textarea {
+    border: none;
+    border-radius: 10px;
+    min-height: 40px;
+    background-color: #fff;
+    border: 1px solid #257ab5;
+}
 
 #cargo_custom_box a.btn.btn-success.send-status {
     border: 1px solid green;
-    padding: 7px 4px;
     font-size: 15px;
     color: white !important;
     text-decoration: none !important;
@@ -33,7 +46,6 @@ a.btn.btn-success.send-status {
 .cargo-button .label-cargo-shipping {
     border: 1px solid #e1d111;
     /* border-radius: 18px; */
-    padding: 6px 26px;
     font-size: 15px;
     border-radius: 4px;
     background-color: #e1d111;
@@ -58,14 +70,7 @@ td.column-send_to_cargo a.submit-cargo-shipping{
 .send_to_cargo.column-send_to_cargo,.delivery_status.column-delivery_status,.send_to_cargo.column-send_to_cargo{
     text-align: center;
 }
-a.edit-address-cargo::after{
-    content: none !important;
-    
-}
-a.edit-address-cargo{
-    color: white !important;
-    text-decoration: none !important;
-}
+
 .cargo-button .submit-cargo-shipping{
     padding: 7px 15px;
     background-color: #2878b1;
@@ -76,7 +81,6 @@ a.edit-address-cargo{
     text-decoration: none;
 }
 #cargo_custom_box .inside .btn{
-    padding: 7px 11px;
     background-color: #1bc39c;
     border: 1px solid #1bc39c;
     border-radius: 4px;

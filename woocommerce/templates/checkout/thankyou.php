@@ -24,6 +24,7 @@ defined( 'ABSPATH' ) || exit;
 	if ( $order ) :
 
 		do_action( 'woocommerce_before_thankyou', $order->get_id() );
+
 		?>
 
 		<?php if ( $order->has_status( 'failed' ) ) : ?>
@@ -86,7 +87,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php endif; ?>
 
 		<?php do_action( 'woocommerce_thankyou_' . $order->get_payment_method(), $order->get_id() ); ?>
-		<?php do_action( 'woocommerce_thankyou', $order->get_id() ); ?>
+        <?php do_action( 'woocommerce_thankyou', $order->get_id() ); ?>
 
 	<?php else : ?>
 
