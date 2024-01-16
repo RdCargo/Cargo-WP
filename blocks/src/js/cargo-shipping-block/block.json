@@ -1,6 +1,6 @@
 {
 	"apiVersion": 2,
-	"name": "shipping-workshop/shipping-workshop-block",
+	"name": "cargo-shipping/cargo-shipping-block",
 	"version": "2.0.0",
 	"title": "Alternative Shipping Options Block",
 	"category": "woocommerce",
@@ -25,6 +25,6 @@
 			"default": ""
 		}
 	},
-	"textdomain": "shipping-workshop",
-	"editorStyle": "file:../../../build/style-shipping-workshop-block.css"
+	"textdomain": "cargo-shipping",
+	"editorStyle": "file:../../../build/style-cargo-shipping-block.css"
 }

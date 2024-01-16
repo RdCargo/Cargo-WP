@@ -25,6 +25,8 @@ if( !class_exists('CSLFW_Front') ) {
             add_action( 'woocommerce_after_shipping_rate', array( $this, 'checkout_cargo_actions' ), 20, 2) ;
             add_action( 'woocommerce_my_account_my_orders_column_order-track', array( $this, 'add_account_orders_column_rows' ) );
             add_action( 'woocommerce_checkout_process', array( $this, 'action_woocommerce_checkout_process' ), 10, 1);
+
+            // WC 8+
         }
 
         function import_assets() {

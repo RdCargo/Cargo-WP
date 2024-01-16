@@ -46,7 +46,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: ['shipping-workshop'],
+				allowedTextDomain: ['cargo-shipping'],
 			},
 		],
 		'react/react-in-jsx-scope': 'off',

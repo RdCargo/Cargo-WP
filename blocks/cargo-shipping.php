@@ -5,7 +5,7 @@
  * Author:          Thomas Roberts and Niels Lange
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:     shipping-workshop
+ * Text Domain:     cargo-shipping
  *
  * @package         create-block
  */
@@ -21,11 +21,11 @@ define( 'SHIPPING_WORKSHOP_VERSION', $plugin_data['version'] );
  * Include the dependencies needed to instantiate the block.
  */
 add_action('woocommerce_blocks_loaded', function() {
-    require_once __DIR__ . '/shipping-workshop-blocks-integration.php';
+    require_once __DIR__ . '/cargo-shipping-blocks-integration.php';
 	add_action(
 		'woocommerce_blocks_checkout_block_registration',
 		function( $integration_registry ) {
-			$integration_registry->register( new Shipping_Workshop_Blocks_Integration() );
+			$integration_registry->register( new Cargo_Shipping_Blocks_Integration() );
 		}
 	);
 });
@@ -33,15 +33,15 @@ add_action('woocommerce_blocks_loaded', function() {
 /**
  * Registers the slug as a block category with WordPress.
  */
-function register_Shipping_Workshop_block_category( $categories ) {
+function register_Cargo_Shipping_block_category( $categories ) {
     return array_merge(
         $categories,
         [
             [
-                'slug'  => 'shipping-workshop',
-                'title' => __( 'Shipping_Workshop Blocks', 'shipping-workshop' ),
+                'slug'  => 'cargo-shipping',
+                'title' => __( 'Cargo_Shipping Blocks', 'cargo-shipping' ),
             ],
         ]
     );
 }
-add_action( 'block_categories_all', 'register_Shipping_Workshop_block_category', 10, 2 );
+add_action( 'block_categories_all', 'register_Cargo_Shipping_block_category', 10, 2 );

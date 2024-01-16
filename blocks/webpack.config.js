@@ -12,18 +12,18 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		index: path.resolve(process.cwd(), 'src', 'js', 'index.js'),
-		'shipping-workshop-block': path.resolve(
+		'cargo-shipping-block': path.resolve(
 			process.cwd(),
 			'src',
 			'js',
-			'shipping-workshop-block',
+			'cargo-shipping-block',
 			'index.js'
 		),
-		'shipping-workshop-block-frontend': path.resolve(
+		'cargo-shipping-block-frontend': path.resolve(
 			process.cwd(),
 			'src',
 			'js',
-			'shipping-workshop-block',
+			'cargo-shipping-block',
 			'frontend.js'
 		),
 	},

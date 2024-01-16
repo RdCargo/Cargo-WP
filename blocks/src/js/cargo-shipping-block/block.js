@@ -30,7 +30,7 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		[setExtensionData]
 	);
 
-	const validationErrorId = 'shipping-workshop-other-value';
+	const validationErrorId = 'cargo-shipping-other-value';
 
 	const { setValidationErrors, clearValidationError } = useDispatch(
 		'wc/store/validation'
@@ -70,8 +70,9 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		 * The API of this function is: setExtensionData( namespace, key, value )
 		 *
 		 * This code should use `setExtensionData` to update the `alternateShippingInstruction` key
-		 * in the `shipping-workshop` namespace of the checkout data store.
+		 * in the `cargo-shipping` namespace of the checkout data store.
 		 */
+		setExtensionData( 'cargo-shipping', 'alternateShippingInstruction', selectedAlternateShippingInstruction )
 		/**
 		 * [frontend-step-02-extra-credit-1]
 		 * 💰 Extra credit: Ensure the `setExtensionData` function is not called multiple times. We
@@ -92,7 +93,7 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		 * [frontend-step-03]
 		 * 📝 Write some code in this useEffect that will run when the `otherShippingValue` value
 		 * changes. This code should use `setExtensionData` to update the `otherShippingValue` key
-		 * in the `shipping-workshop` namespace of the checkout data store.
+		 * in the `cargo-shipping` namespace of the checkout data store.
 		 */
 		/**
 		 * [frontend-step-03-extra-credit]
@@ -144,13 +145,13 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 	]);
 
 	return (
-		<div className="wp-block-shipping-workshop-not-at-home">
+		<div className="wp-block-cargo-shipping-not-at-home">
 			{/**
 			 * [frontend-step-01]
 			 * 📝 Go to options.js and add some new options to display in the SelectControl below.
 			 */}
 			<SelectControl
-				label={__('If I am not at home please…', 'shipping-workshop')}
+				label={__('If I am not at home please…', 'cargo-shipping')}
 				value={selectedAlternateShippingInstruction}
 				options={options}
 				onChange={setSelectedAlternateShippingInstruction}
@@ -160,7 +161,7 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 				<>
 					<TextareaControl
 						className={
-							'shipping-workshop-other-textarea' +
+							'cargo-shipping-other-textarea' +
 							(validationError?.hidden === false
 								? ' has-error'
 								: '')
@@ -170,7 +171,7 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 						required={true}
 						placeholder={__(
 							'Enter shipping instructions',
-							'shipping-workshop'
+							'cargo-shipping'
 						)}
 					/>
 					{/**

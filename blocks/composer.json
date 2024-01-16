@@ -1,5 +1,5 @@
 {
-	"name": "opr/wceu23-shipping-workshop",
+	"name": "opr/wceu23-cargo-shipping",
 	"description": "The starter template for the Build a 'not at home' shipping extension in the WooCommerce Checkout Block",
 	"type": "wordpress-plugin",
 	"license": "GPL-3.0-or-later",

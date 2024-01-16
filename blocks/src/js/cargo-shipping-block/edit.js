@@ -16,7 +16,7 @@ import { getSetting } from '@woocommerce/settings';
 import './style.scss';
 import { options } from './options';
 
-const { defaultShippingText } = getSetting('shipping-workshop_data', '');
+const { defaultShippingText } = getSetting('cargo-shipping_data', '');
 
 export const Edit = ({ attributes, setAttributes }) => {
 	const { text } = attributes;
@@ -24,7 +24,7 @@ export const Edit = ({ attributes, setAttributes }) => {
 	return (
 		<div {...blockProps} style={{ display: 'block' }}>
 			<InspectorControls>
-				<PanelBody title={__('Block options', 'shipping-workshop')}>
+				<PanelBody title={__('Block options', 'cargo-shipping')}>
 					Options for the block go here.
 				</PanelBody>
 			</InspectorControls>
@@ -33,7 +33,7 @@ export const Edit = ({ attributes, setAttributes }) => {
 					value={
 						text ||
 						defaultShippingText ||
-						__('If I am not at home, please…', 'shipping-workshop')
+						__('If I am not at home, please…', 'cargo-shipping')
 					}
 					onChange={(value) => setAttributes({ text: value })}
 				/>

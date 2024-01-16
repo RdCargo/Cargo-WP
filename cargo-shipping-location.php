@@ -9,6 +9,9 @@
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: cargo-shipping-location-for-woocommerce
+  *
+  * WC requires at least: 6.0.0
+  * WC tested up to: 7.6.1
  */
 
 if ( !defined( 'ABSPATH' ) ) {
@@ -31,6 +34,7 @@ require CSLFW_PATH . '/includes/cslfw-admin.php';
 require CSLFW_PATH . '/includes/cslfw-front.php';
 require CSLFW_PATH . '/includes/cslfw-cargo.php';
 require CSLFW_PATH . '/includes/cslfw-orders-reindex.php';
+include_once __DIR__ . '/blocks/cargo-shipping.php';
 
 if( !class_exists('CSLFW_Cargo') ) {
     class CSLFW_Cargo {
