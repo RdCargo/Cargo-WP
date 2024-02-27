@@ -39,7 +39,6 @@ class Cargo_Shipping_Extend_Store_Endpoint {
 		 * 📝 Once the `extend_checkout_schema` method is complete (see [backend-step-01]) you can
 		 * uncomment the code below.
 		 */
-        /*
 		if ( is_callable( [ self::$extend, 'register_endpoint_data' ] ) ) {
 			self::$extend->register_endpoint_data(
 				[
@@ -50,7 +49,6 @@ class Cargo_Shipping_Extend_Store_Endpoint {
 				]
 			);
 		}
-        */
 	}
 
 
@@ -73,32 +71,32 @@ class Cargo_Shipping_Extend_Store_Endpoint {
          *
          */
 
-        /**
         return [
             'otherShippingValue'   => [
-                'description' => // Enter a description,
-                'type'        => // Define the type, this should be a `string`,
-                'context'     => // Define the contexts this should appear in This should be an array containing `view` and `edit`,
-                'readonly'    => // Using a boolean value, make this field readonly,
-                'optional'    => // Using a boolean value, make this field optional,
+                'description' => __('otherShippingValue description','cargo-shipping-location-for-woocommerce'), // Enter a description,
+                'type'        => 'string', // Define the type, this should be a `string`,
+                'context'     => ['view', 'edit'], // Define the contexts this should appear in This should be an array containing `view` and `edit`,
+                'readonly'    => true, // Using a boolean value, make this field readonly,
+                'optional'    => true,// Using a boolean value, make this field optional,
                 'arg_options' => [
                     'validate_callback' => function( $value ) {
                         // Make this function return true if $value is a string, or false otherwise.
+						return is_string($value);
                     },
                 ]
             ],
             'alternateShippingInstruction'   => [
-            'description' => // Enter a description,
-                'type'        => // Define the type, this should be a `string`,
-                'context'     => // Define the contexts this should appear in This should be an array containing `view` and `edit`,
-                'readonly'    => // Using a boolean value, make this field readonly,
+            	'description' => __('alternateShippingInstruction description','cargo-shipping-location-for-woocommerce'), // Enter a description,
+                'type'        => 'string', // Define the type, this should be a `string`,
+                'context'     => ['view', 'edit'], // Define the contexts this should appear in This should be an array containing `view` and `edit`,
+                'readonly'    => true, // Using a boolean value, make this field readonly,
                 'arg_options' => [
                     'validate_callback' => function( $value ) {
                         // Make this function return true if $value is a string, or false otherwise.
-                    },
+						return is_string($value);
+					},
                 ]
             ],
         ];
-        */
     }
 }

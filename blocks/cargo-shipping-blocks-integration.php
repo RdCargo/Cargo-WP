@@ -1,12 +1,12 @@
 <?php
 use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
+use CSLFW\Includes\CargoAPI\Cargo;
 
 /**
  * Class for integrating with WooCommerce Blocks
  */
     class Cargo_Shipping_Blocks_Integration implements IntegrationInterface {
-
-	/**
+		/**
 	 * The name of the integration.
 	 *
 	 * @return string
@@ -80,7 +80,8 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 				 * `alternateShippingInstruction` and `otherShippingValue` entries. Store them in
 				 * their own variables, $alternate_shipping_instruction and $other_shipping_value.
                  */
-
+				$alternate_shipping_instruction = $cargo_shipping_request_data['alternateShippingInstruction'];
+				$other_shipping_value 			= $cargo_shipping_request_data['otherShippingValue'];
 				/**
 				 * [backend-step-04]
                  * 📝 Using `$order->update_meta_data` update the order metadata.
@@ -88,9 +89,9 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 				 * `$alternate_shipping_instruction`.
 				 * Set the value of the `cargo_shipping_alternate_shipping_instruction_other_text`
 				 * key to `$other_shipping_value`.
-
                  */
-
+				$order->update_meta_data('cargo_shipping_alternate_shipping_instruction', $alternate_shipping_instruction);
+				$order->update_meta_data('cargo_shipping_alternate_shipping_instruction_other_text', $other_shipping_value);
 				/**
                  * [backend-step-04-extra-credit-1]
 				 * 💰 Extra credit: Instead of the `cargo_shipping_alternate_shipping_instruction`
@@ -107,6 +108,7 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 				  * [backend-step-05]
 				  * 💡 Don't forget to save the order using `$order->save()`.
 				  */
+				 $order->save();
             },
             10,
             2
@@ -124,11 +126,12 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
                  * [backend-step-06]
 				 * 📝 Get the `cargo_shipping_alternate_shipping_instruction` from the order metadata using `$order->get_meta`.
                  */
-
+				$cargo_shipping_alternate_shipping_instruction = $order->get_meta('cargo_shipping_alternate_shipping_instruction');
                 /**
 				 * [backend-step-07]
                  * 📝 Get the `cargo_shipping_alternate_shipping_instruction_other_text` from the order metadata using `$order->get_meta`.
                  */
+				$cargo_shipping_alternate_shipping_instruction_other_text = $order->get_meta('cargo_shipping_alternate_shipping_instruction_other_text');
 
 				echo '<div>';
                 echo '<strong>' . __( 'Shipping Instructions', 'cargo-shipping' ) . '</strong>';
@@ -136,7 +139,8 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 				 * [backend-step-08]
 				 * 📝 Output the alternate shipping instructions here!
 				 */
-
+                echo "<div>{$cargo_shipping_alternate_shipping_instruction}</div>";
+                echo "<div>{$cargo_shipping_alternate_shipping_instruction_other_text}</div>";
 				 /**
 				 * [backend-step-08-extra-credit]
 				 * 💰 Extra credit: Don't show the other value if the `cargo_shipping_alternate_shipping_instruction` is not `other`.
@@ -231,12 +235,77 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 	 * @return array
 	 */
 	public function get_script_data() {
-		$data = [
+//		$chosenShippingMethod = WC()->session->get('chosen_shipping_methods')[0];
+//		$chosenMethodId = explode(':', $chosenShippingMethod);
+//		$chosenMethodId = reset($chosenMethodId);
+
+		$boxPoints = $this->getBoxPoints();
+		$boxCities = $this->getBoxCities($boxPoints);
+		$chosenMethodId = '';
+		return [
 			'cargo-shipping-active' => true,
+			'boxCities' => $boxCities,
+			'shippingMethod' => $chosenMethodId,
+			'boxPoints' => $boxPoints
 		];
+	}
 
-		return $data;
+	protected function getBoxPoints()
+	{
+		$cargo = new Cargo();
+		$points = $cargo->getPickupPoints();
 
+		if (empty($points->error_msg)) {
+			return $points->PointsDetails;
+		} else {
+			return [];
+		}
+	}
+
+	protected function getBoxCities($boxPoints)
+	{
+
+		if ($boxPoints) {
+			$cities = array_unique(array_map(function($point) {
+				return $point->CityName;
+			}, $boxPoints));
+			$boxCities = [
+				[
+					"label" => 'Pick the city',
+					"value" => 0
+				]
+			];
+			$cities = array_map(function($city) {
+				return [
+					"label" => $city,
+					"value" => $city,
+				];
+			}, $cities);
+			return array_merge($boxCities, $cities);
+		} else {
+			return [];
+		}
+//		$cargo = new Cargo();
+//		$cities = $cargo->getPointsCities();
+//		if ($cities->success) {
+//			$boxCities = [
+//				[
+//					"label" => 'Pick the city',
+//					"value" => 0
+//				]
+//			];
+//			$cities = array_map(function($city) {
+//				return [
+//					"label" => substr($city->city_name,0, -1),
+//					"value" => substr($city->city_name, 0, -1),
+//				];
+//			}, $cities->data);
+//			$boxCities = array_merge($boxCities, $cities);
+//		} else {
+//			$boxCities = [];
+//		}
+//
+//		return $boxCities;
 	}
 
 	public function register_cargo_shipping_block_editor_styles() {
@@ -294,6 +363,13 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 			$script_asset['dependencies'],
 			$script_asset['version'],
 			true
+		);
+
+		wp_localize_script( 'cargo-shipping-block-frontend', 'cargo_obj',
+			array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'ajax_nonce'    => wp_create_nonce( 'cslfw_shipping_nonce' ),
+			)
 		);
 		wp_set_script_translations(
 			'cargo-shipping-block-frontend',

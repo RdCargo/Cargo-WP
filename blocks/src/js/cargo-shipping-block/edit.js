@@ -14,7 +14,7 @@ import { getSetting } from '@woocommerce/settings';
  * Internal dependencies
  */
 import './style.scss';
-import { options } from './options';
+import { attributes } from './attributes';
 
 const { defaultShippingText } = getSetting('cargo-shipping_data', '');
 
@@ -33,14 +33,14 @@ export const Edit = ({ attributes, setAttributes }) => {
 					value={
 						text ||
 						defaultShippingText ||
-						__('If I am not at home, please…', 'cargo-shipping')
+						__('Cargo shipping locations…', 'cargo-shipping')
 					}
 					onChange={(value) => setAttributes({ text: value })}
 				/>
 			</div>
 			<div>
 				<Disabled>
-					<SelectControl options={options} />
+					<SelectControl options={attributes} />
 				</Disabled>
 			</div>
 		</div>

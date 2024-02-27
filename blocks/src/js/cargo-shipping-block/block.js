@@ -10,13 +10,14 @@ import { debounce } from 'lodash';
 /**
  * Internal dependencies
  */
-import { options } from './options';
-
+import attributes from './attributes';
 export const Block = ({ checkoutExtensionData, extensions }) => {
+	// TODO need to find the way to fetch shipping method to completely hide the block.
 	/**
 	 * setExtensionData will update the wc/store/checkout data store with the values supplied. It
 	 * can be used to pass data from the client to the server when submitting the checkout form.
 	 */
+
 	const { setExtensionData } = checkoutExtensionData;
 	/**
 	 * Debounce the setExtensionData function to avoid multiple calls to the API when rapidly
@@ -55,30 +56,36 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		 */
 	});
 	const [
-		selectedAlternateShippingInstruction,
-		setSelectedAlternateShippingInstruction,
-	] = useState('try-again');
-	const [otherShippingValue, setOtherShippingValue] = useState('');
+		boxPointCity,
+		setBoxPointCity,
+	] = useState('0');
+	const [
+		boxPointId,
+		setBoxPoint
+	] = useState('');
 
-	/* Handle changing the select's value */
+	const [
+		boxPointFiltered,
+		setBoxPointFiltered
+	] = useState([]);
+	const [
+		shippingMethod,
+		setShippingMethod
+	] = useState(attributes.shippingMethod);
+
 	useEffect(() => {
-		/**
-		 * [frontend-step-02]
-		 * 📝 Using `setExtensionData`, write some code in this useEffect that will run when the
-		 * `selectedAlternateShippingInstruction` value changes.
-		 *
-		 * The API of this function is: setExtensionData( namespace, key, value )
-		 *
-		 * This code should use `setExtensionData` to update the `alternateShippingInstruction` key
-		 * in the `cargo-shipping` namespace of the checkout data store.
-		 */
-		setExtensionData( 'cargo-shipping', 'alternateShippingInstruction', selectedAlternateShippingInstruction )
-		/**
-		 * [frontend-step-02-extra-credit-1]
-		 * 💰 Extra credit: Ensure the `setExtensionData` function is not called multiple times. We
-		 * can use the `debouncedSetExtensionData` function for this. The API is the same.
-		 */
-	}, [setExtensionData, selectedAlternateShippingInstruction]);
+		setExtensionData( 'cargo-shipping', 'boxPointCity', boxPointCity )
+
+		setBoxPointFiltered(attributes.boxPoints
+			.filter(obj => obj.CityName === boxPointCity)
+			.map(obj => ({
+				label: `${obj.DistributionPointName}, ${obj.StreetName} ${obj.StreetNum}`,
+				value: obj.DistributionPointID
+			}))
+		);
+
+		setExtensionData('cargo-shipping', 'boxPointFiltered', boxPointFiltered);
+	}, [setExtensionData, boxPointCity, attributes.boxPoints]);
 
 	/**
 	 * [frontend-step-02-extra-credit-2]
@@ -91,8 +98,8 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 	useEffect(() => {
 		/**
 		 * [frontend-step-03]
-		 * 📝 Write some code in this useEffect that will run when the `otherShippingValue` value
-		 * changes. This code should use `setExtensionData` to update the `otherShippingValue` key
+		 * 📝 Write some code in this useEffect that will run when the `boxPointId` value
+		 * changes. This code should use `setExtensionData` to update the `boxPointId` key
 		 * in the `cargo-shipping` namespace of the checkout data store.
 		 */
 		/**
@@ -103,7 +110,7 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		/**
 		 * [frontend-step-04]
 		 * 📝 Write some code that will use `setValidationErrors` to add an entry to the validation
-		 * data store if `otherShippingValue` is empty.
+		 * data store if `boxPointId` is empty.
 		 *
 		 * The API of this function is: `setValidationErrors( errors )`.
 		 *
@@ -118,7 +125,7 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		 * For now, the error should remain hidden until the user has interacted with the field.
 		 *
 		 * [frontend-step-04-extra-credit]
-		 * 💰 Extra credit: If the `selectedAlternateShippingInstruction` is not `other` let's skip
+		 * 💰 Extra credit: If the `boxPointCity` is not `other` let's skip
 		 * adding the validation error. Make sure to place this code before the
 		 * `setValidationErrors` call, thus, the spoiler of [frontend-step-04] comes after the one
 		 * of [frontend-step-04-extra-credit].
@@ -126,8 +133,8 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		/**
 		 * [frontend-step-05]
 		 * 📝 Update the above code so that it will use `clearValidationError` to remove the
-		 * validation error from the data store if `selectedAlternateShippingInstruction` is not
-		 * `other`, or if the `otherShippingValue` is not empty.
+		 * validation error from the data store if `boxPointCity` is not
+		 * `other`, or if the `boxPointId` is not empty.
 		 *
 		 * The API of `clearValidationError` is: `clearValidationError( validationErrorId )`
 		 *
@@ -140,39 +147,30 @@ export const Block = ({ checkoutExtensionData, extensions }) => {
 		 * 💡 Don't forget to update the dependencies of the `useEffect` when you reference new
 		 * functions/variables!
 		 */
-		otherShippingValue,
+		boxPointId,
 		setExtensionData,
 	]);
 
 	return (
 		<div className="wp-block-cargo-shipping-not-at-home">
-			{/**
-			 * [frontend-step-01]
-			 * 📝 Go to options.js and add some new options to display in the SelectControl below.
-			 */}
+			{shippingMethod}
+			{shippingMethod === 'woo-baldarp-pickup' &&  (
 			<SelectControl
-				label={__('If I am not at home please…', 'cargo-shipping')}
-				value={selectedAlternateShippingInstruction}
-				options={options}
-				onChange={setSelectedAlternateShippingInstruction}
+				label={__('Choose the city of delivery…', 'cargo-shipping')}
+				value={boxPointCity}
+				options={attributes.boxCities}
+				onChange={setBoxPointCity}
 			/>
+			)}
 
-			{selectedAlternateShippingInstruction === 'other' && (
+			{boxPointCity !== '0' && (
 				<>
-					<TextareaControl
-						className={
-							'cargo-shipping-other-textarea' +
-							(validationError?.hidden === false
-								? ' has-error'
-								: '')
-						}
-						onChange={setOtherShippingValue}
-						value={otherShippingValue}
+					<SelectControl
+						label={__('Choose box point…', 'cargo-shipping')}
 						required={true}
-						placeholder={__(
-							'Enter shipping instructions',
-							'cargo-shipping'
-						)}
+						value={boxPointId}
+						options={boxPointFiltered}
+						onChange={setBoxPoint}
 					/>
 					{/**
 					 * [frontend-step-08]

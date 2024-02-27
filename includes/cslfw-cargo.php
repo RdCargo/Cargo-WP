@@ -17,7 +17,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $this->order_id  = $order_id;
             $this->deliveries = get_post_meta($order_id, 'cslfw_shipping', true) ? get_post_meta($order_id, 'cslfw_shipping', true) : [];
 
-            add_action('init',array($this, 'add_cors_http_header') );
+            add_action('init', array($this, 'add_cors_http_header') );
 
             add_action('woocommerce_new_order', array($this, 'clean_cookies'), 10, 1);
         }

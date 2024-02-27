@@ -21,6 +21,8 @@ define( 'SHIPPING_WORKSHOP_VERSION', $plugin_data['version'] );
  * Include the dependencies needed to instantiate the block.
  */
 add_action('woocommerce_blocks_loaded', function() {
+	require_once CSLFW_PATH . 'includes/CargoApi/Helpers.php';
+	require_once CSLFW_PATH . 'includes/CargoApi/Cargo.php';
     require_once __DIR__ . '/cargo-shipping-blocks-integration.php';
 	add_action(
 		'woocommerce_blocks_checkout_block_registration',
@@ -29,6 +31,9 @@ add_action('woocommerce_blocks_loaded', function() {
 		}
 	);
 });
+
+
+
 
 /**
  * Registers the slug as a block category with WordPress.
