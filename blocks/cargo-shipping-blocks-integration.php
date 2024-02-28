@@ -253,18 +253,12 @@ use CSLFW\Includes\CargoAPI\Cargo;
 	protected function getBoxPoints()
 	{
 		$cargo = new Cargo();
-		$points = $cargo->getPickupPoints();
 
-		if (empty($points->error_msg)) {
-			return $points->PointsDetails;
-		} else {
-			return [];
-		}
+		return $cargo->getPickupPoints();
 	}
 
 	protected function getBoxCities($boxPoints)
 	{
-
 		if ($boxPoints) {
 			$cities = array_unique(array_map(function($point) {
 				return $point->CityName;
@@ -285,27 +279,6 @@ use CSLFW\Includes\CargoAPI\Cargo;
 		} else {
 			return [];
 		}
-//		$cargo = new Cargo();
-//		$cities = $cargo->getPointsCities();
-//		if ($cities->success) {
-//			$boxCities = [
-//				[
-//					"label" => 'Pick the city',
-//					"value" => 0
-//				]
-//			];
-//			$cities = array_map(function($city) {
-//				return [
-//					"label" => substr($city->city_name,0, -1),
-//					"value" => substr($city->city_name, 0, -1),
-//				];
-//			}, $cities->data);
-//			$boxCities = array_merge($boxCities, $cities);
-//		} else {
-//			$boxCities = [];
-//		}
-//
-//		return $boxCities;
 	}
 
 	public function register_cargo_shipping_block_editor_styles() {

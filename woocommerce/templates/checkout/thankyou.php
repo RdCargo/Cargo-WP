@@ -73,7 +73,7 @@ defined( 'ABSPATH' ) || exit;
 					</li>
 				<?php endif; ?>
 				<?php
-                    $deliveryId = $order->get_meta('cargo_shipping_id');
+                    $deliveryId = $order->get_meta('cargo_shipping_id', true);
                     $deliveryId = is_array($deliveryId) ? implode(',', $deliveryId) : '';
 				?>
 				<?php if ( ! empty($deliveryId) ) : ?>

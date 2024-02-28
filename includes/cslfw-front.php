@@ -6,6 +6,7 @@
 if ( class_exists( 'CSLFW_Front', false ) ) {
     return new CSLFW_Front();
 }
+use CSLFW\Includes\CargoAPI\Cargo;
 
 if( !class_exists('CSLFW_Front') ) {
     class CSLFW_Front
@@ -13,18 +14,20 @@ if( !class_exists('CSLFW_Front') ) {
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();
-            add_action( 'wp_enqueue_scripts', array( $this, 'import_assets' ) );
+            $this->cargo = new Cargo();
 
-            add_filter( 'woocommerce_account_orders_columns', array( $this, 'add_account_orders_column'), 10, 1 );
-            add_filter( 'woocommerce_locate_template', array( $this, 'intercept_wc_template' ), 10, 3 );
+            add_action( 'wp_enqueue_scripts', [$this, 'import_assets']);
 
-            add_action( 'wp_head', array( $this, 'checkout_popups' ) );
-            add_action( 'wp_footer', array( $this, 'add_model_footer' ) );
-            add_action( 'woocommerce_order_details_after_order_table', array( $this, 'tracking_button' ) );
-            add_action( 'wp_ajax_get_order_tracking_details', array( $this,'get_order_tracking_details') );
-            add_action( 'woocommerce_after_shipping_rate', array( $this, 'checkout_cargo_actions' ), 20, 2) ;
-            add_action( 'woocommerce_my_account_my_orders_column_order-track', array( $this, 'add_account_orders_column_rows' ) );
-            add_action( 'woocommerce_checkout_process', array( $this, 'action_woocommerce_checkout_process' ), 10, 1);
+            add_filter( 'woocommerce_account_orders_columns', [$this, 'add_account_orders_column'], 10, 1);
+            add_filter( 'woocommerce_locate_template', [$this, 'intercept_wc_template'], 10, 3);
+
+            add_action( 'wp_head', [$this, 'checkout_popups']);
+            add_action( 'wp_footer', [$this, 'add_model_footer']);
+            add_action( 'woocommerce_order_details_after_order_table', [$this, 'tracking_button']);
+            add_action( 'wp_ajax_get_order_tracking_details', [$this,'get_order_tracking_details']);
+            add_action( 'woocommerce_after_shipping_rate', [$this, 'checkout_cargo_actions'], 20, 2);
+            add_action( 'woocommerce_my_account_my_orders_column_order-track', [$this, 'add_account_orders_column_rows']);
+            add_action( 'woocommerce_checkout_process', [$this, 'action_woocommerce_checkout_process'], 10, 1);
 
             // WC 8+
         }
@@ -70,82 +73,38 @@ if( !class_exists('CSLFW_Front') ) {
          * @param $method
          * @param $index
          */
-        public function checkout_cargo_actions( $method, $index ) {
+        public function checkout_cargo_actions($method, $index) {
             if( is_cart() ) { return; }
-            $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods')[ $index ];
-            $chosen_method_id = explode(':', $chosen_shipping_methods);
-            $chosen_method_id = reset($chosen_method_id);
-            $loop_method = explode(':', $method->id);
-            $loop_method = reset($loop_method);
 
-            if ( $chosen_method_id == 'woo-baldarp-pickup' && $method->method_id == 'woo-baldarp-pickup' ) {
-                $pointId    = isset($_COOKIE['cargoPointID']) ? sanitize_text_field($_COOKIE['cargoPointID']) : '';
-                $city       = isset($_COOKIE['CargoCityName']) ? sanitize_text_field($_COOKIE['CargoCityName']) : '';
-                $city_dd    = isset($_COOKIE['CargoCityName_dropdown']) ? sanitize_text_field($_COOKIE['CargoCityName_dropdown']) : '';
-                $lat        = isset($_COOKIE['cargoLatitude']) ? sanitize_text_field($_COOKIE['cargoLatitude']) : '';
-                $lng        = isset($_COOKIE['cargoLongitude']) ? sanitize_text_field($_COOKIE['cargoLongitude']) : '';
+            $shippingMethods = WC()->session->get('chosen_shipping_methods')[ $index ];
+            $selectedShippingMethod = explode(':', $shippingMethods);
+            $selectedShippingMethod = reset($selectedShippingMethod);
 
-                $cargo_box_style = get_option('cargo_box_style');
-                ?>
-                <div class="cargo-map-wrap">
-                    <?php if ($cargo_box_style === 'cargo_map' ) : ?>
-                        <a class="baldrap-btn btn button wp-element-button" id="mapbutton">
-                            <?php _e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?>
-                        </a>
-                        <div id="selected_cargo"></div>
-                    <?php
-                    elseif ( ($cargo_box_style === 'cargo_dropdowns') ) :
-                        $cities = json_decode(json_encode( $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getCitiesForPlugin") ), 1);
-                        if ( $cities['success'] ) { ?>
-                            <div class="form-row form-row-wide">
-                                <label for="cargo_city">
-                                    <span><?php _e('בחירת עיר', 'cargo-shipping-location-for-woocommerce') ?></span>
-                                </label>
+            if ( $selectedShippingMethod === 'woo-baldarp-pickup' && $method->method_id == 'woo-baldarp-pickup' ) {
+                $pointId = isset($_COOKIE['cargoPointID']) ? sanitize_text_field($_COOKIE['cargoPointID']) : null;
+                $coordinates = [
+                    'lat' => isset($_COOKIE['cargoLatitude']) ? sanitize_text_field($_COOKIE['cargoLatitude']) : 31.046051,
+                    'long' => isset($_COOKIE['cargoLongitude']) ? sanitize_text_field($_COOKIE['cargoLongitude']) : 34.851612,
+                    'distance' => 10,
+                ];
 
-                                <div class="cargo-select-wrap">
-                                    <select name="cargo_city" id="cargo_city" class="">
-                                        <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
-                                        <?php foreach ($cities['data'] as $key => $value) : ?>
-                                            <option value="<?php echo esc_attr($value['city_name']) ?>" <?php if (trim($city_dd) === trim( $value['city_name'] ) ) echo 'selected="selected"'; ?>><?php echo esc_html($value['city_name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        <?php }
-                        $points = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/findClosestPoints", array('lat' => $lat, 'long' => $lng, 'distance' => 10));
-                        if ( $points->error === false && !empty($points->closest_points) ) {
-                            ?>
-                            <div class="form-row form-row-wide">
-                                <label for="cargo_pickup_point">
-                                    <span><?php _e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
-                                </label>
-                                <div class="cargo-select-wrap">
-                                    <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100">
-                                        <?php foreach ($points->closest_points as $key => $value) :
-                                            $point = $value->point_details; ?>
-                                            <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($pointId === $point->DistributionPointID) echo 'selected="selected"' ?>>
-                                                <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        <?php } else { ?>
-                            <p class="woocommerce-info"><?php _e('לא נמצאו כתובות ברדיוס של 10 ק״מ נא לבחור עיר אחרת', 'cargo-shipping-location-for-woocommerce') ?></p>
-                        <?php } ?>
-                    <?php endif; ?>
-                    <?php
-                    if ( !empty($pointId) ) {
-                        $chosen_point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", array('pointId' => $pointId));
-                        $chosen_point = $chosen_point->PointsDetails[0];
-                    }
-                    if ($cargo_box_style !== 'cargo_automatic') :
-                        ?>
-                        <input type="hidden" id="DistributionPointID" name="DistributionPointID" value="<?php echo esc_attr( $chosen_point->DistributionPointID ?? '' )?>">
-                        <input type="hidden" id="CityName" name="CityName" value="<?php echo esc_attr( $chosen_point->CityName ?? '' ) ?>">
-                    <?php endif; ?>
-                </div>
-                <?php
+                $cities = $this->cargo->getPointsCities();
+                $points = $this->cargo->findClosestPoints($coordinates);
+
+                $selectedPoint = $this->cargo->findPointById($pointId);
+
+                $cargoBoxStyle = get_option('cargo_box_style');
+
+                $data = [
+                    'boxStyle' => $cargoBoxStyle,
+                    'cities' => $cities,
+                    'selectedCity' => isset($_COOKIE['CargoCityName_dropdown']) ? sanitize_text_field($_COOKIE['CargoCityName_dropdown']) : '',
+                    'selectedPointId' => $pointId,
+                    'selectedPoint' => $selectedPoint,
+                    'points' => $points,
+                ];
+
+                $this->helpers->load_template('checkout/box-shipment', $data);
             }
         }
 

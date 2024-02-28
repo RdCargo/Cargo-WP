@@ -14,6 +14,8 @@
   * WC tested up to: 7.6.1
  */
 
+use CSLFW\Includes\CargoAPI\Cargo;
+
 if ( !defined( 'ABSPATH' ) ) {
     die;
 }
@@ -26,6 +28,12 @@ if ( !defined( 'CSLFW_PATH' ) ) {
     define( 'CSLFW_PATH', plugin_dir_path( __FILE__ ) );
 }
 
+if ( !defined( 'CSLFW_VERSION' ) ) {
+    define( 'CSLFW_VERSION', '4.0.0' );
+}
+
+require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
+require CSLFW_PATH . '/includes/CargoApi/Cargo.php';
 require CSLFW_PATH . '/includes/cslfw-helpers.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
 require CSLFW_PATH . '/includes/cslfw-contact.php';
@@ -33,7 +41,6 @@ require CSLFW_PATH . '/includes/cslfw-settings.php';
 require CSLFW_PATH . '/includes/cslfw-admin.php';
 require CSLFW_PATH . '/includes/cslfw-front.php';
 require CSLFW_PATH . '/includes/cslfw-cargo.php';
-require CSLFW_PATH . '/includes/cslfw-orders-reindex.php';
 include_once __DIR__ . '/blocks/cargo-shipping.php';
 
 if( !class_exists('CSLFW_Cargo') ) {
@@ -42,7 +49,9 @@ if( !class_exists('CSLFW_Cargo') ) {
         function __construct() {
             $this->helpers = new CSLFW_Helpers();
             $this->logs = new CSLFW_Logs();
-            $this->reindex = new CSLFW_OrdersReindex();
+            $this->cargo = new Cargo();
+
+            add_action('before_woocommerce_init', [$this, 'hpos_compability']);
 
             add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'custom_checkout_field_update_order_meta' ));
             add_action( 'woocommerce_checkout_order_processed', array( $this, 'transfer_order_data_for_shipment' ), 10, 1);
@@ -54,9 +63,15 @@ if( !class_exists('CSLFW_Cargo') ) {
             add_action('wp_ajax_sendOrderCARGO', array( $this, 'send_order_to_cargo' ) );
             add_action('wp_ajax_get_shipment_label', array( $this, 'get_shipment_label' ) );
             add_action('admin_menu', array($this->logs, 'add_menu_link'), 100);
-            add_action('admin_menu', array($this->reindex, 'add_menu_link'), 100);
 
             add_filter( 'woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
+        }
+
+        public function hpos_compability()
+        {
+            if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+            }
         }
 
         /**
@@ -73,11 +88,11 @@ if( !class_exists('CSLFW_Cargo') ) {
             if (!$cslfw_box_info && $shipping_method) {
                 ob_start();
                 $cargo_shipping = new CSLFW_Cargo_Shipping( $order->get_id() );
+                $shipmentsData = $cargo_shipping->get_shipment_data();
+                if ( $shipping_method['method_id'] === 'woo-baldarp-pickup' && $shipmentsData ) {
+                    $box_shipment_type = $order->get_meta('cslfw_box_shipment_type', true);
 
-                if ( $shipping_method['method_id'] == 'woo-baldarp-pickup' ) {
-                    $box_shipment_type   = get_post_meta($order->get_id(), 'cslfw_box_shipment_type', true);
-
-                    foreach ($cargo_shipping->get_shipment_data() as $shipping_id => $data) {
+                    foreach ($shipmentsData as $shipping_id => $data) {
                         $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
                         if ( count($point->PointsDetails) ) {
                             $chosen_point = $point->PointsDetails[0];
@@ -135,7 +150,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 exit;
             }
 
-            if ( $order->get_status() === 'cancelled' || $order->get_status() === 'refunded' || $order->get_status() === 'pending' ) {
+            if (in_array($order->get_status(), ['cancelled', 'refunded', 'pending'])) {
                 echo json_encode( array("shipmentId" => "", "error_msg" => __('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce') ) );
                 exit;
             }
@@ -155,18 +170,18 @@ if( !class_exists('CSLFW_Cargo') ) {
             );
 
             if (isset( $_POST['box_point_id'] )) {
-                $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $_POST['box_point_id'] )]);
-                if ( count($point->PointsDetails) ) {
-                    $chosen_point      = $point->PointsDetails[0];
-                    $args['box_point'] = $chosen_point;
 
-                    update_post_meta( $order_id, 'cargo_DistributionPointID', sanitize_text_field($chosen_point->DistributionPointID) );
+                if ($point = $this->cargo->findPointById($_POST['box_point_id'])) {
+                    $args['box_point'] = $point;
+
+                    $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($point->DistributionPointID));
                 }
             }
 
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
             $response = $cargo_shipping->createShipment($args);
 
+            $order->save();
             echo json_encode($response);
 			exit();
 	    }
@@ -212,7 +227,8 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             if ($shipping_method) {
                 if ( $shipping_method['method_id'] === 'woo-baldarp-pickup' ) {
-                    update_post_meta( $order_id, 'cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']) );
+                    $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']));
+                    $order->save();
                 }
             }
         }

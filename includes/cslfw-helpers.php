@@ -13,9 +13,9 @@ if( !class_exists('CSLFW_Helpers') ) {
             }
         }
 
-        public function load_template( $templateName = '' ) {
+        public function load_template( $templateName = '', $data = null ) {
             if( $templateName != '' ){
-                require_once CSLFW_PATH . 'templates/'.$templateName.'.php';
+                include CSLFW_PATH . 'templates/'.$templateName.'.php';
             }
         }
 
@@ -31,7 +31,7 @@ if( !class_exists('CSLFW_Helpers') ) {
             );
             if ( $data ) $args['body'] = json_encode($data);
             $response   = wp_remote_post($url, $args);
-            $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. ORDERID = {$data['Params']['TransactionID']} <pre>" . $args['body']);
+            $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
             return json_decode( $response );
         }
     }
