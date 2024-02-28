@@ -41,7 +41,7 @@ require CSLFW_PATH . '/includes/cslfw-settings.php';
 require CSLFW_PATH . '/includes/cslfw-admin.php';
 require CSLFW_PATH . '/includes/cslfw-front.php';
 require CSLFW_PATH . '/includes/cslfw-cargo.php';
-include_once __DIR__ . '/blocks/cargo-shipping.php';
+//include_once __DIR__ . '/blocks/cargo-shipping.php';
 
 if( !class_exists('CSLFW_Cargo') ) {
     class CSLFW_Cargo {

@@ -135,27 +135,26 @@
     </div>
 <?php endif; ?>
 
-<?php if ($data['shippingMethod'] === 'woo-baldarp-pickup' && $data['shipmentIds'] && false) {
+<?php if ($data['shippingMethod'] === 'woo-baldarp-pickup' && $data['shipmentIds']) {
     $boxShipmentType = $order->get_meta('cslfw_box_shipment_type', true);
 
     foreach ($data['shipmentData'] as $shipping_id => $data) {
-        $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
+        $cargo = new \CSLFW\Includes\CargoAPI\Cargo();
+        $point = $cargo->findPointById($data['box_id']);
 
-        if ( count($point->PointsDetails) ) {
-            $chosen_point = $point->PointsDetails[0];
-            ?>
+        if ($point) { ?>
             <div>
                 <h3>SHIPPING <?php esc_html_e($shipping_id) ?></h3>
                 <h4 style="margin-bottom: 5px;"><?php _e('Cargo Point Details', 'cargo-shipping-location-for-woocommerce') ?></h4>
-                <?php if ($boxShipmentType === 'cargo_automatic' && !$chosen_point) { ?>
+                <?php if ($boxShipmentType === 'cargo_automatic' && !$point) { ?>
                     <p><?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?></p>
                 <?php } else { ?>
                     <h2 style="padding:0;">
-                        <strong><?php echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ); ?></strong>
+                        <strong><?php echo wp_kses_post($point->DistributionPointName) ?> : <?php echo wp_kses_post($point->DistributionPointID); ?></strong>
                     </h2>
-                    <h4 style="margin:0;"><?php echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) ?></h4>
-                    <h4 style="margin:0;"><?php echo wp_kses_post( $chosen_point->Comment ) ?></h4>
-                    <h4 style="margin:0;"><?php echo wp_kses_post( $chosen_point->Phone ) ?></h4>
+                    <h4 style="margin:0;"><?php echo wp_kses_post("{$point->StreetNum} {$point->StreetName} {$point->CityName}") ?></h4>
+                    <h4 style="margin:0;"><?php echo wp_kses_post($point->Comment) ?></h4>
+                    <h4 style="margin:0;"><?php echo wp_kses_post($point->Phone) ?></h4>
                 <?php } ?>
             </div>
         <?php }

@@ -80,7 +80,7 @@ class Cargo
     public function findPointById($pointId = null)
     {
         if ($pointId) {
-            $points = $this->post("{$this->host}getPickUpPoints", ['pointId']);
+            $points = $this->post("{$this->host}getPickUpPoints", ['pointId' => $pointId]);
 
             return $points->PointsDetails[0];
         } else {

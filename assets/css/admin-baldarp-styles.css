@@ -52,6 +52,7 @@ a.btn.btn-success.send-status {
     color: white;
     display: inline-block;
     text-decoration: none;
+    margin-bottom: 10px;
 }
 
 .no-need{

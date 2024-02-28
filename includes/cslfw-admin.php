@@ -24,7 +24,7 @@ if( !class_exists('CSLFW_Admin') ) {
             add_action('init', [$this, 'register_order_status_for_cargo']);
             add_filter('wc_order_statuses', [$this, 'custom_order_status']);
             add_action('add_meta_boxes', [$this, 'add_meta_box']);
-            add_action( 'add_meta_boxes', [$this, 'remove_shop_order_meta_box'], 90  );
+            add_action('add_meta_boxes', [$this, 'remove_shop_order_meta_box'], 90 );
             add_action('woocommerce_admin_order_data_after_billing_address', [$this, 'show_shipping_info']);
             add_action('admin_notices', [$this, 'cargo_bulk_action_admin_notice']);
             add_action('woocommerce_shipping_init', [$this,'shipping_method_classes']);
@@ -156,9 +156,14 @@ if( !class_exists('CSLFW_Admin') ) {
          * Add Meta box in admin order
          */
         public function add_meta_box( $post_type ) {
-            $orderId = $_GET['id'] ?? null;
+            global $post, $pagenow, $typenow;
+            $orderId = $_GET['id'] ?? $post->ID ?? null;
 
-            if( $post_type === 'woocommerce_page_wc-orders' && $orderId && is_admin() ) {
+            if(
+                ($post_type === 'woocommerce_page_wc-orders' && $orderId)
+                || ('edit.php' === $pagenow || 'post.php' === $pagenow) && 'shop_order' === $typenow
+                && is_admin()
+            ) {
                 $order = wc_get_order($orderId);
 
                 $shipping_method = @array_shift($order->get_shipping_methods() );
