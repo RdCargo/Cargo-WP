@@ -36,22 +36,22 @@ if( !class_exists('CSLFW_Front') ) {
             if ( is_account_page() ) {
                 wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css');
 
-                wp_enqueue_script( 'cargo-order', CSLFW_URL .'assets/js/cargo-order.js', array(), '', true );
+                wp_enqueue_script( 'cargo-order', CSLFW_URL .'assets/js/cargo-order.js', [], CSLFW_VERSION, true );
                 wp_localize_script( 'cargo-order', 'cargo_obj',
-                    array(
+                    [
                         'ajaxurl' => admin_url( 'admin-ajax.php' ),
-                        'ajax_nonce'    => wp_create_nonce( 'cslfw_shipping_nonce' ),
-                    )
+                        'ajax_nonce' => wp_create_nonce( 'cslfw_shipping_nonce' ),
+                    ]
                 );
             }
 
             if ( is_cart() || is_checkout() ) {
-                wp_enqueue_script( 'baldarp-script', CSLFW_URL .'assets/js/baldarp-script.js', array(), '', true);
+                wp_enqueue_script( 'baldarp-script', CSLFW_URL .'assets/js/baldarp-script.js', [], CSLFW_VERSION, true);
                 wp_localize_script( 'baldarp-script', 'baldarp_obj',
-                    array(
+                    [
                         'ajaxurl' => admin_url( 'admin-ajax.php' ),
-                        'ajax_nonce'    => wp_create_nonce( 'cslfw_shipping_nonce' ),
-                    )
+                        'ajax_nonce' => wp_create_nonce( 'cslfw_shipping_nonce' ),
+                    ]
                 );
 
                 if ( get_option('cslfw_google_api_key') ) {
@@ -61,7 +61,7 @@ if( !class_exists('CSLFW_Front') ) {
                 wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css');
 
                 if ( get_option('bootstrap_enalble') == 1 ) {
-                    wp_enqueue_script( 'baldarp-bootstrap-jquery',  CSLFW_URL .'assets/js/boostrap_bundle.js', array(), '', false );
+                    wp_enqueue_script( 'baldarp-bootstrap-jquery',  CSLFW_URL .'assets/js/boostrap_bundle.js', [], CSLFW_VERSION, false );
                     wp_enqueue_style('badarp-bootstrap-css', CSLFW_URL .'assets/css/boostrap_min.css');
                 }
             }
@@ -167,10 +167,12 @@ if( !class_exists('CSLFW_Front') ) {
 
         function get_order_tracking_details() {
             if ( !isset($_POST['shipping_id']) || sanitize_text_field($_POST['shipping_id']) === '' ) {
-                echo json_encode( array(
-                    'status'    => 'fail',
-                    'message'   => __('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
-                ));
+                echo json_encode(
+                    [
+                        'status'  => 'fail',
+                        'message' => __('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
+                    ]
+                );
                 wp_die();
             }
 
@@ -198,7 +200,7 @@ if( !class_exists('CSLFW_Front') ) {
          *
          * @return string The new Template file path.
          */
-        function intercept_wc_template( $template, $template_name, $template_path ) {
+        function intercept_wc_template($template, $template_name, $template_path) {
             global $woocommerce;
             $_template = $template;
             if ( 'thankyou.php' === basename( $template ) ) {
@@ -208,10 +210,10 @@ if( !class_exists('CSLFW_Front') ) {
 
                 // Look within passed path within the theme - this is priority
                 $template = locate_template(
-                    array(
+                    [
                         $template_path . $template_name,
                         $template_name
-                    )
+                    ]
                 );
 
                 if ( !$template && file_exists( $plugin_path . $template_name ) )
@@ -223,7 +225,7 @@ if( !class_exists('CSLFW_Front') ) {
             return $template;
         }
 
-        public function action_woocommerce_checkout_process( $wccs_custom_checkout_field_pro_process ) {
+        public function action_woocommerce_checkout_process($wccs_custom_checkout_field_pro_process) {
             $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
             $chosen_method_id = explode(':', $chosen_shipping_methods[0]);
             $chosen_method_id = reset($chosen_method_id);

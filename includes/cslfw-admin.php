@@ -130,14 +130,14 @@ if( !class_exists('CSLFW_Admin') ) {
          * Add order status for Cargo
          */
         function register_order_status_for_cargo() {
-            register_post_status( 'wc-send-cargo', array(
+            register_post_status( 'wc-send-cargo', [
                 'label'                     => 'Send to CARGO',
                 'public'                    => true,
                 'exclude_from_search'       => false,
                 'show_in_admin_all_list'    => true,
                 'show_in_admin_status_list' => true,
                 'label_count'               => _n_noop( 'Send to CARGO <span class="count">(%s)</span>', 'Send to CARGO <span class="count">(%s)</span>' )
-            ) );
+            ] );
         }
 
         /**
@@ -288,7 +288,7 @@ if( !class_exists('CSLFW_Admin') ) {
          * @return array
          */
         public function add_order_delivery_status_column_header($columns) {
-            $new_columns = array();
+            $new_columns = [];
 
             foreach ( $columns as $column_name => $column_info ) {
                 $new_columns[ $column_name ] = $column_info;
@@ -308,13 +308,13 @@ if( !class_exists('CSLFW_Admin') ) {
         function cargo_bulk_action_admin_notice() {
             global $pagenow;
             if ( 'edit.php' === $pagenow ) {
-                $args = array(
+                $args = [
                     'posts_per_page' => -1,
                     'meta_key'      => 'cargo_shipping_id', // Postmeta key field
                     'meta_value'    => ['', '0'],
                     'meta_compare'  => 'NOT IN', // Possible values are ‘=’, ‘!=’, ‘>’, ‘>=’, ‘<‘, ‘<=’, ‘LIKE’, ‘NOT LIKE’, ‘IN’, ‘NOT IN’, ‘BETWEEN’, ‘NOT BETWEEN’, ‘EXISTS’ (only in WP >= 3.5), and ‘NOT EXISTS’ (also only in WP >= 3.5). Values ‘REGEXP’, ‘NOT REGEXP’ and ‘RLIKE’ were added in WordPress 3.7. Default value is ‘=’.
                     'return'        => 'ids' // Accepts a string: 'ids' or 'objects'. Default: 'objects'.
-                );
+                ];
 
                 $orders = wc_get_orders( $args );
                 if ( count($orders) > 0) {

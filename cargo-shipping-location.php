@@ -53,18 +53,18 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             add_action('before_woocommerce_init', [$this, 'hpos_compability']);
 
-            add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'custom_checkout_field_update_order_meta' ));
-            add_action( 'woocommerce_checkout_order_processed', array( $this, 'transfer_order_data_for_shipment' ), 10, 1);
+            add_action('woocommerce_checkout_update_order_meta', [$this, 'custom_checkout_field_update_order_meta']);
+            add_action('woocommerce_checkout_order_processed', [$this, 'transfer_order_data_for_shipment'], 10, 1);
 
-            add_action( 'wp_ajax_getOrderStatus', array( $this, 'getOrderStatusFromCargo' ) );
-            add_action( 'wp_ajax_nopriv_getOrderStatus', array( $this, 'getOrderStatusFromCargo' ) );
-            add_action( 'wp_ajax_get_delivery_location', array( $this, 'cslfw_ajax_delivery_location' ) );
-            add_action( 'wp_ajax_nopriv_get_delivery_location', array( $this, 'cslfw_ajax_delivery_location' ) );
-            add_action('wp_ajax_sendOrderCARGO', array( $this, 'send_order_to_cargo' ) );
-            add_action('wp_ajax_get_shipment_label', array( $this, 'get_shipment_label' ) );
-            add_action('admin_menu', array($this->logs, 'add_menu_link'), 100);
+            add_action('wp_ajax_getOrderStatus', [$this, 'getOrderStatusFromCargo']);
+            add_action('wp_ajax_nopriv_getOrderStatus', [$this, 'getOrderStatusFromCargo']);
+            add_action('wp_ajax_get_delivery_location', [$this, 'cslfw_ajax_delivery_location']);
+            add_action('wp_ajax_nopriv_get_delivery_location', [$this, 'cslfw_ajax_delivery_location']);
+            add_action('wp_ajax_sendOrderCARGO', [$this, 'send_order_to_cargo']);
+            add_action('wp_ajax_get_shipment_label', [$this, 'get_shipment_label']);
+            add_action('admin_menu', [$this->logs, 'add_menu_link'], 100);
 
-            add_filter( 'woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
+            add_filter('woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
         }
 
         public function hpos_compability()
@@ -128,10 +128,10 @@ if( !class_exists('CSLFW_Cargo') ) {
                 || trim( get_option('from_city') ) == ''
                 || trim( get_option('phonenumber_from') ) == '' ) {
 				echo json_encode(
-				    array(
+				    [
 				        "shipmentId" => "",
                         "error_msg" => __('Please enter all details from plugin setting', 'cargo-shipping-location-for-woocommerce')
-                    )
+                    ]
                 );
 				exit;
 			}
@@ -142,35 +142,54 @@ if( !class_exists('CSLFW_Cargo') ) {
             $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
 
             if (!$shipping_method && !(bool)$cslfw_shipping_methods_all) {
-                echo json_encode( array("shipmentId" => "", "error_msg" => __('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce') ) );
+                echo json_encode(
+                    [
+                        "shipmentId" => "",
+                        "error_msg" => __('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce')
+                    ]
+                );
                 exit;
             }
             if ( ($shipping_method && $shipping_method['method_id'] === 'cargo-express') && trim( get_option('shipping_cargo_express') ) === '' ) {
-                echo json_encode( array("shipmentId" => "", "error_msg" => __('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce') ) );
+                echo json_encode(
+                    [
+                        "shipmentId" => "",
+                        "error_msg" => __('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
+                    ]
+                );
                 exit;
             }
 
             if (in_array($order->get_status(), ['cancelled', 'refunded', 'pending'])) {
-                echo json_encode( array("shipmentId" => "", "error_msg" => __('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce') ) );
+                echo json_encode(
+                    [
+                        "shipmentId" => "",
+                        "error_msg" => __('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce')
+                    ]
+                );
                 exit;
             }
 
             if ( ($shipping_method && $shipping_method['method_id'] === 'woo-baldarp-pickup') && trim( get_option('shipping_cargo_box') ) === '' ) {
-                echo json_encode( array("shipmentId" => "", "error_msg" => __('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce') ) );
+                echo json_encode(
+                    [
+                        "shipmentId" => "",
+                        "error_msg" => __('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
+                    ]
+                );
                 exit;
             }
 
-			$args = array(
+			$args = [
                 'double_delivery'   => (int) sanitize_text_field($_POST['double_delivery']),
                 'shipping_type'     => (int) sanitize_text_field($_POST['shipment_type']),
                 'no_of_parcel'      => (int) sanitize_text_field($_POST['no_of_parcel']),
                 'cargo_cod'         => (int) sanitize_text_field($_POST['cargo_cod']),
                 'cargo_cod_type'    => (int) sanitize_text_field($_POST['cargo_cod_type']),
                 'fulfillment'       => (int) sanitize_text_field($_POST['fulfillment'])
-            );
+            ];
 
             if (isset( $_POST['box_point_id'] )) {
-
                 if ($point = $this->cargo->findPointById($_POST['box_point_id'])) {
                     $args['box_point'] = $point;
 
@@ -194,7 +213,9 @@ if( !class_exists('CSLFW_Cargo') ) {
          */
 		function get_shipment_label() {
 		    $cargo_shipping = new CSLFW_Cargo_Shipping($_POST['orderId']);
+
             $response = $cargo_shipping->getShipmentLabel();
+
             echo json_encode($response);
             exit;
 		}
@@ -265,30 +286,30 @@ if( !class_exists('CSLFW_Cargo') ) {
                 $results = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/getPickUpPoints');
                 $point = !empty($results->PointsDetails) ? $results->PointsDetails : '';
 
-                $response = array(
+                $response = [
                     "info"             => "Everything is fine.",
                     "data"             => 1,
                     "dataval"          => json_encode($point),
                     'shippingMethod'   => WC()->session->get('chosen_shipping_methods')[0],
-                );
+                ];
             } else {
-                $response = array(
+                $response = [
                     "info"             => "Error",
                     "data"             => 0,
                     "dataval"          => '',
-                    'shippingMethod'   => '',
-                );
+                    'shippingMethod'   => ''
+                ];
             }
             echo json_encode($response);
             wp_die();
         }
 
         public function init_plugin() {
-            add_action('admin_menu', array($this, 'plugin_menu'));
+            add_action('admin_menu', [$this, 'plugin_menu']);
         }
 
         public function plugin_menu() {
-            add_menu_page('Cargo Shipping Location', 'Cargo Shipping Location', 'manage_options', 'loaction_api_settings', array(new CSLFW_Settings(), 'settings'),plugin_dir_url( __FILE__ ) . 'assets/image/cargo-icon-with-white-bg-svg.svg');
+            add_menu_page('Cargo Shipping Location', 'Cargo Shipping Location', 'manage_options', 'loaction_api_settings', [new CSLFW_Settings(), 'settings'], plugin_dir_url( __FILE__ ) . 'assets/image/cargo-icon-with-white-bg-svg.svg');
         }
     }
 }

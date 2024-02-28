@@ -155,14 +155,19 @@
 			e.preventDefault();
 			var shipmentId = $(this).data('id');
 			var orderId = $(this).data('order-id');
-			console.log(shipmentId);
+
+			console.log(shipmentId, orderId);
 			if(orderId){
 				ToggleLoading(true);
 				$.ajax({
 					type : "post",
 					dataType : "json",
 					url : admin_cargo_obj.ajaxurl,
-					data : {action: "get_shipment_label", shipmentId : shipmentId, orderId: orderId},
+					data : {
+					    action: "get_shipment_label",
+                        shipmentId : shipmentId,
+                        orderId: orderId
+                    },
 					success: function(response) {
 						console.log(response);
 						ToggleLoading(false);

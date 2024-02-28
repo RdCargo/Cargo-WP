@@ -21,14 +21,14 @@ if( !class_exists('CSLFW_Contact') ) {
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();
-            add_action('admin_menu', array($this, 'add_menu_link'), 100);
-            add_action('wp_ajax_cslfw_send_email', array( $this, 'send_email' ) );
-            add_action( 'admin_enqueue_scripts', [$this, 'import_assets'] );
+            add_action('admin_menu', [$this, 'add_menu_link'], 100);
+            add_action('wp_ajax_cslfw_send_email', [$this, 'send_email']);
+            add_action('admin_enqueue_scripts', [$this, 'import_assets'] );
 
         }
 
         public function import_assets() {
-            wp_enqueue_script( 'cargo-contact', CSLFW_URL . 'assets/js/cslfw-contact.js', array('jquery'), '', true);
+            wp_enqueue_script( 'cargo-contact', CSLFW_URL . 'assets/js/cslfw-contact.js', ['jquery'], CSLFW_VERSION, true);
         }
 
         public function render() {
@@ -36,7 +36,7 @@ if( !class_exists('CSLFW_Contact') ) {
         }
 
         function add_menu_link() {
-            add_submenu_page('loaction_api_settings', 'Contact Us', 'Contact Us', 'manage_options', 'cargo_shipping_contact', array($this, 'render') );
+            add_submenu_page('loaction_api_settings', 'Contact Us', 'Contact Us', 'manage_options', 'cargo_shipping_contact', [$this, 'render'] );
         }
 
         function send_email() {
@@ -47,13 +47,23 @@ if( !class_exists('CSLFW_Contact') ) {
             $body       = "<p><strong>REASON: </strong>{$data['reason']}</p></br>";
             $body      .= "<p><strong>MESSAGE: </strong>{$data['content']}</p></br>";
             $body      .= "<p><strong>URL: </strong>{$site_url}</p></br>";
-            $headers    = array('Content-Type: text/html; charset=UTF-8');
+            $headers    = ['Content-Type: text/html; charset=UTF-8'];
             $headers[]  = "From: CARGO PLUGIN <{$data['email']}>";
             $response   = wp_mail( $to, $subject, $body, $headers );
             if ( $response ) {
-                echo json_encode(array('error' => false, 'message' => 'Email successfully sent'));
+                echo json_encode(
+                    [
+                        'error' => false,
+                        'message' => 'Email successfully sent'
+                    ]
+                );
             } else {
-                echo json_encode(array('error' => true, 'message' => 'Something went wrong.'));
+                echo json_encode(
+                    [
+                        'error' => true,
+                        'message' => 'Something went wrong.'
+                    ]
+                );
 
             }
             wp_die();

@@ -5,15 +5,15 @@ namespace CSLFW\Includes\CargoAPI;
 trait Helpers
 {
     public function post($url, $data = []) {
-        $args = array(
+        $args = [
             'method'      => 'POST',
             'timeout'     => 45,
             'httpversion' => '1.1',
             'blocking'    => true,
-            'headers' => array(
+            'headers' => [
                 'Content-Type: application/json',
-            ),
-        );
+            ],
+        ];
 
         if ( $data ) $args['body'] = json_encode($data);
         $response   = wp_remote_post($url, $args);

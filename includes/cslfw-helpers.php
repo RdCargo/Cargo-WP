@@ -20,15 +20,15 @@ if( !class_exists('CSLFW_Helpers') ) {
         }
 
         function cargoAPI($url, $data = []) {
-            $args = array(
+            $args = [
                 'method'      => 'POST',
                 'timeout'     => 45,
                 'httpversion' => '1.1',
                 'blocking'    => true,
-                'headers' => array(
+                'headers' => [
                     'Content-Type: application/json',
-                ),
-            );
+                ],
+            ];
             if ( $data ) $args['body'] = json_encode($data);
             $response   = wp_remote_post($url, $args);
             $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);

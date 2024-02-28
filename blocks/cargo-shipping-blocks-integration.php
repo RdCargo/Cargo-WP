@@ -339,10 +339,10 @@ use CSLFW\Includes\CargoAPI\Cargo;
 		);
 
 		wp_localize_script( 'cargo-shipping-block-frontend', 'cargo_obj',
-			array(
+			[
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'ajax_nonce'    => wp_create_nonce( 'cslfw_shipping_nonce' ),
-			)
+				'ajax_nonce' => wp_create_nonce( 'cslfw_shipping_nonce' )
+			]
 		);
 		wp_set_script_translations(
 			'cargo-shipping-block-frontend',

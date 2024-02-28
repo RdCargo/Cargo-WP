@@ -25,7 +25,7 @@ if( !class_exists('CSLFW_Logs') ) {
         }
 
         public function add_menu_link() {
-            add_submenu_page('loaction_api_settings', 'Log Files', 'Log Files', 'manage_options', 'cargo_shipping_log', array($this, 'logs'));
+            add_submenu_page('loaction_api_settings', 'Log Files', 'Log Files', 'manage_options', 'cargo_shipping_log', [$this, 'logs']);
         }
 
         public function logs(){
@@ -57,7 +57,7 @@ if( !class_exists('CSLFW_Logs') ) {
         public function get_logs() {
             if ( ! empty( $this->files ) ) {
                 foreach ( $this->files as $key => $value ) {
-                    if ( ! in_array( $value, array( '.', '..' ), true ) ) {
+                    if ( ! in_array( $value, ['.', '..'], true ) ) {
                         if ( ! is_dir( $value ) && strstr( $value, '.txt' ) ) {
                             $this->result[ sanitize_title( $value ) ] = $value;
                         }
@@ -79,11 +79,11 @@ if( !class_exists('CSLFW_Logs') ) {
             }
 
 
-            $logs = array(
+            $logs = [
                 'current_view'  => $this->viewed_log,
                 'files'         => $this->result,
                 'logs_dir'      => $this->logs_dir,
-            );
+            ];
             return (object) $logs;
         }
 
@@ -105,12 +105,12 @@ if( !class_exists('CSLFW_Logs') ) {
         }
 
         function remove_op($handle) {
-            $removed          = false;
-            $result_new = array();
+            $removed    = false;
+            $result_new = [];
 
             if ( ! empty( $this->files ) ) {
                 foreach ( $this->files as $kye => $value ) {
-                    if ( ! in_array( $value, array( '.', '..' ), true ) ) {
+                    if ( ! in_array( $value, ['.', '..'], true ) ) {
                         if ( ! is_dir( $value ) && strstr( $value, '.txt' ) ) {
                             $result_new[ sanitize_title( $value ) ] = $value;
                         }

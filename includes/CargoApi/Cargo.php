@@ -30,9 +30,31 @@ class Cargo
         }
     }
 
+    /**
+     * @param $args
+     * @return mixed
+     */
     public function createShipment($args)
     {
         return $this->post("{$this->host}CreateShipment", $args);
+    }
+
+    /**
+     * @param $args
+     * @return mixed
+     */
+    public function checkShipmentStatus($args)
+    {
+        return $this->post("{$this->host}CheckShipmentStatus", $args);
+    }
+
+    /**
+     * @param $args
+     * @return mixed
+     */
+    public function generateShipmentLabel($args)
+    {
+        return $this->post("{$this->host}generateShipmentLabel", $args);
     }
 
     /**

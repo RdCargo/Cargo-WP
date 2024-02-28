@@ -14,13 +14,13 @@ if( !class_exists('CSLFW_Settings') ) {
         {
             $this->helpers = new CSLFW_Helpers();
 
-            add_action( 'admin_init', array($this, 'cslfw_shipping_api_settings_init') );
-            add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this,  'cargo_settings_link' ) );
+            add_action('admin_init', [$this, 'cslfw_shipping_api_settings_init']);
+            add_filter('plugin_action_links_' . plugin_basename( __FILE__ ), [$this,  'cargo_settings_link']);
 
             if ( is_admin() ) {
-                register_activation_hook(__FILE__, array( $this, 'activate'));
+                register_activation_hook(__FILE__, [$this, 'activate']);
 
-                register_deactivation_hook(__FILE__, array( $this, 'cslfw_deactivate'));
+                register_deactivation_hook(__FILE__, [$this, 'cslfw_deactivate']);
                 // plugin uninstallation
                 register_uninstall_hook(__FILE__, 'cslfw_uninstall');
             }
