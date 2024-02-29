@@ -126,16 +126,20 @@
     $cargoShippingIds =  implode(', ', $data['shipmentIds']);
     ?>
 
-    <div class="cargo-button">
-        <div class="cslfw-shipment-wrap"><strong><?php _e('Shipping ID\'s: ', 'cargo-shipping-location-for-woocommerce' ) ?></strong><?php echo esc_html($cargoShippingIds) ?></div>
+    <div class="cargo-button" style="margin-top: 10px;">
         <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
     </div>
 
     <div class="checkstatus-section">
         <?php
-            foreach ($data['shipmentIds'] as $value) {
+        $webhook_installed = get_option('cslfw_webhooks_installed');
+        foreach ($data['shipmentData'] as $key => $value) {
+            echo wp_kses_post('<div class=""><p class="cslfw-status status-' . $value['status']['number'] .'">'. $key .' - ' . $value['status']['text'] . '</p></div>');
+
+            if ($webhook_installed !== 'yes') {
                 echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-id=" . $order->get_id() . " data-deliveryid='$value'>" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
             }
+        }
         ?>
     </div>
 

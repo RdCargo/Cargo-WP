@@ -70,6 +70,8 @@ if( !class_exists('CSLFW_Cargo') ) {
             add_action('admin_menu', [$this->logs, 'add_menu_link'], 100);
 
             add_filter('woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
+
+            add_action('woocommerce_thankyou', [$this, 'auto_create_shipment'], 10, 1);
         }
 
         public function hpos_compability()
@@ -92,7 +94,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $shipping_method    = $cargoOrder->getShippingMethod();
             $cslfw_box_info     = get_option('cslfw_box_info_email');
 
-            if (!$cslfw_box_info && $shipping_method) {
+            if (!$cslfw_box_info && $shipping_method !== null) {
                 ob_start();
                 $cargo_shipping = new CSLFW_Cargo_Shipping( $order->get_id() );
                 $shipmentsData = $cargo_shipping->get_shipment_data();
@@ -250,29 +252,46 @@ if( !class_exists('CSLFW_Cargo') ) {
          *
          * @param $order_id
          */
-        public function transfer_order_data_for_shipment($order_id ) {
+        public function transfer_order_data_for_shipment($order_id) {
         	if ( ! $order_id ) return;
 
         	$order = wc_get_order( $order_id );
             $cargoOrder = new CSLFW_Order($order);
             $shipping_method = $cargoOrder->getShippingMethod();
 
-            if ($shipping_method) {
-                if ( $shipping_method === 'woo-baldarp-pickup' ) {
+            if ($shipping_method !== null) {
+                if ($shipping_method === 'woo-baldarp-pickup') {
                     $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']));
-                    $order->update_meta_data('cslfw_shipping_method', sanitize_text_field($_POST['DistributionPointID']));
-                    $order->save();
+                    $order->update_meta_data('cslfw_shipping_method', $shipping_method);
                 }
+            } else if ($shipping_method === 'cargo-express') {
+                $order->update_meta_data('cslfw_shipping_method', $shipping_method);
             }
+
+            $order->save();
         }
 
-        /**
+        function auto_create_shipment( $order_id )
+        {
+            $order = wc_get_order( $order_id );
+
+            $autoShipmentCreate = get_option('cslfw_auto_shipment_create');
+            if ($autoShipmentCreate === 'on') {
+                $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
+                $response = $cargo_shipping->createShipment();
+                $order->update_meta_data('custom_checkout_field_update_order_meta', $response);
+            }
+
+            $order->save();
+        }
+
+            /**
          * Update Order meta
          *
          * @param $order_id
          */
         public function custom_checkout_field_update_order_meta($order_id){
-            $order          = wc_get_order( $order_id );
+            $order          = wc_get_order($order_id);
             $shippingMethod = explode(':', sanitize_text_field($_POST['shipping_method'][0]) );
             if(reset($shippingMethod) === 'woo-baldarp-pickup') {
                 if ( isset($_POST['DistributionPointID']) ) {

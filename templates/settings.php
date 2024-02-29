@@ -232,14 +232,33 @@
 				</tr>
                 <tr>
                     <th scope="row" align="left" >
+                        <label for="cslfw_auto_shipment_create"><?php _e('Automatically create shipment.', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_auto_shipment_create" style="vertical-align: top;">
+                                <?php
+                                $auto_shipment_create = get_option('cslfw_auto_shipment_create');
+                                $checked = $auto_shipment_create ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_auto_shipment_create">
+                                    <input type="checkbox" id="cslfw_auto_shipment_create" name="cslfw_auto_shipment_create" <?php echo esc_attr($checked) ?>>
+                                    <span><?php _e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" align="left" >
                         <label for="cslfw_fulfill_all"><?php _e('Fullfill all orders', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
                         <div style="display: inline-block; margin-right: 15px;" class="text">
                             <label for="cslfw_fulfill_all" style="vertical-align: top;">
                                 <?php
-                                $cslfw_fulfill_all = get_option('cslfw_fulfill_all');
-                                $checked = $cslfw_fulfill_all ? 'checked' : '';
+                                    $cslfw_fulfill_all = get_option('cslfw_fulfill_all');
+                                    $checked = $cslfw_fulfill_all ? 'checked' : '';
                                 ?>
                                 <label for="cslfw_fulfill_all">
                                     <input type="checkbox" id="cslfw_fulfill_all" name="cslfw_fulfill_all" <?php echo esc_attr($checked) ?>>

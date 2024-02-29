@@ -165,9 +165,15 @@ class Webhook
                 if (!$response->errors) {
                     $error = false;
                     $webhookId = $response->data->id;
-                    add_option($optionKey, $webhookId);
+                    update_option($optionKey, $webhookId);
                 }
             }
+        }
+
+        if ($error) {
+            delete_option('cslfw_webhooks_installed');
+        } else {
+            add_option('cslfw_webhooks_installed', 'yes');
         }
 
         echo json_encode([

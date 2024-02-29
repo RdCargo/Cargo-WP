@@ -205,7 +205,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
 
-                if (!in_array($order->get_status() , ['cancelled', 'refunded', 'pending']) && $shipping_method) {
+                if (!in_array($order->get_status() , ['cancelled', 'refunded', 'pending']) && $shipping_method !== null) {
                     if ( $shipping_method === 'cargo-express'
                         || $shipping_method === 'woo-baldarp-pickup'
                         || in_array($shipping_method, $cslfw_shiping_methods)
@@ -278,13 +278,15 @@ if( !class_exists('CSLFW_Admin') ) {
 
                     $cargo_shipping = new CSLFW_Cargo_Shipping($order->get_id());
                     $deliveries = $cargo_shipping->get_shipment_data();
-
+                    $webhook_installed = get_option('cslfw_webhooks_installed');
                     $box_point_id = $order->get_meta('cargo_DistributionPointID', true);
                     if ( 'cslfw_delivery_status' === $column ) {
                         if ( $deliveries ) {
                             foreach ($deliveries as $key => $value) {
-                                echo wp_kses_post('<p>Status - ' . $value['status']['text'] . '</p>');
-                                echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 5px;' data-id=" . $order->get_id() .  " data-deliveryid='$key'>$key  בדוק מצב הזמנה</a>");
+                                echo wp_kses_post('<div class=""><p class="cslfw-status status-' . $value['status']['number'] .'">'. $key .' - ' . $value['status']['text'] . '</p></div>');
+                                if ($webhook_installed !== 'yes') {
+                                    echo wp_kses_post("<a href='#' class='btn btn-success send-status' style='margin-bottom: 5px;' data-id=" . $order->get_id() .  " data-deliveryid='$key'>$key  בדוק מצב הזמנה</a>");
+                                }
                             }
                         }
                     }

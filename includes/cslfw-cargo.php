@@ -60,9 +60,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $order_data         = $this->order->get_data();
             $shipping_method_id = $this->cargoOrder->getShippingMethod();
 
-            if ($shipping_method_id) {
+            if ($shipping_method_id === null || empty($shipping_method_id)) {
                 return [
                     'shipmentId' => "",
+                    'shipping_method' => $shipping_method_id,
                     'error_msg' => "No shipping methods found. Contact support please."
                 ];
             }
@@ -197,8 +198,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 }
             }
 
-            return apply_filters('cslfw_cargo_order_array', $data, $this->order_id);
-            die();
+            return $data;
         }
 
         /**

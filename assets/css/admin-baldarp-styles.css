@@ -5,7 +5,26 @@
     width: 100%;
     text-transform: uppercase;
 }
-
+.cslfw-status {
+    background: #FEF08A;
+    padding: 2px 9px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 0 auto;
+    margin-bottom: 10px !important;
+}
+.cslfw-status.status-3 {
+    background: #BBF7D0;
+}
+.cslfw-status.status-8 {
+    background: #FECACA;
+}
+.cslfw-status.status-4 {
+    background: #FED7AA;
+}
+.text-center {
+    text-align: center;
+}
 a.btn.btn-success.send-status {
     border: 1px solid green;
     padding: 0px 7px;
