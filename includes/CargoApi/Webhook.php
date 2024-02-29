@@ -29,7 +29,7 @@ class Webhook
 
     public function cargo_status_update_webhook()
     {
-        register_rest_route( 'cargo-shipping-location/v1', '/update-status/',
+        register_rest_route( 'cargo-shipping-location-for-woocommerce/v1', '/update-status/',
             [
                 'methods'  => 'POST',
                 'callback' => [$this, 'cargo_update_shipment_status']
@@ -51,14 +51,13 @@ class Webhook
             'meta_query' => [
                 [
                     'key'     => 'cslfw_shipping', // meta_key to search
-                    'value'   => $data['shipment_id'], // part of the meta_value to match
+                    'value'   => "{$data['shipment_id']}", // part of the meta_value to match
                     'compare' => 'LIKE' // Perform a LIKE comparison
                 ]
             ]
         ];
 
         if ( class_exists( \WC_Order_Query::class ) ) {
-
             $orders_query = new \WC_Order_Query( $args );
             $orders = $orders_query->get_orders();
 
@@ -66,8 +65,8 @@ class Webhook
                 foreach ( $orders as $order ) {
                     $deliveries = $order->get_meta('cslfw_shipping', true);
 
-                    $deliveries[$data['shipment_id']]['status']['number'] = $data['status_code'];
-                    $deliveries[$data['shipment_id']]['status']['text'] = $data['status'];
+                    $deliveries[$data['shipment_id']]['status']['number'] = $data['new_status_code'];
+                    $deliveries[$data['shipment_id']]['status']['text'] = $data['new_status'];
 
                     $order->update_meta_data('cslfw_shipping', $deliveries);
                     $order->save();
@@ -84,7 +83,7 @@ class Webhook
             $response = [
                 'success' => false,
                 'data' => $args,
-                'message' => 'Failed to update database'
+                'message' => 'WC_Order_Query not exist'
             ];
         }
 
@@ -190,7 +189,7 @@ class Webhook
         return [
             'type' => 'status-update',
             'customer_code' => (int) $customerCode,
-            'webhook_url' => "{$host}/cargo-shipping-location/v1/update-status/"
+            'webhook_url' => "{$host}/wp-json/cargo-shipping-location-for-woocommerce/v1/update-status/"
         ];
     }
 
@@ -242,7 +241,7 @@ class Webhook
         $customerCodes = [
             'express' => get_option('shipping_cargo_express'),
             'box' => get_option('shipping_cargo_box'),
-            'pickup' => get_option('shipping_pickup_code')
+            'pickup' => get_option('shipping_pickup_code'),
         ];
         $webhooksInstalled = false;
 
@@ -258,7 +257,7 @@ class Webhook
 
         $data = [
             'apiKey' => $this->apiKey,
-            'webhooksInstalled' => $webhooksInstalled
+            'webhooksInstalled' => $webhooksInstalled,
         ];
 
         $this->helpers->load_template('webhook', $data);
