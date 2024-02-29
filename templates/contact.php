@@ -41,5 +41,5 @@ if ( ! defined( 'ABSPATH' ) || !class_exists('CSLFW_Contact') ) {
         <label for="content"><?php esc_html_e('Explain in details', 'cargo-shipping-location-for-woocommerce') ?></label>
         <textarea name="content" id="content" cols="30" rows="10" required></textarea>
     </div>
-    <button type="submit" class="button" value="<?php esc_attr_e( 'Send', 'woocommerce' ); ?>"><?php esc_html_e( 'Send', 'woocommerce' ); ?></button>
+    <button type="submit" class="button" value="<?php esc_attr_e( 'Send', 'cargo-shipping-location-for-woocommerce' ); ?>"><?php esc_html_e( 'Send', 'cargo-shipping-location-for-woocommerce' ); ?></button>
 </form>

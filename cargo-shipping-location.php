@@ -15,6 +15,7 @@
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\Webhook;
 
 if ( !defined( 'ABSPATH' ) ) {
     die;
@@ -34,6 +35,7 @@ if ( !defined( 'CSLFW_VERSION' ) ) {
 
 require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
 require CSLFW_PATH . '/includes/CargoApi/Cargo.php';
+require CSLFW_PATH . '/includes/CargoApi/Webhook.php';
 require CSLFW_PATH . '/includes/cslfw-helpers.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
 require CSLFW_PATH . '/includes/cslfw-contact.php';
@@ -50,6 +52,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $this->helpers = new CSLFW_Helpers();
             $this->logs = new CSLFW_Logs();
             $this->cargo = new Cargo();
+            $this->webhook = new Webhook();
 
             add_action('before_woocommerce_init', [$this, 'hpos_compability']);
 

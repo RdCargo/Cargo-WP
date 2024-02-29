@@ -49,7 +49,10 @@ if( !class_exists('CSLFW_Admin') ) {
             $screen_id    = $screen ? $screen->id : '';
 
 
-            if( $screen_id === 'toplevel_page_loaction_api_settings' ||  $screen_id === 'cargo-shipping-location_page_cargo_shipping_contact' || $screen_id === 'cargo-shipping-location_page_cargo_orders_reindex' ) {
+            if( $screen_id === 'toplevel_page_loaction_api_settings' ||
+                $screen_id === 'cargo-shipping-location_page_cargo_shipping_contact' ||
+                $screen_id === 'cargo-shipping-location_page_cargo_shipping_webhook' ||
+                $screen_id === 'cargo-shipping-location_page_cargo_orders_reindex' ) {
                 wp_enqueue_script( 'cargo-libs', CSLFW_URL . 'assets/js/libs.js', ['jquery'], CSLFW_VERSION, true);
             }
             wp_enqueue_style( 'admin-baldarp-styles', CSLFW_URL . 'assets/css/admin-baldarp-styles.css' );
