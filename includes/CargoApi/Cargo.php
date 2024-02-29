@@ -102,8 +102,4 @@ class Cargo
             return [];
         }
     }
-
-    public function sendToCargo($method, $data = []) {
-        return $this->post("{$this->host}/$method", $data);
-    }
 }

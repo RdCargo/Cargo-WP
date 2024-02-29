@@ -15,6 +15,7 @@
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CSLFW_Order;
 use CSLFW\Includes\CargoAPI\Webhook;
 
 if ( !defined( 'ABSPATH' ) ) {
@@ -34,6 +35,7 @@ if ( !defined( 'CSLFW_VERSION' ) ) {
 }
 
 require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
+require CSLFW_PATH . '/includes/CargoApi/CSLFW_Order.php';
 require CSLFW_PATH . '/includes/CargoApi/Cargo.php';
 require CSLFW_PATH . '/includes/CargoApi/Webhook.php';
 require CSLFW_PATH . '/includes/cslfw-helpers.php';
@@ -86,19 +88,21 @@ if( !class_exists('CSLFW_Cargo') ) {
          * @return mixed|string
          */
         function additional_shipping_details( $address, $raw_address, $order ) {
-            $shipping_method    = @array_shift($order->get_shipping_methods());
+            $cargoOrder = new CSLFW_Order($order);
+            $shipping_method    = $cargoOrder->getShippingMethod();
             $cslfw_box_info     = get_option('cslfw_box_info_email');
+
             if (!$cslfw_box_info && $shipping_method) {
                 ob_start();
                 $cargo_shipping = new CSLFW_Cargo_Shipping( $order->get_id() );
                 $shipmentsData = $cargo_shipping->get_shipment_data();
-                if ( $shipping_method['method_id'] === 'woo-baldarp-pickup' && $shipmentsData ) {
+
+                if ( $shipping_method === 'woo-baldarp-pickup' && $shipmentsData ) {
                     $box_shipment_type = $order->get_meta('cslfw_box_shipment_type', true);
 
                     foreach ($shipmentsData as $shipping_id => $data) {
-                        $point = $this->helpers->cargoAPI("https://api.cargo.co.il/Webservice/getPickUpPoints", ['pointId' => intval( $data['box_id'] )]);
-                        if ( count($point->PointsDetails) ) {
-                            $chosen_point = $point->PointsDetails[0];
+                        if ($point = $this->cargo->findPointById($data['box_id'])) {
+                            $chosen_point = $point;
                             echo __("Cargo Point Details", 'cargo-shipping-location-for-woocommerce') . PHP_EOL;
                             if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
                                 echo __('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce'). PHP_EOL;
@@ -139,12 +143,12 @@ if( !class_exists('CSLFW_Cargo') ) {
 				exit;
 			}
 
-	    	$order_id           = sanitize_text_field($_POST['orderId']);
-            $order              = wc_get_order($order_id);
-            $shipping_method    = @array_shift($order->get_shipping_methods());
-            $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
+	    	$order_id = sanitize_text_field($_POST['orderId']);
+            $order = wc_get_order($order_id);
+            $cargoOrder = new CSLFW_Order($order);
+            $shipping_method  = $cargoOrder->getShippingMethod();
 
-            if (!$shipping_method && !(bool)$cslfw_shipping_methods_all) {
+            if ($shipping_method === null) {
                 echo json_encode(
                     [
                         "shipmentId" => "",
@@ -153,7 +157,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 );
                 exit;
             }
-            if ( ($shipping_method && $shipping_method['method_id'] === 'cargo-express') && trim( get_option('shipping_cargo_express') ) === '' ) {
+            if ( ($shipping_method === 'cargo-express') && trim( get_option('shipping_cargo_express') ) === '' ) {
                 echo json_encode(
                     [
                         "shipmentId" => "",
@@ -173,7 +177,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 exit;
             }
 
-            if ( ($shipping_method && $shipping_method['method_id'] === 'woo-baldarp-pickup') && trim( get_option('shipping_cargo_box') ) === '' ) {
+            if ( ($shipping_method === 'woo-baldarp-pickup') && trim( get_option('shipping_cargo_box') ) === '' ) {
                 echo json_encode(
                     [
                         "shipmentId" => "",
@@ -198,6 +202,9 @@ if( !class_exists('CSLFW_Cargo') ) {
 
                     $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($point->DistributionPointID));
                 }
+                $order->update_meta_data('cslfw_shipping_method', 'woo-baldarp-pickup');
+            } else {
+                $order->update_meta_data('cslfw_shipping_method', 'cargo-express');
             }
 
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
@@ -247,11 +254,13 @@ if( !class_exists('CSLFW_Cargo') ) {
         	if ( ! $order_id ) return;
 
         	$order = wc_get_order( $order_id );
-            $shipping_method = @array_shift($order->get_shipping_methods());
+            $cargoOrder = new CSLFW_Order($order);
+            $shipping_method = $cargoOrder->getShippingMethod();
 
             if ($shipping_method) {
-                if ( $shipping_method['method_id'] === 'woo-baldarp-pickup' ) {
+                if ( $shipping_method === 'woo-baldarp-pickup' ) {
                     $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']));
+                    $order->update_meta_data('cslfw_shipping_method', sanitize_text_field($_POST['DistributionPointID']));
                     $order->save();
                 }
             }
@@ -265,17 +274,22 @@ if( !class_exists('CSLFW_Cargo') ) {
         public function custom_checkout_field_update_order_meta($order_id){
             $order          = wc_get_order( $order_id );
             $shippingMethod = explode(':', sanitize_text_field($_POST['shipping_method'][0]) );
-            if( reset($shippingMethod) == 'woo-baldarp-pickup') {
-
+            if(reset($shippingMethod) === 'woo-baldarp-pickup') {
                 if ( isset($_POST['DistributionPointID']) ) {
-                    $order->update_meta_data( 'cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']) );
+                    $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']));
                 }
                 if ( isset($_POST['DistributionPointID']) ) {
-                    $order->update_meta_data( 'cargo_CityName', sanitize_text_field($_POST['CityName']) );
+                    $order->update_meta_data('cargo_CityName', sanitize_text_field($_POST['CityName']) );
                 }
                 if ( get_option('cargo_box_style') ) {
-                    $order->update_meta_data( 'cslfw_box_shipment_type', sanitize_text_field(get_option('cargo_box_style')) );
+                    $order->update_meta_data('cslfw_box_shipment_type', sanitize_text_field(get_option('cargo_box_style')));
                 }
+
+                $order->update_meta_data('cslfw_shipping_method', 'woo-baldarp-pickup');
+            }
+
+            if(reset($shippingMethod) === 'cargo-express') {
+                $order->update_meta_data('cslfw_shipping_method', 'cargo-express');
             }
 
             $order->save();

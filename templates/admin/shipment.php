@@ -10,6 +10,16 @@
     ];
 ?>
 
+<div class="cargo-butoon">
+    <button class="button button-primary cslfw-change-carrier-id" data-order-id="<?php echo esc_attr($order->get_id()); ?>">
+        <?php if ($data['shippingMethod'] === 'woo-baldarp-pickup') : ?>
+            <?php _e('Switch to express', 'cargo-shipping-location-for-woocommerce' ) ?>
+            <?php else : ?>
+            <?php _e('Switch to box shipment', 'cargo-shipping-location-for-woocommerce' ) ?>
+        <?php endif; ?>
+    </button>
+</div>
+
 <div class="cargo-submit-form-wrap" <?php if ( $data['shipmentIds'] ) echo 'style="display: none;"'; ?> >
     <?php if (!$data['fulfillAllShipments']) { ?>
         <div class="cargo-button">
@@ -20,7 +30,7 @@
             </label>
         </div>
     <?php } ?>
-    <?php if ($data['shippingMethod'] !== 'woo-baldarp-pickup' || $data['allowAllShippingMethods']) : ?>
+    <?php if ($data['shippingMethod'] !== 'woo-baldarp-pickup' || $data['shippingMethod']) : ?>
         <div class="cargo-button">
             <strong><?php _e('Double Delivery', 'cargo-shipping-location-for-woocommerce') ?></strong>
             <label for="cargo_double-delivery">
@@ -91,7 +101,7 @@
             <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_regular" checked value="1" />
             <span><?php _e('Regular', 'cargo-shipping-location-for-woocommerce') ?></span>
         </label>
-        <?php if ($data['shippingMethod'] !== 'woo-baldarp-pickup' || $data['allowAllShippingMethods'] ) : ?>
+        <?php if ($data['shippingMethod'] !== 'woo-baldarp-pickup' || $data['shippingMethod'] ) : ?>
             <label for="cargo_shipment_type_pickup">
                 <input type="radio" name="cargo_shipment_type" id="cargo_shipment_type_pickup" value="2" />
                 <span><?php _e('Pickup', 'cargo-shipping-location-for-woocommerce') ?></span>
@@ -117,7 +127,7 @@
     ?>
 
     <div class="cargo-button">
-        <div><strong><?php _e('Shipping ID\'s: ', 'cargo-shipping-location-for-woocommerce' ) ?></strong><?php echo esc_html($cargoShippingIds) ?></div>
+        <div class="cslfw-shipment-wrap"><strong><?php _e('Shipping ID\'s: ', 'cargo-shipping-location-for-woocommerce' ) ?></strong><?php echo esc_html($cargoShippingIds) ?></div>
         <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>"><?php _e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
     </div>
 

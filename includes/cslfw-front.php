@@ -80,7 +80,7 @@ if( !class_exists('CSLFW_Front') ) {
             $selectedShippingMethod = explode(':', $shippingMethods);
             $selectedShippingMethod = reset($selectedShippingMethod);
 
-            if ( $selectedShippingMethod === 'woo-baldarp-pickup' && $method->method_id == 'woo-baldarp-pickup' ) {
+            if ( $selectedShippingMethod === 'woo-baldarp-pickup' && $method->method_id === 'woo-baldarp-pickup' ) {
                 $pointId = isset($_COOKIE['cargoPointID']) ? sanitize_text_field($_COOKIE['cargoPointID']) : null;
                 $coordinates = [
                     'lat' => isset($_COOKIE['cargoLatitude']) ? sanitize_text_field($_COOKIE['cargoLatitude']) : 31.046051,

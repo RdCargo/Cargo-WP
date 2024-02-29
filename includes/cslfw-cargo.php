@@ -5,6 +5,7 @@
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CSLFW_Order;
 
 require CSLFW_PATH . '/includes/cslfw-helpers.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
@@ -15,6 +16,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         public $order_id;
         public $order;
         public $cargo;
+        public $cargoOrder;
 
         function __construct($order_id = 0) {
             $this->cargo = new Cargo();
@@ -22,8 +24,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             if ($order_id) {
                 $this->order = wc_get_order($order_id);
-                $this->order_id  = $order_id;
+                $this->order_id = $order_id;
                 $this->deliveries = $this->order->get_meta('cslfw_shipping', true) ?? [];
+                $this->cargoOrder = new CSLFW_Order($this->order);
             }
 
             add_action('init', [$this, 'add_cors_http_header']);
@@ -55,10 +58,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             }
 
             $order_data         = $this->order->get_data();
-            $shipping_method    = @array_shift($this->order->get_shipping_methods());
-            $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
+            $shipping_method_id = $this->cargoOrder->getShippingMethod();
 
-            if ( !$shipping_method && !(bool)$cslfw_shipping_methods_all ) {
+            if ($shipping_method_id) {
                 return [
                     'shipmentId' => "",
                     'error_msg' => "No shipping methods found. Contact support please."
@@ -71,8 +73,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ];
             }
 
-            $shipping_method_id = $shipping_method ? $shipping_method['method_id'] : 'cargo-express';
-            $shipping_method_id = !$shipping_method && (bool) $cslfw_shipping_methods_all ? 'cargo-express' : $shipping_method_id;
             $isBoxShipment = $shipping_method_id === 'woo-baldarp-pickup';
 
             $cargo_box_style    = $this->order->get_meta('cslfw_box_shipment_type', true) ?? 'cargo_automatic';
@@ -292,10 +292,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
          * @return array|string[]
          */
         function getOrderStatusFromCargo($shipping_id) {
-            $shipping_method    = @array_shift($this->order->get_shipping_methods());
-            $cslfw_shipping_methods_all = (bool)get_option('cslfw_shipping_methods_all');
+            $shipping_method_id = $this->cargoOrder->getShippingMethod();
 
-            if (!$shipping_method && ! $cslfw_shipping_methods_all) {
+            if ($shipping_method_id !== null) {
                 return [
                     "type" => "failed",
                     "data" => 'No shipping methods found. Contact Support please.'
@@ -307,8 +306,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     "data" => "Can't process order with cancelled, pending or refunded status"
                 ];
             }
-            $shipping_method_id = $shipping_method ? $shipping_method['method_id'] : 'cargo-express';
-            $shipping_method_id = $cslfw_shipping_methods_all ? 'cargo-express' : $shipping_method_id;
 
             $post_data = [
                 'deliveryId' => (int) $shipping_id,

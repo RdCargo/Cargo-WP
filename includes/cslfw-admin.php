@@ -5,6 +5,7 @@
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CSLFW_Order;
 
 if ( class_exists( 'CSLFW_Admin', false ) ) {
     return new CSLFW_Admin();
@@ -35,6 +36,8 @@ if( !class_exists('CSLFW_Admin') ) {
 
             add_action('manage_shop_order_posts_custom_column', [$this,'add_custom_column_content']);
             add_filter('manage_edit-shop_order_columns', [$this, 'add_order_delivery_status_column_header'], 2000);
+
+            add_action('wp_ajax_cslfw_change_carrier_id', [$this, 'change_carrier_id']);
 
             // WC for HPOS
             add_action('woocommerce_shop_order_list_table_custom_column', [$this, 'add_custom_column_content'], 10, 2);
@@ -68,34 +71,65 @@ if( !class_exists('CSLFW_Admin') ) {
             );
         }
 
+        public function change_carrier_id()
+        {
+            $orderId = sanitize_text_field($_POST['orderId']);
+            $order = wc_get_order($orderId);
+
+            if ($order) {
+                $cargoOrder = new CSLFW_Order($order);
+                $shippingMethod  = $cargoOrder->getShippingMethod();
+
+
+                $newMethod = $shippingMethod === 'woo-baldarp-pickup' ? 'cargo-express' : 'woo-baldarp-pickup';
+
+                $order->update_meta_data('cslfw_shipping_method', $newMethod);
+                $order->save_meta_data();
+                $order->save();
+
+                echo json_encode([
+                    'error' => false,
+                    'test' => $newMethod,
+                    'order' => $order->get_meta('cslfw_shipping_method'),
+                    'message' => 'successfully updated'
+                ]);
+                wp_die();
+            }
+
+            echo json_encode([
+                'error' => true,
+                'message' => 'Order not found. Contact support.'
+            ]);
+            wp_die();
+        }
+
         /**
          * Single order cargo view.
          *
          * @param $post
          */
         public function render_meta_box_content( $post ) {
-            $order              = wc_get_order( $post->ID );
-            $shipping_method    = @array_shift($order->get_shipping_methods());
+            $order = wc_get_order($post->ID);
+            $cargoOrder = new CSLFW_Order($order);
+            $shipping_method = $cargoOrder->getShippingMethod();
 
             $cargo_debug_mode   = get_option( 'cslfw_debug_mode' );
-            $cargo_shipping     = new CSLFW_Cargo_Shipping($post->ID);
+            $cargo_shipping     = new CSLFW_Cargo_Shipping($order->get_id());
 
             $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
-            $cslfw_shipping_methods_all = (bool) get_option('cslfw_shipping_methods_all');
 
             $orderStatus = $order->get_status();
 
             if (!in_array($orderStatus, ['cancelled', 'refunded', 'pending']) && $shipping_method) {
                 if ($cargo_debug_mode) {
-                    var_dump($shipping_method['method_id']);
+                    var_dump($shipping_method);
 //                    echo "<pre>";
                     print_r($cargo_shipping->deliveries);
                 }
                 if (
-                    ($shipping_method['method_id'] === 'cargo-express')
-                    || ($shipping_method['method_id'] === 'woo-baldarp-pickup')
-                    || in_array($shipping_method['method_id'], $cslfw_shiping_methods)
-                    || $cslfw_shipping_methods_all
+                    ($shipping_method === 'cargo-express')
+                    || ($shipping_method === 'woo-baldarp-pickup')
+                    || in_array($shipping_method, $cslfw_shiping_methods)
                 ) {
 
                     $shipmentData = $cargo_shipping->get_shipment_data();
@@ -104,9 +138,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         'shipmentIds' => $cargo_shipping->get_shipment_ids(),
                         'paymentMethodCheck' => get_option('cslfw_cod_check') ?  get_option('cslfw_cod_check') : 'cod',
                         'fulfillAllShipments' => get_option('cslfw_fulfill_all'),
-                        'shippingMethod' => $shipping_method['method_id'],
-                        'shippingObject' => $shipping_method,
-                        'allowAllShippingMethods' => $cslfw_shipping_methods_all,
+                        'shippingMethod' => $shipping_method,
                         'order' => $order,
                         'shipmentData' => $shipmentData,
                     ];
@@ -168,16 +200,15 @@ if( !class_exists('CSLFW_Admin') ) {
                 && is_admin()
             ) {
                 $order = wc_get_order($orderId);
-
-                $shipping_method = @array_shift($order->get_shipping_methods() );
+                $cargoOrder = new CSLFW_Order($order);
+                $shipping_method = $cargoOrder->getShippingMethod();
                 $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
-                $cslfw_shipping_methods_all = get_option('cslfw_shipping_methods_all');
+
 
                 if (!in_array($order->get_status() , ['cancelled', 'refunded', 'pending']) && $shipping_method) {
-                    if ( $shipping_method['method_id'] === 'cargo-express'
-                        || $shipping_method['method_id'] === 'woo-baldarp-pickup'
-                        || in_array($shipping_method['method_id'], $cslfw_shiping_methods)
-                        || $cslfw_shipping_methods_all
+                    if ( $shipping_method === 'cargo-express'
+                        || $shipping_method === 'woo-baldarp-pickup'
+                        || in_array($shipping_method, $cslfw_shiping_methods)
                     ) {
                         add_meta_box(
                             'cslfw_cargo_custom_box',
@@ -233,17 +264,16 @@ if( !class_exists('CSLFW_Admin') ) {
 
             if (!$order) return;
 
-            $shipping_method    = @array_shift($order->get_shipping_methods());
+            $cargoOrder = new CSLFW_Order($order);
+            $shipping_method = $cargoOrder->getShippingMethod();
             $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
-            $cslfw_shipping_methods_all = (bool) get_option('cslfw_shipping_methods_all');
 
 
             if (!in_array($order->get_status() , ['cancelled', 'refunded', 'pending']) || false) {
 
-                if ( ($shipping_method && $shipping_method['method_id'] === 'cargo-express')
-                    || ($shipping_method && $shipping_method['method_id'] === 'woo-baldarp-pickup')
-                    || ($shipping_method && in_array($shipping_method['method_id'], $cslfw_shiping_methods) )
-                    || $cslfw_shipping_methods_all
+                if ( ($shipping_method === 'cargo-express')
+                    || ($shipping_method === 'woo-baldarp-pickup')
+                    || in_array($shipping_method, $cslfw_shiping_methods)
                 ) {
 
                     $cargo_shipping = new CSLFW_Cargo_Shipping($order->get_id());

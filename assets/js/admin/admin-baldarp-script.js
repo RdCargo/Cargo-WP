@@ -151,12 +151,36 @@
 			});
 		});
 
+
+		$(document).on('click','.cslfw-change-carrier-id',function(e) {
+		    e.preventDefault();
+            ToggleLoading(true);
+            var orderId = $(this).data('order-id');
+
+            $.ajax({
+                type : "post",
+                dataType : "json",
+                url : admin_cargo_obj.ajaxurl,
+                data : {
+                    action: "cslfw_change_carrier_id",
+                    orderId: orderId
+                },
+                success: function(response) {
+                    console.log(response);
+                    ToggleLoading(false);
+                    if(!response.error) {
+                        location.reload()
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        })
 		$(document).on('click','.label-cargo-shipping',function(e){
 			e.preventDefault();
 			var shipmentId = $(this).data('id');
 			var orderId = $(this).data('order-id');
 
-			console.log(shipmentId, orderId);
 			if(orderId){
 				ToggleLoading(true);
 				$.ajax({
@@ -173,8 +197,7 @@
 						ToggleLoading(false);
 						if(response.pdfLink != "") {
 							window.open(response.pdfLink, '_blank');
-						}
-						else {
+						} else {
 						  alert(response.error_msg);
 						}
 					}
