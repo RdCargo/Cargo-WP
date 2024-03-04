@@ -19,7 +19,7 @@
                     html = `<div class="notice notice-error"><p>${response.message}</p> </div>`;
                 }
                 $('.cslfw-form-notice').empty().append(html);
-                location.reload();
+                // location.reload();
             },
             error: function( jqXHR, textStatus, errorThrown ) {
                 console.log('error');

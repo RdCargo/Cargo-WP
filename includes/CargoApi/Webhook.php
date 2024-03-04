@@ -93,20 +93,27 @@ class Webhook
 
     public function save_cargo_api()
     {
-        //TODO need to add api key validation before saving it.
         parse_str($_POST['form_data'], $data);
 
-        if (empty($this->apiKey)) {
-            $success = add_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
-        } else {
-            $success = update_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
+        $headers = [
+            "Authorization" => "Bearer {$data['cslfw_api_key']}",
+        ];
+        $response = $this->get("https://api-v2.cargo.co.il/api/token/auth", [], $headers);
+
+        if ($response && !$response?->errors) {
+            if (empty($this->apiKey)) {
+                add_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
+            } else {
+                update_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
+            }
         }
 
         echo json_encode([
             'api_key' => $data['cslfw_api_key'],
-            'error' => !$success,
-            'message' => !$success
-                ? __('Something went wrong during data save.', 'cargo-shipping-location-for-woocommerce')
+            'error' => is_null($response) || $response?->errors,
+            'response' => $response,
+            'message' => is_null($response) || $response?->errors
+                ? __('API key is not valid.', 'cargo-shipping-location-for-woocommerce')
                 : __('Api key successfully saved. Reloading page.', 'cargo-shipping-location-for-woocommerce')
         ]);
         wp_die();
