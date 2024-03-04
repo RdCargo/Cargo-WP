@@ -11,7 +11,7 @@
  * Text Domain: cargo-shipping-location-for-woocommerce
   *
   * WC requires at least: 6.0.0
-  * WC tested up to: 7.6.1
+  * WC tested up to: 8.6.1
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
