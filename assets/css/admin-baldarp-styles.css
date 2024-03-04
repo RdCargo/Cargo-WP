@@ -106,6 +106,7 @@ td.column-send_to_cargo a.submit-cargo-shipping{
     color: white;
     display: inline-block;
     text-decoration: none;
+    margin-top: 10px;
 }
 #cargo_custom_box .inside .btn{
     background-color: #1bc39c;

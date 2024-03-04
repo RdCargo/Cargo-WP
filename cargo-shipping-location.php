@@ -198,15 +198,13 @@ if( !class_exists('CSLFW_Cargo') ) {
                 'fulfillment'       => (int) sanitize_text_field($_POST['fulfillment'])
             ];
 
-            if (isset( $_POST['box_point_id'] )) {
+            if (isset($_POST['box_point_id'])) {
                 if ($point = $this->cargo->findPointById($_POST['box_point_id'])) {
                     $args['box_point'] = $point;
 
                     $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($point->DistributionPointID));
                 }
                 $order->update_meta_data('cslfw_shipping_method', 'woo-baldarp-pickup');
-            } else {
-                $order->update_meta_data('cslfw_shipping_method', 'cargo-express');
             }
 
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);

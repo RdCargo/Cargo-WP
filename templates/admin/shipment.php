@@ -137,7 +137,7 @@
             echo wp_kses_post('<div class=""><p class="cslfw-status status-' . $value['status']['number'] .'">'. $key .' - ' . $value['status']['text'] . '</p></div>');
 
             if ($webhook_installed !== 'yes') {
-                echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-id=" . $order->get_id() . " data-deliveryid='$value'>" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
+                echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-id=" . $order->get_id() . " data-deliveryid='$value'>" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $key</a>");
             }
         }
         ?>

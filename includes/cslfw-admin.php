@@ -113,7 +113,7 @@ if( !class_exists('CSLFW_Admin') ) {
             $cargoOrder = new CSLFW_Order($order);
             $shipping_method = $cargoOrder->getShippingMethod();
 
-            $cargo_debug_mode   = get_option( 'cslfw_debug_mode' );
+            $cargo_debug_mode   = get_option('cslfw_debug_mode');
             $cargo_shipping     = new CSLFW_Cargo_Shipping($order->get_id());
 
             $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
@@ -122,8 +122,8 @@ if( !class_exists('CSLFW_Admin') ) {
 
             if (!in_array($orderStatus, ['cancelled', 'refunded', 'pending']) && $shipping_method) {
                 if ($cargo_debug_mode) {
+
                     var_dump($shipping_method);
-//                    echo "<pre>";
                     print_r($cargo_shipping->deliveries);
                 }
                 if (
