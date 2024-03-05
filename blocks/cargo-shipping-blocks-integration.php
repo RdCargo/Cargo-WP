@@ -134,7 +134,7 @@ use CSLFW\Includes\CargoAPI\Cargo;
 				$cargo_shipping_alternate_shipping_instruction_other_text = $order->get_meta('cargo_shipping_alternate_shipping_instruction_other_text');
 
 				echo '<div>';
-                echo '<strong>' . __( 'Shipping Instructions', 'cargo-shipping' ) . '</strong>';
+                echo '<strong>' . esc_html_e( 'Shipping Instructions', 'cargo-shipping' ) . '</strong>';
                 /**
 				 * [backend-step-08]
 				 * 📝 Output the alternate shipping instructions here!

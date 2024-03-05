@@ -8,11 +8,11 @@ if ( !class_exists( 'Cargo_Express_Shipping_Method' ) ) {
 
             $this->id                 = 'cargo-express';
             $this->instance_id 		  = absint( $instance_id );
-        	$this->method_title       = __( 'CARGO EXPRESS', 'cargo-shipping-location-for-woocommerce' );
-            $this->method_description = __( 'Custom Shipping method CARGO Express for Home Delivery', 'cargo-shipping-location-for-woocommerce' );
+        	$this->method_title       = esc_html_e( 'CARGO EXPRESS', 'cargo-shipping-location-for-woocommerce' );
+            $this->method_description = esc_html_e( 'Custom Shipping method CARGO Express for Home Delivery', 'cargo-shipping-location-for-woocommerce' );
             $this->supports           = ['shipping-zones','instance-settings','instance-settings-modal','settings'];
 			$this->enabled            = 'yes';
-			$this->title       		  = __( 'CARGO EXPRESS SHIPPING', 'cargo-shipping-location-for-woocommerce');
+			$this->title       		  = esc_html_e( 'CARGO EXPRESS SHIPPING', 'cargo-shipping-location-for-woocommerce');
 			$this->init();
 
 			$this->title = $this->get_option('title');
@@ -33,28 +33,28 @@ if ( !class_exists( 'Cargo_Express_Shipping_Method' ) ) {
 		public function init_form_fields() {
 			$this->instance_form_fields = [
 				'title' => [
-					'title' => __( 'Title', 'cargo-shipping-location-for-woocommerce' ),
+					'title' => esc_html_e( 'Title', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => __( 'Title to be display on site', 'cargo-shipping-location-for-woocommerce' ),
-					'default' => __( 'שילוח עד הבית CARGO Express', 'cargo-shipping-location-for-woocommerce' )
+					'description' => esc_html_e( 'Title to be display on site', 'cargo-shipping-location-for-woocommerce' ),
+					'default' => esc_html_e( 'שילוח עד הבית CARGO Express', 'cargo-shipping-location-for-woocommerce' )
 				],
 				'shipping_cost' => [
-					'title' => __( 'Shipping cost', 'cargo-shipping-location-for-woocommerce' ),
+					'title' => esc_html_e( 'Shipping cost', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => __( '', 'cargo-shipping-location-for-woocommerce' ),
-					'default' => __( '', 'cargo-shipping-location-for-woocommerce' )
+					'description' => esc_html_e( '', 'cargo-shipping-location-for-woocommerce' ),
+					'default' => esc_html_e( '', 'cargo-shipping-location-for-woocommerce' )
 				],
                 'weight_limit' => [
-                    'title' => __( 'Cart Weight limit', 'cargo-shipping-location-for-woocommerce' ),
+                    'title' => esc_html_e( 'Cart Weight limit', 'cargo-shipping-location-for-woocommerce' ),
                     'type' => 'number',
-                    'description' => __( 'Set here the weight limit with the dot. e.g. "3.5"', 'cargo-shipping-location-for-woocommerce' ),
-                    'default' => __( '', 'cargo-shipping-location-for-woocommerce' )
+                    'description' => esc_html_e( 'Set here the weight limit with the dot. e.g. "3.5"', 'cargo-shipping-location-for-woocommerce' ),
+                    'default' => esc_html_e( '', 'cargo-shipping-location-for-woocommerce' )
                 ],
 				'free_shipping_amount' => [
-					'title' => __( 'Free shipping from an amount', 'cargo-shipping-location-for-woocommerce' ),
+					'title' => esc_html_e( 'Free shipping from an amount', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => __( '', 'cargo-shipping-location-for-woocommerce' ),
-					'default' => __( '', 'cargo-shipping-location-for-woocommerce' )
+					'description' => esc_html_e( '', 'cargo-shipping-location-for-woocommerce' ),
+					'default' => esc_html_e( '', 'cargo-shipping-location-for-woocommerce' )
 				]
 			];
 		}

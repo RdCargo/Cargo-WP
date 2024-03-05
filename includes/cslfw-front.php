@@ -120,7 +120,7 @@ if( !class_exists('CSLFW_Front') ) {
 
             if( $deliveries ) {
                 foreach ( $deliveries as $key => $value ) {
-                    echo wp_kses_post('<a href="#" class="btn woocommerce-button js-cargo-track" data-delivery="' . $value . '">' . __('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
+                    echo wp_kses_post('<a href="#" class="btn woocommerce-button js-cargo-track" data-delivery="' . $value . '">' . esc_html_e('Track Order', 'cargo-shipping-location-for-woocommerce') . '</a>');
                 }
             }
         }
@@ -132,7 +132,7 @@ if( !class_exists('CSLFW_Front') ) {
          * Add New column Track order in the my account order tab
          */
         function add_account_orders_column( $columns ) {
-            $columns['order-track'] = __( 'Track order', 'cargo-shipping-location-for-woocommerce' );
+            $columns['order-track'] = esc_html_e( 'Track order', 'cargo-shipping-location-for-woocommerce' );
 
             return $columns;
         }
@@ -160,7 +160,7 @@ if( !class_exists('CSLFW_Front') ) {
 
             if ( $deliveries ) {
                 foreach($deliveries as $key => $value) {
-                    echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $value .'">' . __('Track shipment', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
+                    echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $value .'">' . esc_html_e('Track shipment', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
                 }
             }
         }
@@ -170,7 +170,7 @@ if( !class_exists('CSLFW_Front') ) {
                 echo wp_json_encode(
                     [
                         'status'  => 'fail',
-                        'message' => __('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
+                        'message' => esc_html_e('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 wp_die();
@@ -233,7 +233,7 @@ if( !class_exists('CSLFW_Front') ) {
 
             if ( $chosen_method_id === 'woo-baldarp-pickup' && $cargo_box_style !== 'cargo_automatic') {
                 if ( sanitize_text_field($_POST['DistributionPointID']) === '' ) {
-                    wc_add_notice( __( 'נא לבחור נקודת חלוקה בשיטת משלוח זה או שיטת משלוח אחרת', 'cargo-shipping-location-for-woocommerce' ), 'error' );
+                    wc_add_notice( esc_html_e( 'נא לבחור נקודת חלוקה בשיטת משלוח זה או שיטת משלוח אחרת', 'cargo-shipping-location-for-woocommerce' ), 'error' );
                 }
             }
         }

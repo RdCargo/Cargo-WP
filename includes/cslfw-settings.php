@@ -82,7 +82,7 @@ if( !class_exists('CSLFW_Settings') ) {
         }
 
         public function cargo_settings_link( $links_array ) {
-            array_unshift( $links_array, '<a href="' . admin_url( 'admin.php?page=loaction_api_settings' ) . '">' . __('Settings') . '</a>' );
+            array_unshift( $links_array, '<a href="' . admin_url( 'admin.php?page=loaction_api_settings' ) . '">' . esc_html_e('Settings') . '</a>' );
             return $links_array;
         }
 

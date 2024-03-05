@@ -252,10 +252,10 @@ if( !class_exists('CSLFW_Admin') ) {
                 $new_actions[$key] = $action;
 
                 if ('mark_processing' === $key) {
-                    $new_actions['mark_send-cargo-shipping'] = __( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
-                    $new_actions['mark_send-cargo-dd'] = __( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
-                    $new_actions['mark_send-cargo-pickup'] = __( 'Send Pickup to CARGO', 'cargo-shipping-location-for-woocommerce' );
-                    $new_actions['mark_cargo-print-label'] = __( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' );
+                    $new_actions['mark_send-cargo-shipping'] = esc_html_e( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
+                    $new_actions['mark_send-cargo-dd'] = esc_html_e( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
+                    $new_actions['mark_send-cargo-pickup'] = esc_html_e( 'Send Pickup to CARGO', 'cargo-shipping-location-for-woocommerce' );
+                    $new_actions['mark_cargo-print-label'] = esc_html_e( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' );
                 }
             }
 

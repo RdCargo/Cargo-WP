@@ -73,7 +73,7 @@ class Cargo_Shipping_Extend_Store_Endpoint {
 
         return [
             'otherShippingValue'   => [
-                'description' => __('otherShippingValue description','cargo-shipping-location-for-woocommerce'), // Enter a description,
+                'description' => esc_html_e('otherShippingValue description','cargo-shipping-location-for-woocommerce'), // Enter a description,
                 'type'        => 'string', // Define the type, this should be a `string`,
                 'context'     => ['view', 'edit'], // Define the contexts this should appear in This should be an array containing `view` and `edit`,
                 'readonly'    => true, // Using a boolean value, make this field readonly,
@@ -86,7 +86,7 @@ class Cargo_Shipping_Extend_Store_Endpoint {
                 ]
             ],
             'alternateShippingInstruction'   => [
-            	'description' => __('alternateShippingInstruction description','cargo-shipping-location-for-woocommerce'), // Enter a description,
+            	'description' => esc_html_e('alternateShippingInstruction description','cargo-shipping-location-for-woocommerce'), // Enter a description,
                 'type'        => 'string', // Define the type, this should be a `string`,
                 'context'     => ['view', 'edit'], // Define the contexts this should appear in This should be an array containing `view` and `edit`,
                 'readonly'    => true, // Using a boolean value, make this field readonly,

@@ -105,9 +105,9 @@ if( !class_exists('CSLFW_Cargo') ) {
                     foreach ($shipmentsData as $shipping_id => $data) {
                         if ($point = $this->cargo->findPointById($data['box_id'])) {
                             $chosen_point = $point;
-                            echo wp_kses_post(__("Cargo Point Details", 'cargo-shipping-location-for-woocommerce')) . PHP_EOL;
+                            echo wp_kses_post(esc_html_e("Cargo Point Details", 'cargo-shipping-location-for-woocommerce')) . PHP_EOL;
                             if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
-                                echo wp_kses_post(__('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce')). PHP_EOL;
+                                echo wp_kses_post(esc_html_e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce')). PHP_EOL;
                             } else {
                                 echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
                                 echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;
@@ -149,7 +149,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 				echo wp_json_encode(
 				    [
 				        "shipmentId" => "",
-                        "error_msg" => __('Please enter all details from plugin setting', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html_e('Please enter all details from plugin setting', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
 				exit;
@@ -163,7 +163,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => __('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html_e('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;
@@ -172,7 +172,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => __('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html_e('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;
@@ -182,7 +182,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => __('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html_e('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;
@@ -192,7 +192,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => __('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html_e('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;

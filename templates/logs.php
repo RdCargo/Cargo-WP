@@ -69,7 +69,7 @@ jQuery( function ( $ ) {
 								<?php
 									$timestamp = filemtime( $logs->logs_dir .'/'. $log_file );
 									/* translators: 1: last access date 2: last access time */
-									$date = sprintf( __( '%1$s at %2$s', 'cargo-shipping-location-for-woocommerce' ), date_i18n( wc_date_format(), $timestamp ), date_i18n( wc_time_format(), $timestamp ) );
+									$date = sprintf( esc_html_e( '%1$s at %2$s', 'cargo-shipping-location-for-woocommerce' ), date_i18n( wc_date_format(), $timestamp ), date_i18n( wc_time_format(), $timestamp ) );
 								?>
 								<option value="<?php echo esc_attr( $log_key ); ?>" <?php selected( sanitize_title( $logs->current_view ), $log_key ); ?>><?php echo esc_html( $log_file ); ?> (<?php echo esc_html( $date ); ?>)</option>
 							<?php endforeach; ?>

@@ -121,8 +121,8 @@ class Webhook
             'error' => is_null($response) || $response?->errors,
             'response' => $response,
             'message' => is_null($response) || $response?->errors
-                ? __('API key is not valid.', 'cargo-shipping-location-for-woocommerce')
-                : __('Api key successfully saved. Reloading page.', 'cargo-shipping-location-for-woocommerce')
+                ? esc_html_e('API key is not valid.', 'cargo-shipping-location-for-woocommerce')
+                : esc_html_e('Api key successfully saved. Reloading page.', 'cargo-shipping-location-for-woocommerce')
         ]);
         wp_die();
     }

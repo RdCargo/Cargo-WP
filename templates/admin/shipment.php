@@ -4,10 +4,10 @@
     $nonce = wp_create_nonce('cslfw_cargo_actions'.$order->get_id());
 
     $codTypes = [
-        '0' => __('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
-        '1' => __('Cashier\'s check', 'cargo-shipping-location-for-woocommerce'),
-        '2' => __('Check', 'cargo-shipping-location-for-woocommerce'),
-        '3' => __('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
+        '0' => esc_html_e('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
+        '1' => esc_html_e('Cashier\'s check', 'cargo-shipping-location-for-woocommerce'),
+        '2' => esc_html_e('Check', 'cargo-shipping-location-for-woocommerce'),
+        '3' => esc_html_e('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
     ];
 ?>
 <input type="hidden" id="cslfw_cargo_actions_nonce" value="<?php echo esc_attr($nonce); ?>">
@@ -138,7 +138,7 @@
             echo wp_kses_post('<div class=""><p class="cslfw-status status-' . $value['status']['number'] .'">'. $key .' - ' . $value['status']['text'] . '</p></div>');
 
             if ($webhook_installed !== 'yes') {
-                echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-id=" . $order->get_id() . " data-deliveryid='$value'>" . __('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $key</a>");
+                echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-id=" . $order->get_id() . " data-deliveryid='$value'>" . esc_html_e('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $key</a>");
             }
         }
         ?>
