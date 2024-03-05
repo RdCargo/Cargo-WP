@@ -40,7 +40,7 @@
             </label>
         </div>
         <div class="cargo-button">
-            <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?> (<?php echo $order->get_formatted_order_total() ?>)</strong>
+            <strong><?php _e('Cash on delivery', 'cargo-shipping-location-for-woocommerce') ?> (<?php echo esc_html($order->get_formatted_order_total()) ?>)</strong>
             <label for="cargo_cod">
                 <input type="checkbox" name="cargo_cod" id="cargo_cod" <?php if ($paymentMethod === $data['paymentMethodCheck']) echo esc_attr('checked'); ?> />
                 <span><?php _e('Yes', 'cargo-shipping-location-for-woocommerce') ?></span>
@@ -73,7 +73,7 @@
                     <select name="cargo_city" id="cargo_city" class="">
                         <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
                         <?php foreach ($cities as $city) : ?>
-                            <option value="<?php echo esc_attr($city) ?>" <?php if (trim($selectedCity) === trim($city) ) echo 'selected="selected"'; ?>><?php echo esc_html($city) ?></option>
+                            <option value="<?php echo esc_attr($city) ?>" <?php if (trim($selectedCity) === trim($city) ) echo esc_attr('selected="selected"'); ?>><?php echo esc_html($city) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </p>

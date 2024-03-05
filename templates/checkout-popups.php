@@ -3,8 +3,8 @@
     $cargo_size_custom  = get_option('cslfw_custom_map_size');
     $cargo_size_custom  = $cargo_size === 'map_custom' ? "style=width:$cargo_size_custom" : '';
 ?>
-<input type="hidden" id="default_markers" value="<?php echo CSLFW_URL.'assets/image/cargo-icon-svg.svg' ?>" >
-<input type="hidden" id="selected_marker" value="<?php echo CSLFW_URL.'assets/image/selected_new.png' ?>" >
+<input type="hidden" id="default_markers" value="<?php echo esc_url(CSLFW_URL.'assets/image/cargo-icon-svg.svg') ?>" >
+<input type="hidden" id="selected_marker" value="<?php echo esc_url(CSLFW_URL.'assets/image/selected_new.png') ?>" >
 <div class="modal" id="mapmodelcargo" tabindex="-1" role="dialog" style="display:none;">
     <div class="modal-dialog <?php echo esc_attr($cargo_size) ?>"  role="document">
         <div class="modal-content " <?php echo esc_attr($cargo_size_custom) ?>>

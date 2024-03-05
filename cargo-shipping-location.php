@@ -105,9 +105,9 @@ if( !class_exists('CSLFW_Cargo') ) {
                     foreach ($shipmentsData as $shipping_id => $data) {
                         if ($point = $this->cargo->findPointById($data['box_id'])) {
                             $chosen_point = $point;
-                            echo __("Cargo Point Details", 'cargo-shipping-location-for-woocommerce') . PHP_EOL;
+                            echo wp_kses_post(__("Cargo Point Details", 'cargo-shipping-location-for-woocommerce')) . PHP_EOL;
                             if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
-                                echo __('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce'). PHP_EOL;
+                                echo wp_kses_post(__('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce')). PHP_EOL;
                             } else {
                                 echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
                                 echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;

@@ -16,7 +16,7 @@
                     <select name="cargo_city" id="cargo_city" class="">
                         <option><?php _e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
                         <?php foreach ($data['cities'] as $city) : ?>
-                            <option value="<?php echo esc_attr($city) ?>" <?php if (trim($data['selectedCity']) === trim($city) ) echo 'selected="selected"'; ?>><?php echo esc_html($city) ?></option>
+                            <option value="<?php echo esc_attr($city) ?>" <?php if (trim($data['selectedCity']) === trim($city) ) echo esc_attr('selected="selected"'); ?>><?php echo esc_html($city) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

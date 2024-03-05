@@ -8,7 +8,7 @@ if( !class_exists('CSLFW_Helpers') ) {
         public function check_woo() {
             include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
             if (! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
-                echo '<div class="error"><p><strong>Cargo Shipping Location API requires WooCommerce to be installed and active. You can download <a href="https://woocommerce.com/" target="_blank">WooCommerce</a> here.</strong></p></div>';
+                echo wp_kses_post('<div class="error"><p><strong>Cargo Shipping Location API requires WooCommerce to be installed and active. You can download <a href="https://woocommerce.com/" target="_blank">WooCommerce</a> here.</strong></p></div>');
                 die();
             }
         }
