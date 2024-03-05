@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+?>
+
+<?php
     $cargo_size         = get_option('cslfw_map_size');
     $cargo_size_custom  = get_option('cslfw_custom_map_size');
     $cargo_size_custom  = $cargo_size === 'map_custom' ? "style=width:$cargo_size_custom" : '';

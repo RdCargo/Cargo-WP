@@ -3,6 +3,8 @@
  * Contact class
  *
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( class_exists( 'CSLFW_Contact', false ) ) {
     return new CSLFW_Contact();
 }

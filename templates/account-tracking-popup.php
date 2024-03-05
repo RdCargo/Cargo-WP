@@ -1,3 +1,7 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+?>
+
 <div class="modal order-tracking-model" tabindex="-1" role="dialog" style="display: none;">
     <div class="modal-dialog" role="document" style="max-width: 1000px; width: 100%;">
         <div class="modal-content">

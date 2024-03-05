@@ -3,6 +3,9 @@
  * Logs class
  *
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( class_exists( 'CSLFW_Logs', false ) ) {
     return new CSLFW_Logs();
 }

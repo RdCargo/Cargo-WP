@@ -1,4 +1,7 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( !class_exists( 'Cargo_Express_Shipping_Method' ) ) {
     class Cargo_Express_Shipping_Method extends WC_Shipping_Method {
 		/**

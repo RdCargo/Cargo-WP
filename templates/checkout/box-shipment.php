@@ -1,3 +1,7 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+?>
+
 <div class="cargo-map-wrap">
     <?php if ($data['boxStyle'] === 'cargo_map' ) : ?>
         <a class="baldrap-btn btn button wp-element-button" id="mapbutton">

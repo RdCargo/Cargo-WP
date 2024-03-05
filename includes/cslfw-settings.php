@@ -3,6 +3,9 @@
  * Main Settings
  *
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( class_exists( 'CSLFW_Settings', false ) ) {
     return new CSLFW_Settings();
 }

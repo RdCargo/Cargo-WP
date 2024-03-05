@@ -7,6 +7,8 @@
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( class_exists( 'CSLFW_Admin', false ) ) {
     return new CSLFW_Admin();
 }

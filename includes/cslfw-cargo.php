@@ -3,6 +3,7 @@
  * Cargo shipping object.
  *
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;

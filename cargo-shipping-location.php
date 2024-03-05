@@ -19,7 +19,7 @@ use CSLFW\Includes\CargoAPI\CSLFW_Order;
 use CSLFW\Includes\CargoAPI\Webhook;
 
 if ( !defined( 'ABSPATH' ) ) {
-    die;
+    exit;
 }
 
 if ( !defined( 'CSLFW_URL' ) ) {

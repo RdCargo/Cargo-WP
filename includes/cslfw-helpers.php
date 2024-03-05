@@ -3,6 +3,9 @@
  * Helper functions
  *
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if( !class_exists('CSLFW_Helpers') ) {
     class CSLFW_Helpers {
         public function check_woo() {

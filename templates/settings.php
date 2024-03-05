@@ -1,3 +1,7 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+?>
+
 <div>
 	<h2><?php esc_html_e('Shipping API Location - Settings', 'cargo-shipping-location-for-woocommerce') ?></h2>
 	<div class="wrap">

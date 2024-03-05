@@ -3,6 +3,9 @@
  * Admin adjustments.
  *
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( class_exists( 'CSLFW_Front', false ) ) {
     return new CSLFW_Front();
 }

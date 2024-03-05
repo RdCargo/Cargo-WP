@@ -1,4 +1,6 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
     class CSLFW_Shipping_Method extends WC_Shipping_Method {
 		/**

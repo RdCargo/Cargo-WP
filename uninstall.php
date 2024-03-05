@@ -5,10 +5,13 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit();
 }
 
+if (!defined('ABSPATH')) exit;
+
+
 /**
  * Uninstall operations
  */
-function single_uninstall() {
+function cslfw_single_uninstall() {
 	$options_to_delete = array(
 		'cargo_order_status',
 		'cargo_consumer_secret_key',
@@ -24,7 +27,7 @@ function single_uninstall() {
 
 // Let's do it!
 if ( is_multisite() ) {
-	single_uninstall();
+	cslfw_single_uninstall();
 } else {
-	single_uninstall();
+	cslfw_single_uninstall();
 }

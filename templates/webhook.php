@@ -1,3 +1,6 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+?>
 
 <h2><?php esc_html_e('Webhook setup', 'cargo-shipping-location-for-woocommerce') ?></h2>
 <div class="wrap">

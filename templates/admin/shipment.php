@@ -1,4 +1,6 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+
     $order = $data['order'];
     $paymentMethod = $order->get_payment_method();
     $nonce = wp_create_nonce('cslfw_cargo_actions'.$order->get_id());
