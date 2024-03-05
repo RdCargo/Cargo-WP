@@ -29,7 +29,7 @@ if( !class_exists('CSLFW_Helpers') ) {
                     'Content-Type: application/json',
                 ],
             ];
-            if ( $data ) $args['body'] = json_encode($data);
+            if ( $data ) $args['body'] = wp_json_encode($data);
             $response   = wp_remote_post($url, $args);
             $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
             return json_decode( $response );

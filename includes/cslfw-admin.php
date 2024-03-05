@@ -76,7 +76,7 @@ if( !class_exists('CSLFW_Admin') ) {
             $orderId = sanitize_text_field($_POST['orderId']);
 
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$orderId}")) {
-                echo json_encode([
+                echo wp_json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
                 ]);
@@ -96,7 +96,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 $order->save_meta_data();
                 $order->save();
 
-                echo json_encode([
+                echo wp_json_encode([
                     'error' => false,
                     'test' => $newMethod,
                     'order' => $order->get_meta('cslfw_shipping_method'),
@@ -105,7 +105,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 wp_die();
             }
 
-            echo json_encode([
+            echo wp_json_encode([
                 'error' => true,
                 'message' => 'Order not found. Contact support.'
             ]);

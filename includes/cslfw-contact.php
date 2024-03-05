@@ -42,7 +42,7 @@ if( !class_exists('CSLFW_Contact') ) {
         function send_email() {
             parse_str($_POST['form_data'], $data);
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw-sent-email")) {
-                echo json_encode([
+                echo wp_json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
                 ]);
@@ -59,14 +59,14 @@ if( !class_exists('CSLFW_Contact') ) {
             $headers[]  = "From: CARGO PLUGIN <{$data['email']}>";
             $response   = wp_mail( $to, $subject, $body, $headers );
             if ( $response ) {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         'error' => false,
                         'message' => 'Email successfully sent'
                     ]
                 );
             } else {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         'error' => true,
                         'message' => 'Something went wrong.'

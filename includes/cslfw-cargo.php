@@ -237,8 +237,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 }
             }
 
-            $message .= "Shipment Data : ".json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
-            $message .= "Response : ".json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
+            $message .= "Shipment Data : ".wp_json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
+            $message .= "Response : ".wp_json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
             $logs->add_log_message($message);
             return $response;
         }

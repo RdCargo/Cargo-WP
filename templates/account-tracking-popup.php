@@ -6,7 +6,7 @@
                     <img src="<?php echo esc_url(CSLFW_URL.'assets/image/howitworks.png'); ?>" alt="Cargo" width="60">
                 </div>
 
-                <h5 class="modal-title"><?php _e('Order Tracking', 'cargo-shipping-location-for-woocommerce') ?></h5>
+                <h5 class="modal-title"><?php esc_html_e('Order Tracking', 'cargo-shipping-location-for-woocommerce') ?></h5>
                 <button type="button" class="close js-modal-close" id="modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -16,7 +16,7 @@
                 <div class="delivery-error woocommerce-error" style="display: none;"></div>
             </div>
             <div class="modal-footer" style="display: block;">
-                <div id="FlyingCargo_footer" style="display: none;"><?php _e('נקודת איסוף מסומנת:', 'cargo-shipping-location-for-woocommerce') ?>
+                <div id="FlyingCargo_footer" style="display: none;"><?php esc_html_e('נקודת איסוף מסומנת:', 'cargo-shipping-location-for-woocommerce') ?>
                     <div id="FlyingCargo_loc_name"></div>
                     <button type="button"
                             class="selected-location btn button wp-element-button"
@@ -30,7 +30,7 @@
                             data-street=""
                             data-streetNum=""
                             data-comment=""
-                            data-locationName=""><?php _e('בחירה וסיום', 'cargo-shipping-location-for-woocommerce') ?></button>
+                            data-locationName=""><?php esc_html_e('בחירה וסיום', 'cargo-shipping-location-for-woocommerce') ?></button>
                 </div>
             </div>
         </div>

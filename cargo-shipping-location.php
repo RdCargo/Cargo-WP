@@ -135,7 +135,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $order_id = sanitize_text_field($_POST['orderId']);
 
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$order_id}")) {
-                echo json_encode([
+                echo wp_json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
                 ]);
@@ -146,7 +146,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 || trim( get_option('from_street_name') ) == ''
                 || trim( get_option('from_city') ) == ''
                 || trim( get_option('phonenumber_from') ) == '' ) {
-				echo json_encode(
+				echo wp_json_encode(
 				    [
 				        "shipmentId" => "",
                         "error_msg" => __('Please enter all details from plugin setting', 'cargo-shipping-location-for-woocommerce')
@@ -160,7 +160,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $shipping_method  = $cargoOrder->getShippingMethod();
 
             if ($shipping_method === null) {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         "shipmentId" => "",
                         "error_msg" => __('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce')
@@ -169,7 +169,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 exit;
             }
             if ( ($shipping_method === 'cargo-express') && trim( get_option('shipping_cargo_express') ) === '' ) {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         "shipmentId" => "",
                         "error_msg" => __('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
@@ -179,7 +179,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             }
 
             if (in_array($order->get_status(), ['cancelled', 'refunded', 'pending'])) {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         "shipmentId" => "",
                         "error_msg" => __('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce')
@@ -189,7 +189,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             }
 
             if ( ($shipping_method === 'woo-baldarp-pickup') && trim( get_option('shipping_cargo_box') ) === '' ) {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         "shipmentId" => "",
                         "error_msg" => __('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
@@ -220,7 +220,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $response = $cargo_shipping->createShipment($args);
 
             $order->save();
-            echo json_encode($response);
+            echo wp_json_encode($response);
 			exit();
 	    }
 
@@ -234,7 +234,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $orderId = sanitize_text_field($_POST['orderId']);
 
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$orderId}")) {
-                echo json_encode([
+                echo wp_json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
                 ]);
@@ -244,7 +244,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             $response = $cargo_shipping->getShipmentLabel();
 
-            echo json_encode($response);
+            echo wp_json_encode($response);
             exit;
 		}
 
@@ -258,7 +258,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $order_id = (int) sanitize_text_field($_POST['orderId']);
 
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$order_id}")) {
-                echo json_encode([
+                echo wp_json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
                 ]);
@@ -267,7 +267,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 		    $shipping_id    = (int) sanitize_text_field($_POST['deliveryId']);
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
 
-			echo json_encode( $cargo_shipping->getOrderStatusFromCargo($shipping_id) );
+			echo wp_json_encode( $cargo_shipping->getOrderStatusFromCargo($shipping_id) );
 			exit;
 		}
 
@@ -349,7 +349,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 $response = [
                     "info"             => "Everything is fine.",
                     "data"             => 1,
-                    "dataval"          => json_encode($point),
+                    "dataval"          => wp_json_encode($point),
                     'shippingMethod'   => WC()->session->get('chosen_shipping_methods')[0],
                 ];
             } else {
@@ -360,7 +360,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                     'shippingMethod'   => ''
                 ];
             }
-            echo json_encode($response);
+            echo wp_json_encode($response);
             wp_die();
         }
 

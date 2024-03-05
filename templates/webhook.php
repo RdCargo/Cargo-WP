@@ -1,8 +1,8 @@
 
-<h2><?php _e('Webhook setup', 'cargo-shipping-location-for-woocommerce') ?></h2>
+<h2><?php esc_html_e('Webhook setup', 'cargo-shipping-location-for-woocommerce') ?></h2>
 <div class="wrap">
     <div id="message">
-        <p><strong><?php _e('You need to enter api key, provided by cargo in order to set up the status update webhooks.', 'cargo-shipping-location-for-woocommerce') ?></strong></p>
+        <p><strong><?php esc_html_e('You need to enter api key, provided by cargo in order to set up the status update webhooks.', 'cargo-shipping-location-for-woocommerce') ?></strong></p>
     </div>
 
     <div class="mb-4">
@@ -29,7 +29,7 @@
     <input type="hidden" id="cslfw_cargo_webhook_nonce" value="<?php echo esc_attr($nonce); ?>">
 
     <div id="message">
-        <p><strong><?php _e('Clicking add webhooks you will get shipment statuses automatically. clicking remove, will disable that feature, and you will have to check statuses manually..', 'cargo-shipping-location-for-woocommerce') ?></strong></p>
+        <p><strong><?php esc_html_e('Clicking add webhooks you will get shipment statuses automatically. clicking remove, will disable that feature, and you will have to check statuses manually..', 'cargo-shipping-location-for-woocommerce') ?></strong></p>
     </div>
     <div class="flex">
         <button type="submit"

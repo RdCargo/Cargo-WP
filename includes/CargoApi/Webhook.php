@@ -96,7 +96,7 @@ class Webhook
         parse_str($_POST['form_data'], $data);
 
         if (!isset($data['_wpnonce']) && !wp_verify_nonce(sanitize_text_field($data['_wpnonce']), 'cslfw-save-api-key')) {
-            echo json_encode([
+            echo wp_json_encode([
                 'error' => true,
                 'message' => 'Bad request, try again later.',
             ]);
@@ -116,7 +116,7 @@ class Webhook
             }
         }
 
-        echo json_encode([
+        echo wp_json_encode([
             'api_key' => $data['cslfw_api_key'],
             'error' => is_null($response) || $response?->errors,
             'response' => $response,
@@ -130,7 +130,7 @@ class Webhook
     public function delete_webhooks_from_cargo()
     {
         if (!isset($_POST['_wpnonce']) && !wp_verify_nonce( sanitize_text_field($_POST['_wpnonce']), 'cslfw_cargo_update_or_remove_webhook')) {
-            echo json_encode([
+            echo wp_json_encode([
                 'error' => true,
                 'message' => 'Bad request, try again later.',
             ]);
@@ -159,7 +159,7 @@ class Webhook
             }
         }
 
-        echo json_encode([
+        echo wp_json_encode([
             'error' => $error,
             'message' => $error ? 'Something went wrong. Contact support.' : 'Webhooks successfully deleted.',
         ]);
@@ -199,7 +199,7 @@ class Webhook
             add_option('cslfw_webhooks_installed', 'yes');
         }
 
-        echo json_encode([
+        echo wp_json_encode([
             'error' => $error,
             'message' => $error ? 'Something went wrong. Contact support.' : 'Webhooks successfully updated.',
         ]);

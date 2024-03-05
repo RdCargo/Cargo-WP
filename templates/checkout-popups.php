@@ -44,20 +44,20 @@
                 <div class="cargo-logo">
                     <img src="<?php echo CSLFW_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
                 </div>
-                <h5 class="modal-title"><?php _e('CARGO BOX - איך זה עובד', 'cargo-shipping-location-for-woocommerce') ?></h5>
+                <h5 class="modal-title"><?php esc_html_e('CARGO BOX - איך זה עובד', 'cargo-shipping-location-for-woocommerce') ?></h5>
                 <button type="button" class="close js-modal-close" id="modal-close-desc" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" style="direction: rtl;">
-                <div><?php _e(' CARGO BOX ', 'cargo-shipping-location-for-woocommerce') ?></div>
-                <div><?php _e('נקודות החלוקה שלנו בפריסה ארצית לנוחיותכם,', 'cargo-shipping-location-for-woocommerce') ?></div>
-                <div><p><?php _e('אוספים את החבילה בדרך הקלה והמהירה ביותר!', 'cargo-shipping-location-for-woocommerce') ?></p></div>
-                <div><p><?php _e('איסוף החבילה שלכם יתבצע בנקודת חלוקה הקרובה לביתכם או למקום עבודתכם, היכן שתבחרו, ללא המתנה לשליח, ללא צורך בזמינות, בצורה היעילה, הזולה והפשוטה ביותר', 'cargo-shipping-location-for-woocommerce') ?></p></div>
-                <div><?php _e('כמה פשוט? ככה פשוט-', 'cargo-shipping-location-for-woocommerce') ?></div>
-                <div><?php _e('בוחרים נקודת חלוקה שמתאימה לכם', 'cargo-shipping-location-for-woocommerce') ?></div>
-                <div><?php _e('כאשר החבילה שלכם מגיעה ליעד אתם מקבלים SMS ומייל ', 'cargo-shipping-location-for-woocommerce') ?></div>
-                <div><?php _e('ומגיעים לאסוף את החבילה ', 'cargo-shipping-location-for-woocommerce') ?></div>
+                <div><?php esc_html_e(' CARGO BOX ', 'cargo-shipping-location-for-woocommerce') ?></div>
+                <div><?php esc_html_e('נקודות החלוקה שלנו בפריסה ארצית לנוחיותכם,', 'cargo-shipping-location-for-woocommerce') ?></div>
+                <div><p><?php esc_html_e('אוספים את החבילה בדרך הקלה והמהירה ביותר!', 'cargo-shipping-location-for-woocommerce') ?></p></div>
+                <div><p><?php esc_html_e('איסוף החבילה שלכם יתבצע בנקודת חלוקה הקרובה לביתכם או למקום עבודתכם, היכן שתבחרו, ללא המתנה לשליח, ללא צורך בזמינות, בצורה היעילה, הזולה והפשוטה ביותר', 'cargo-shipping-location-for-woocommerce') ?></p></div>
+                <div><?php esc_html_e('כמה פשוט? ככה פשוט-', 'cargo-shipping-location-for-woocommerce') ?></div>
+                <div><?php esc_html_e('בוחרים נקודת חלוקה שמתאימה לכם', 'cargo-shipping-location-for-woocommerce') ?></div>
+                <div><?php esc_html_e('כאשר החבילה שלכם מגיעה ליעד אתם מקבלים SMS ומייל ', 'cargo-shipping-location-for-woocommerce') ?></div>
+                <div><?php esc_html_e('ומגיעים לאסוף את החבילה ', 'cargo-shipping-location-for-woocommerce') ?></div>
             </div>
         </div>
     </div>

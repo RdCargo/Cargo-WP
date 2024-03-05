@@ -167,7 +167,7 @@ if( !class_exists('CSLFW_Front') ) {
 
         function get_order_tracking_details() {
             if ( !isset($_POST['shipping_id']) || sanitize_text_field($_POST['shipping_id']) === '' ) {
-                echo json_encode(
+                echo wp_json_encode(
                     [
                         'status'  => 'fail',
                         'message' => __('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
@@ -178,7 +178,7 @@ if( !class_exists('CSLFW_Front') ) {
 
             $data['deliveryId'] = (int) sanitize_text_field($_POST['shipping_id']);
             $result = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CheckShipmentStatusAndTime', $data);
-            echo json_encode( $result );
+            echo wp_json_encode( $result );
             die();
         }
 

@@ -23,7 +23,7 @@ trait Helpers
             'headers' => $postHeaders
         ];
 
-        if ( $data ) $args['body'] = json_encode($data);
+        if ( $data ) $args['body'] = wp_json_encode($data);
         $response   = wp_remote_post($url, $args);
         $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
         return json_decode( $response );
@@ -48,7 +48,7 @@ trait Helpers
             'headers' => $postHeaders
         ];
 
-        if ( $data ) $args['body'] = json_encode($data);
+        if ( $data ) $args['body'] = wp_json_encode($data);
         $response   = wp_remote_post($url, $args);
         $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
         return json_decode( $response );
@@ -73,7 +73,7 @@ trait Helpers
             'headers' => $postHeaders
         ];
 
-        if ( $data ) $args['body'] = json_encode($data);
+        if ( $data ) $args['body'] = wp_json_encode($data);
         $response   = wp_remote_post($url, $args);
         $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
         return json_decode( $response );
