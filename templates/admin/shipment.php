@@ -159,7 +159,7 @@
 
         if ($point) { ?>
             <div>
-                <h3>SHIPPING <?php esc_html_e($shipping_id) ?></h3>
+                <h3>SHIPPING <?php wp_kses_post($shipping_id) ?></h3>
                 <h4 style="margin-bottom: 5px;"><?php _e('Cargo Point Details', 'cargo-shipping-location-for-woocommerce') ?></h4>
                 <?php if ($boxShipmentType === 'cargo_automatic' && !$point) { ?>
                     <p><?php _e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce') ?></p>

@@ -75,7 +75,7 @@ if( !class_exists('CSLFW_Admin') ) {
         {
             $orderId = sanitize_text_field($_POST['orderId']);
 
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw_cargo_actions{$orderId}")) {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$orderId}")) {
                 echo json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
@@ -376,7 +376,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         _n( '%s Order require reindex',
                             '%s Orders require reindex',
                             count($orders),
-                            'woocommerce'
+                            'cargo-shipping-location-for-woocommerce'
                         ) . '<a class="button button-primary" style="margin-left: 10px;" href="%s">REINDEX</a></p></div>', count($orders), admin_url('admin.php?page=cargo_orders_reindex')
                     ) );
                 }
@@ -394,7 +394,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         _n( '%s Order Sent for Shipment',
                             '%s Orders Sent For Shipment',
                             $processed_count,
-                            'woocommerce'
+                            'cargo-shipping-location-for-woocommerce'
                         ) . '</p></div>', $processed_count ) );
                 }
 
@@ -405,7 +405,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         _n( '%s Were skipped because they already have shipment created.',
                             '%s Were skipped because they already have shipment created.',
                             $skipped_count,
-                            'woocommerce'
+                            'cargo-shipping-location-for-woocommerce'
                         ) . '</p></div>', $skipped_count ) );
                 }
             }

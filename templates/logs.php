@@ -58,7 +58,7 @@ jQuery( function ( $ ) {
 					<h2>
 						<?php echo esc_html( $logs->current_view ); ?>
 						<?php if ( ! empty( $logs->current_view ) ) : ?>
-							<a class="page-title-action" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'handle' =>  sanitize_title( $logs->current_view ) ), admin_url( 'admin.php?page=cargo_shipping_log' ) ), 'remove_log' ) ); ?>" class="button"><?php esc_html_e( 'Delete log', 'woocommerce' ); ?></a>
+							<a class="page-title-action" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'handle' =>  sanitize_title( $logs->current_view ) ), admin_url( 'admin.php?page=cargo_shipping_log' ) ), 'remove_log' ) ); ?>" class="button"><?php esc_html_e( 'Delete log', 'cargo-shipping-location-for-woocommerce' ); ?></a>
 						<?php endif; ?>
 					</h2>
 				</div>
@@ -69,12 +69,12 @@ jQuery( function ( $ ) {
 								<?php
 									$timestamp = filemtime( $logs->logs_dir .'/'. $log_file );
 									/* translators: 1: last access date 2: last access time */
-									$date = sprintf( __( '%1$s at %2$s', 'woocommerce' ), date_i18n( wc_date_format(), $timestamp ), date_i18n( wc_time_format(), $timestamp ) );
+									$date = sprintf( __( '%1$s at %2$s', 'cargo-shipping-location-for-woocommerce' ), date_i18n( wc_date_format(), $timestamp ), date_i18n( wc_time_format(), $timestamp ) );
 								?>
 								<option value="<?php echo esc_attr( $log_key ); ?>" <?php selected( sanitize_title( $logs->current_view ), $log_key ); ?>><?php echo esc_html( $log_file ); ?> (<?php echo esc_html( $date ); ?>)</option>
 							<?php endforeach; ?>
 						</select>
-						<button type="submit" class="button" value="<?php esc_attr_e( 'View', 'woocommerce' ); ?>"><?php esc_html_e( 'View', 'woocommerce' ); ?></button>
+						<button type="submit" class="button" value="<?php esc_attr_e( 'View', 'cargo-shipping-location-for-woocommerce' ); ?>"><?php esc_html_e( 'View', 'cargo-shipping-location-for-woocommerce' ); ?></button>
 					</form>
 				</div>
 				<div class="clear"></div>
@@ -83,7 +83,7 @@ jQuery( function ( $ ) {
 				<pre><?php echo esc_html( file_get_contents( $logs->logs_dir .'/'. $logs->current_view ) ); ?></pre>
 			</div>
 		<?php else : ?>
-			<div class="updated woocommerce-message inline"><p><?php esc_html_e( 'There are currently no logs to view.', 'woocommerce' ); ?></p></div>
+			<div class="updated woocommerce-message inline"><p><?php esc_html_e( 'There are currently no logs to view.', 'cargo-shipping-location-for-woocommerce' ); ?></p></div>
 		<?php endif; ?>
 	</div>
 </div>

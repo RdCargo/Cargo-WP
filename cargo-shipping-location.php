@@ -134,7 +134,7 @@ if( !class_exists('CSLFW_Cargo') ) {
         {
             $order_id = sanitize_text_field($_POST['orderId']);
 
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw_cargo_actions{$order_id}")) {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$order_id}")) {
                 echo json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
@@ -208,7 +208,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             ];
 
             if (isset($_POST['box_point_id'])) {
-                if ($point = $this->cargo->findPointById($_POST['box_point_id'])) {
+                if ($point = $this->cargo->findPointById(sanitize_text_field($_POST['box_point_id']))) {
                     $args['box_point'] = $point;
 
                     $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($point->DistributionPointID));
@@ -233,7 +233,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 		function get_shipment_label() {
             $orderId = sanitize_text_field($_POST['orderId']);
 
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw_cargo_actions{$orderId}")) {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$orderId}")) {
                 echo json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
@@ -255,16 +255,16 @@ if( !class_exists('CSLFW_Cargo') ) {
 		* @return int shipping Status
 		*/
 		function getOrderStatusFromCargo() {
-            $order_id = (int) $_POST['orderId'];
+            $order_id = (int) sanitize_text_field($_POST['orderId']);
 
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw_cargo_actions{$order_id}")) {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$order_id}")) {
                 echo json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',
                 ]);
                 wp_die();
             }
-		    $shipping_id    = (int) $_POST['deliveryId'];
+		    $shipping_id    = (int) sanitize_text_field($_POST['deliveryId']);
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
 
 			echo json_encode( $cargo_shipping->getOrderStatusFromCargo($shipping_id) );

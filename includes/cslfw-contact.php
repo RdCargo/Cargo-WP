@@ -41,7 +41,7 @@ if( !class_exists('CSLFW_Contact') ) {
 
         function send_email() {
             parse_str($_POST['form_data'], $data);
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw-sent-email")) {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw-sent-email")) {
                 echo json_encode([
                     'error' => true,
                     'message' => 'Bad request, try again later.',

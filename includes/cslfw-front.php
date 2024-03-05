@@ -132,7 +132,7 @@ if( !class_exists('CSLFW_Front') ) {
          * Add New column Track order in the my account order tab
          */
         function add_account_orders_column( $columns ) {
-            $columns['order-track'] = __( 'Track order', 'woocommerce' );
+            $columns['order-track'] = __( 'Track order', 'cargo-shipping-location-for-woocommerce' );
 
             return $columns;
         }
@@ -176,7 +176,7 @@ if( !class_exists('CSLFW_Front') ) {
                 wp_die();
             }
 
-            $data['deliveryId'] = (int) $_POST['shipping_id'];
+            $data['deliveryId'] = (int) sanitize_text_field($_POST['shipping_id']);
             $result = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CheckShipmentStatusAndTime', $data);
             echo json_encode( $result );
             die();

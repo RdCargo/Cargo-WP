@@ -95,7 +95,7 @@ class Webhook
     {
         parse_str($_POST['form_data'], $data);
 
-        if (!isset($data['_wpnonce']) && !wp_verify_nonce($data['_wpnonce'], 'cslfw-save-api-key')) {
+        if (!isset($data['_wpnonce']) && !wp_verify_nonce(sanitize_text_field($data['_wpnonce']), 'cslfw-save-api-key')) {
             echo json_encode([
                 'error' => true,
                 'message' => 'Bad request, try again later.',
@@ -129,7 +129,7 @@ class Webhook
 
     public function delete_webhooks_from_cargo()
     {
-        if (!isset($_POST['_wpnonce']) && !wp_verify_nonce( $_POST['_wpnonce'], 'cslfw_cargo_update_or_remove_webhook')) {
+        if (!isset($_POST['_wpnonce']) && !wp_verify_nonce( sanitize_text_field($_POST['_wpnonce']), 'cslfw_cargo_update_or_remove_webhook')) {
             echo json_encode([
                 'error' => true,
                 'message' => 'Bad request, try again later.',

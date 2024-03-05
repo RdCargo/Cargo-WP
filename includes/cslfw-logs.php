@@ -92,8 +92,8 @@ if( !class_exists('CSLFW_Logs') ) {
         }
 
         function remove_log_op() {
-            if ( empty( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['_wpnonce'] ), 'remove_log' ) ) { // WPCS: input var ok, sanitization ok.
-                wp_die( esc_html__( 'Action failed. Please refresh the page and retry.', 'woocommerce' ) );
+            if ( empty( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field(wp_unslash( $_REQUEST['_wpnonce'] ) ), 'remove_log' ) ) { // WPCS: input var ok, sanitization ok.
+                wp_die( esc_html__( 'Action failed. Please refresh the page and retry.', 'cargo-shipping-location-for-woocommerce' ) );
             }
 
             if ( ! empty( $_REQUEST['handle'] ) ) {  // WPCS: input var ok.
