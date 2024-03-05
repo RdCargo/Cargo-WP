@@ -1,3 +1,4 @@
+
 <h2><?php _e('Webhook setup', 'cargo-shipping-location-for-woocommerce') ?></h2>
 <div class="wrap">
     <div id="message">
@@ -14,6 +15,7 @@
                        name="cslfw_api_key"
                        value="<?php echo esc_attr($data['apiKey']) ?>">
             </div>
+            <?php wp_nonce_field('cslfw-save-api-key'); ?>
             <button type="submit"
                     class="button button-primary"><?php esc_html_e( 'Save', 'cargo-shipping-location-for-woocommerce' ); ?></button>
         </form>
@@ -21,6 +23,11 @@
 
 
     <?php if (!empty($data['apiKey'])) : ?>
+    <?php
+        $nonce = wp_create_nonce('cslfw_cargo_update_or_remove_webhook');
+    ?>
+    <input type="hidden" id="cslfw_cargo_webhook_nonce" value="<?php echo esc_attr($nonce); ?>">
+
     <div id="message">
         <p><strong><?php _e('Clicking add webhooks you will get shipment statuses automatically. clicking remove, will disable that feature, and you will have to check statuses manually..', 'cargo-shipping-location-for-woocommerce') ?></strong></p>
     </div>

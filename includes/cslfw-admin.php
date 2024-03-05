@@ -74,6 +74,15 @@ if( !class_exists('CSLFW_Admin') ) {
         public function change_carrier_id()
         {
             $orderId = sanitize_text_field($_POST['orderId']);
+
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw_cargo_actions{$orderId}")) {
+                echo json_encode([
+                    'error' => true,
+                    'message' => 'Bad request, try again later.',
+                ]);
+                wp_die();
+            }
+
             $order = wc_get_order($orderId);
 
             if ($order) {
@@ -280,6 +289,8 @@ if( !class_exists('CSLFW_Admin') ) {
                     $deliveries = $cargo_shipping->get_shipment_data();
                     $webhook_installed = get_option('cslfw_webhooks_installed');
                     $box_point_id = $order->get_meta('cargo_DistributionPointID', true);
+                    $nonce = wp_create_nonce('cslfw_cargo_actions'.$order->get_id());
+
                     if ( 'cslfw_delivery_status' === $column ) {
                         if ( $deliveries ) {
                             foreach ($deliveries as $key => $value) {
@@ -292,6 +303,9 @@ if( !class_exists('CSLFW_Admin') ) {
                     }
 
                     if ( 'send_to_cargo' === $column ) {
+                        $nonceId = 'cslfw_cargo_actions_nonce_' . $order->get_id();
+                        echo wp_kses_post('<div id="'. esc_attr($nonceId) .'" data-value="' . esc_attr($nonce) . '"></div>');
+
                         if ( $deliveries ) {
                             $deliveries = implode(',', $cargo_shipping->get_shipment_ids()) ;
                             echo wp_kses_post("<p>". $deliveries . "</p>");

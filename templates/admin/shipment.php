@@ -1,6 +1,7 @@
 <?php
     $order = $data['order'];
     $paymentMethod = $order->get_payment_method();
+    $nonce = wp_create_nonce('cslfw_cargo_actions'.$order->get_id());
 
     $codTypes = [
         '0' => __('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
@@ -9,7 +10,7 @@
         '3' => __('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
     ];
 ?>
-
+<input type="hidden" id="cslfw_cargo_actions_nonce" value="<?php echo esc_attr($nonce); ?>">
 <div class="cargo-butoon">
     <button class="button button-primary cslfw-change-carrier-id" data-order-id="<?php echo esc_attr($order->get_id()); ?>">
         <?php if ($data['shippingMethod'] === 'woo-baldarp-pickup') : ?>

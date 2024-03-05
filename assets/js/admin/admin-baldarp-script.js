@@ -79,14 +79,18 @@
 			e.preventDefault();
 			var orderId = $(this).data('id');
 			var cargoDeliveryId = $(this).data('deliveryid');
-			var type = $(this).data('type');
-			//alert(admin_cargo_obj.ajaxurl);
+
             ToggleLoading(true);
             $.ajax({
                 type : "post",
                 dataType : "json",
                 url : admin_cargo_obj.ajaxurl,
-                data : {action: "getOrderStatus", orderId: orderId, deliveryId: cargoDeliveryId },
+                data : {
+                    action: "getOrderStatus",
+                    orderId: orderId,
+                    deliveryId: cargoDeliveryId,
+                    _wpnonce: $('#cslfw_cargo_actions_nonce').val(),
+                },
                 success: function(response) {
                     console.log(response);
                     ToggleLoading(false);
@@ -104,11 +108,15 @@
 			e.preventDefault();
 
 			$(this).attr('disabled', true);
+            let orderId = $(this).data('id');
+			let nonce = $('#cslfw_cargo_actions_nonce').val() ?? $(`#cslfw_cargo_actions_nonce_${orderId}`).data('value')
+			console.log('submitshipping nonce', nonce)
 
 			let data = {
 				action: "sendOrderCARGO",
-				orderId : $(this).data('id'),
-				double_delivery: $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1,
+				orderId : orderId,
+                _wpnonce: nonce,
+                double_delivery: $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1,
 				shipment_type: $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]:checked').val() : 1,
 				no_of_parcel: $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0,
 				cargo_cod: $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? 1 : 0 : 0,
@@ -156,14 +164,15 @@
 		    e.preventDefault();
             ToggleLoading(true);
             var orderId = $(this).data('order-id');
-
+            console.log($('#cslfw_cargo_actions_nonce').val());
             $.ajax({
                 type : "post",
                 dataType : "json",
                 url : admin_cargo_obj.ajaxurl,
                 data : {
                     action: "cslfw_change_carrier_id",
-                    orderId: orderId
+                    orderId: orderId,
+                    _wpnonce: $('#cslfw_cargo_actions_nonce').val()
                 },
                 success: function(response) {
                     console.log(response);
@@ -190,7 +199,8 @@
 					data : {
 					    action: "get_shipment_label",
                         shipmentId : shipmentId,
-                        orderId: orderId
+                        orderId: orderId,
+                        _wpnonce: $('#cslfw_cargo_actions_nonce').val()
                     },
 					success: function(response) {
 						console.log(response);

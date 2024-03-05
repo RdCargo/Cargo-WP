@@ -28,6 +28,8 @@ if ( ! defined( 'ABSPATH' ) || !class_exists('CSLFW_Contact') ) {
     }
 </style>
 <form class="cslfw__contact cslfw-send-email">
+    <?php wp_nonce_field('cslfw-sent-email'); ?>
+
     <div class="input-field">
         <label for="reason"><?php esc_html_e('Reason', 'cargo-shipping-location-for-woocommerce') ?></label>
         <input type="text" id="reason" name="reason" required>

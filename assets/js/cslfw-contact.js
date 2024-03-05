@@ -7,7 +7,10 @@
         $.ajax({
             type : "post",
             url: ajaxurl,
-            data : {action: 'cslfw_send_email', form_data: $(this).serialize()},
+            data : {
+                action: 'cslfw_send_email',
+                form_data: $(this).serialize(),
+            },
             success: function(response) {
                 console.log(response);
                 response = JSON.parse(response);

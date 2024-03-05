@@ -41,6 +41,14 @@ if( !class_exists('CSLFW_Contact') ) {
 
         function send_email() {
             parse_str($_POST['form_data'], $data);
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], "cslfw-sent-email")) {
+                echo json_encode([
+                    'error' => true,
+                    'message' => 'Bad request, try again later.',
+                ]);
+                wp_die();
+            }
+
             $site_url   = get_site_url();
             $to         = 'rd@cargo.co.il';
             $subject    = 'BUG REPORT';

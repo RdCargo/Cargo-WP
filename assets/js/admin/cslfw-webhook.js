@@ -19,7 +19,7 @@
                     html = `<div class="notice notice-error"><p>${response.message}</p> </div>`;
                 }
                 $('.cslfw-form-notice').empty().append(html);
-                // location.reload();
+                location.reload();
             },
             error: function( jqXHR, textStatus, errorThrown ) {
                 console.log('error');
@@ -41,7 +41,8 @@
     $(document).on('click', '.cslfw-add-webhooks', function(e) {
         e.preventDefault();
         let data = {
-            action: 'cslfw_add_webhooks'
+            action: 'cslfw_add_webhooks',
+            _wpnonce: $('#cslfw_cargo_webhook_nonce').val()
         };
         ajaxAction(data);
     })
