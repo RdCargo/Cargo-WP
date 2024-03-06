@@ -149,7 +149,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 				echo wp_json_encode(
 				    [
 				        "shipmentId" => "",
-                        "error_msg" => esc_html_e('Please enter all details from plugin setting', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html__('Please enter all details from plugin setting', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
 				exit;
@@ -163,7 +163,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => esc_html_e('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html__('No shipping methods found. Contact support please.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;
@@ -172,7 +172,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => esc_html_e('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html__('Cargo Express ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;
@@ -182,7 +182,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => esc_html_e('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html__('Cancelled, pending, or refunded order can\'t be processed.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;
@@ -192,7 +192,7 @@ if( !class_exists('CSLFW_Cargo') ) {
                 echo wp_json_encode(
                     [
                         "shipmentId" => "",
-                        "error_msg" => esc_html_e('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
+                        "error_msg" => esc_html__('Cargo BOX ID is missing from plugin settings.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 exit;

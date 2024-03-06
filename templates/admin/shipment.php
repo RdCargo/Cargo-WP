@@ -6,10 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     $nonce = wp_create_nonce('cslfw_cargo_actions'.$order->get_id());
 
     $codTypes = [
-        '0' => esc_html_e('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
-        '1' => esc_html_e('Cashier\'s check', 'cargo-shipping-location-for-woocommerce'),
-        '2' => esc_html_e('Check', 'cargo-shipping-location-for-woocommerce'),
-        '3' => esc_html_e('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
+        '0' => esc_html__('Cash (Default)', 'cargo-shipping-location-for-woocommerce'),
+        '1' => esc_html__('Cashier\'s check', 'cargo-shipping-location-for-woocommerce'),
+        '2' => esc_html__('Check', 'cargo-shipping-location-for-woocommerce'),
+        '3' => esc_html__('All Payment Methods', 'cargo-shipping-location-for-woocommerce')
     ];
 ?>
 <input type="hidden" id="cslfw_cargo_actions_nonce" value="<?php echo esc_attr($nonce); ?>">

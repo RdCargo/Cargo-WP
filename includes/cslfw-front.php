@@ -135,7 +135,7 @@ if( !class_exists('CSLFW_Front') ) {
          * Add New column Track order in the my account order tab
          */
         function add_account_orders_column( $columns ) {
-            $columns['order-track'] = esc_html_e( 'Track order', 'cargo-shipping-location-for-woocommerce' );
+            $columns['order-track'] = esc_html__( 'Track order', 'cargo-shipping-location-for-woocommerce' );
 
             return $columns;
         }
@@ -173,7 +173,7 @@ if( !class_exists('CSLFW_Front') ) {
                 echo wp_json_encode(
                     [
                         'status'  => 'fail',
-                        'message' => esc_html_e('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
+                        'message' => esc_html__('No shipping id provided. Contact support please.', 'cargo-shipping-location-for-woocommerce')
                     ]
                 );
                 wp_die();

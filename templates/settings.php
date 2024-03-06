@@ -75,9 +75,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                 <?php
                                     $cargo_box_style = get_option('cargo_box_style');
                                     $cargo_box_style_options = array(
-                                        'cargo_map'         => esc_html_e('Map', 'cargo-shipping-location-for-woocommerce'),
-                                        'cargo_dropdowns'   => esc_html_e('Dropdowns', 'cargo-shipping-location-for-woocommerce'),
-                                        'cargo_automatic'   => esc_html_e('Automatic choice', 'cargo-shipping-location-for-woocommerce')
+                                        'cargo_map'         => esc_html__('Map', 'cargo-shipping-location-for-woocommerce'),
+                                        'cargo_dropdowns'   => esc_html__('Dropdowns', 'cargo-shipping-location-for-woocommerce'),
+                                        'cargo_automatic'   => esc_html__('Automatic choice', 'cargo-shipping-location-for-woocommerce')
                                     );
                                 ?>
                                 <select name="cargo_box_style">
@@ -122,10 +122,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                 <?php
                                 $cargo_map_style = get_option('cslfw_map_size');
                                 $cargo_map_style_options = array(
-                                    'small'        => esc_html_e('Small', 'cargo-shipping-location-for-woocommerce'),
-                                    'middle'      => esc_html_e('Middle size', 'cargo-shipping-location-for-woocommerce'),
-                                    'wide'        => esc_html_e('Wide', 'cargo-shipping-location-for-woocommerce'),
-                                    'map_custom'  => esc_html_e('Custom', 'cargo-shipping-location-for-woocommerce')
+                                    'small'        => esc_html__('Small', 'cargo-shipping-location-for-woocommerce'),
+                                    'middle'      => esc_html__('Middle size', 'cargo-shipping-location-for-woocommerce'),
+                                    'wide'        => esc_html__('Wide', 'cargo-shipping-location-for-woocommerce'),
+                                    'map_custom'  => esc_html__('Custom', 'cargo-shipping-location-for-woocommerce')
                                 );
                                 ?>
                                 <select name="cslfw_map_size">

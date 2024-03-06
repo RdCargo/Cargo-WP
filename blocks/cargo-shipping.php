@@ -44,7 +44,7 @@ function register_Cargo_Shipping_block_category( $categories ) {
         [
             [
                 'slug'  => 'cargo-shipping',
-                'title' => esc_html_e( 'Cargo_Shipping Blocks', 'cargo-shipping' ),
+                'title' => esc_html__( 'Cargo_Shipping Blocks', 'cargo-shipping' ),
             ],
         ]
     );
