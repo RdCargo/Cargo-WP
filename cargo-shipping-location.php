@@ -1,7 +1,7 @@
 <?php
  /**
  * Plugin Name: Cargo Shipping Location for WooCommerce
- * Plugin URI: https://api.cargo.co.il/Webservice/pluginInstruction
+ * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
  * Version: 4.0.0
  * Author: Astraverdes
