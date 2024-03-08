@@ -93,7 +93,7 @@ class Webhook
 
     public function save_cargo_api()
     {
-        parse_str($_POST['form_data'], $data);
+        parse_str(sanitize_text_field($_POST['form_data']), $data);
 
         if (!isset($data['_wpnonce']) && !wp_verify_nonce(sanitize_text_field($data['_wpnonce']), 'cslfw-save-api-key')) {
             echo wp_json_encode([
@@ -213,7 +213,7 @@ class Webhook
     protected function getWebhookArgs($customerCode)
     {
         $host = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
-        $host.= $_SERVER['HTTP_HOST'];
+        $host.= sanitize_text_field($_SERVER['HTTP_HOST']);
 
         return [
             'type' => 'status-update',

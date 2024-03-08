@@ -163,12 +163,14 @@ if( !class_exists('CSLFW_Front') ) {
 
             if ( $deliveries ) {
                 foreach($deliveries as $key => $value) {
-                    echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $value .'">' . esc_html_e('Track shipment', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
+                    $nonce = wp_create_nonce('cslfw_cargo_track' . $value);
+                    echo wp_kses_post('<a href="#" class="btn wp-element-button button woocommerce-button js-cargo-track" data-delivery="'. $value .'" data-nonce="'. $nonce .'">' . esc_html_e('Track shipment', 'cargo-shipping-location-for-woocommerce') . " $value</a>");
                 }
             }
         }
 
         function get_order_tracking_details() {
+
             if ( !isset($_POST['shipping_id']) || sanitize_text_field($_POST['shipping_id']) === '' ) {
                 echo wp_json_encode(
                     [
@@ -180,7 +182,16 @@ if( !class_exists('CSLFW_Front') ) {
             }
 
             $data['deliveryId'] = (int) sanitize_text_field($_POST['shipping_id']);
-            $result = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CheckShipmentStatusAndTime', $data);
+
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), 'cslfw_cargo_track' . $data['deliveryId'])) {
+                echo wp_json_encode([
+                    'error' => true,
+                    'message' => 'Bad request, try again later.',
+                ]);
+                wp_die();
+            }
+
+            $result = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CheckShipmentStatus', $data);
             echo wp_json_encode( $result );
             die();
         }

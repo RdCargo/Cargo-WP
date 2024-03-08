@@ -14,12 +14,15 @@
 
                 let html = '';
                 if ( response.error === false ) {
+
                     html = `<div class="notice notice-success"><p>${response.message}</p> </div>`;
+                    setTimeout(() => {
+                        location.reload()
+                    }, 1000 )
                 } else {
                     html = `<div class="notice notice-error"><p>${response.message}</p> </div>`;
                 }
                 $('.cslfw-form-notice').empty().append(html);
-                location.reload();
             },
             error: function( jqXHR, textStatus, errorThrown ) {
                 console.log('error');

@@ -14,6 +14,10 @@ The new plugin for Cargo express & pickups delivery orders from WooCommerce.
 
 Cargo Deliveries and Pickups plugin you can connect your WooCommerce store to Cargo & Cargo BOX. The plugin allows users to create, assign shipments to orders, and receive real-time delivery locations to your user checkout. This helps businesses to streamline their shipping processes and provide better customer success.
 
+Our plugin functions by integrating with a third-party service, CARGO, which specializes in local deliveries management and tracking. This integration allows the plugin to offer features such as creating new shipments, checking the status of existing shipments, and providing real-time updates.
+
+We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocommerce to cargo. Our [PRIVACY POLICY](https://cargo.co.il/privacy-policy-2/)
+
 == Frequently Asked Questions ==
 
 == Screenshots ==

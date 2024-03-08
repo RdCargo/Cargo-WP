@@ -203,7 +203,7 @@ if( !class_exists('CSLFW_Admin') ) {
          */
         public function add_meta_box( $post_type ) {
             global $post, $pagenow, $typenow;
-            $orderId = $_GET['id'] ?? $post->ID ?? null;
+            $orderId = sanitize_text_field($_GET['id']) ?? $post->ID ?? null;
 
             if(
                 ($post_type === 'woocommerce_page_wc-orders' && $orderId)
@@ -386,12 +386,12 @@ if( !class_exists('CSLFW_Admin') ) {
 
             if ( 'edit.php' === $pagenow
                 && isset($_GET['post_type'])
-                && 'shop_order' === $_GET['post_type']
+                && 'shop_order' === sanitize_text_field($_GET['post_type'])
                 && isset( $_GET['cargo_send']) ) {
 
-                $processed_count = intval( sanitize_text_field($_REQUEST['processed_count']) );
-
                 if ( isset($_REQUEST['processed_count']) ) {
+                    $processed_count = intval( sanitize_text_field($_REQUEST['processed_count']) );
+
                     echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
                         _n( '%s Order Sent for Shipment',
                             '%s Orders Sent For Shipment',
@@ -400,9 +400,9 @@ if( !class_exists('CSLFW_Admin') ) {
                         ) . '</p></div>', $processed_count ) );
                 }
 
-                $skipped_count = intval( sanitize_text_field($_REQUEST['skipped_count']) );
-
                 if ( isset($_REQUEST['skipped_count']) ) {
+                    $skipped_count = intval( sanitize_text_field($_REQUEST['skipped_count']) );
+
                     echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
                         _n( '%s Were skipped because they already have shipment created.',
                             '%s Were skipped because they already have shipment created.',
@@ -433,12 +433,7 @@ if( !class_exists('CSLFW_Admin') ) {
             return $methods;
         }
 
-        public function hpos_bulk_order_cargo_shipment($redirect, $action)
-        {
-//            if ($_GET['id']);
-        }
-
-            /**
+        /**
          * Add bulk actions in order list
          *
          * @param $redirect_to
@@ -448,7 +443,7 @@ if( !class_exists('CSLFW_Admin') ) {
          */
         public function bulk_order_cargo_shipment($redirect_to, $action, $ids = null)
         {
-            $orderIds = $ids ?? $_GET['id'] ?? [];
+            $orderIds = $ids ?? sanitize_text_field($_GET['id']) ?? [];
             $processed_count = 0;
             $skipped_count = 0;
 

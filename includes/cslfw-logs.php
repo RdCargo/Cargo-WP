@@ -69,8 +69,8 @@ if( !class_exists('CSLFW_Logs') ) {
             }
             $this->result = array_reverse($this->result);
 
-            if ( ! empty( $_REQUEST['log_file'] ) && isset( $this->result[ sanitize_title( wp_unslash( $_REQUEST['log_file'] ) ) ] ) ){ // WPCS: input var ok, CSRF ok.
-                $this->viewed_log = $this->result[ sanitize_title( wp_unslash( $_REQUEST['log_file'] ) ) ]; // WPCS: input var ok, CSRF ok.
+            if ( ! empty( $_REQUEST['log_file'] ) && isset( $this->result[ sanitize_title( wp_unslash( $_REQUEST['log_file'] ) ) ] ) ){
+                $this->viewed_log = $this->result[ sanitize_title( wp_unslash( $_REQUEST['log_file'] ) ) ];
             } elseif ( ! empty( $this->result ) ) {
                 $this->viewed_log = current( $this->result );
             }
@@ -99,8 +99,8 @@ if( !class_exists('CSLFW_Logs') ) {
                 wp_die( esc_html__( 'Action failed. Please refresh the page and retry.', 'cargo-shipping-location-for-woocommerce' ) );
             }
 
-            if ( ! empty( $_REQUEST['handle'] ) ) {  // WPCS: input var ok.
-                $this->remove_op( wp_unslash( $_REQUEST['handle'] ) ); // WPCS: input var ok, sanitization ok.
+            if ( ! empty( $_REQUEST['handle'] ) ) {
+                $this->remove_op( sanitize_title(wp_unslash( $_REQUEST['handle'] ) ) );
             }
 
             wp_safe_redirect( esc_url_raw( admin_url( 'admin.php?page=cargo_shipping_log' ) ) );

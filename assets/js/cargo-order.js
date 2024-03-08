@@ -5,11 +5,16 @@
 
     $(document).on('click','.js-cargo-track',function(e){
         e.preventDefault();
-        var shippingId = jQuery(this).data('delivery');
+        var shippingId = $(this).data('delivery');
+        var nonce = $(this).data('nonce');
         $.ajax({
             type: "post",
             url: cargo_obj.ajaxurl,
-            data: {action:"get_order_tracking_details", shipping_id : shippingId},
+            data: {
+                action:"get_order_tracking_details",
+                shipping_id: shippingId,
+                _wpnonce: nonce
+            },
             success: function(response) {
                 console.log(response);
                 response = JSON.parse(response);

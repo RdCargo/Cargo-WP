@@ -99,7 +99,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $notes .= $order_data['customer_note'];
 
             $website = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
-            $website.= $_SERVER['HTTP_HOST'];
+            $website.= sanitize_text_field($_SERVER['HTTP_HOST']);
 
             $data['Method'] = "ship";
             $data['Params'] = [

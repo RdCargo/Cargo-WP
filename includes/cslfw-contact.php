@@ -42,7 +42,7 @@ if( !class_exists('CSLFW_Contact') ) {
         }
 
         function send_email() {
-            parse_str($_POST['form_data'], $data);
+            parse_str(sanitize_text_field($_POST['form_data']), $data);
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw-sent-email")) {
                 echo wp_json_encode([
                     'error' => true,
