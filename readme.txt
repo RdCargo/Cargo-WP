@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.4.3
 Requires PHP: 8.0
-Stable tag: 4.0.0
+Stable tag: 4.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -137,3 +137,9 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 4.0.0 ===
 * Adding support for latest wordpress, woocommerce and HPOS compatibility.
 * Added new features, automatic shipment create.
+
+== 4.0.1 ===
+* Fix critical error in order page.
+
+== 4.0.2 ===
+* Fix the issue with to address phone number.

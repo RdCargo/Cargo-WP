@@ -203,7 +203,11 @@ if( !class_exists('CSLFW_Admin') ) {
          */
         public function add_meta_box( $post_type ) {
             global $post, $pagenow, $typenow;
-            $orderId = sanitize_text_field($_GET['id']) ?? $post->ID ?? null;
+            if (isset($_GET['id'])) {
+                $orderId = sanitize_text_field($_GET['id']);
+            } else {
+                $orderId = $post->ID ?? null;
+            }
 
             if(
                 ($post_type === 'woocommerce_page_wc-orders' && $orderId)
