@@ -108,7 +108,7 @@ class Webhook
         ];
         $response = $this->get("https://api-v2.cargo.co.il/api/token/auth", [], $headers);
 
-        if ($response && !$response?->errors) {
+        if ($response && !$response->errors) {
             if (empty($this->apiKey)) {
                 add_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
             } else {
@@ -118,9 +118,9 @@ class Webhook
 
         echo wp_json_encode([
             'api_key' => $data['cslfw_api_key'],
-            'error' => is_null($response) || $response?->errors,
+            'error' => is_null($response) || $response->errors,
             'response' => $response,
-            'message' => is_null($response) || $response?->errors
+            'message' => is_null($response) || $response->errors
                 ? esc_html__('API key is not valid.', 'cargo-shipping-location-for-woocommerce')
                 : esc_html__('Api key successfully saved. Reloading page.', 'cargo-shipping-location-for-woocommerce')
         ]);

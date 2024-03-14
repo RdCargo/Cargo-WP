@@ -6,10 +6,12 @@ namespace CSLFW\Includes\CargoAPI;
 
 class CSLFW_Order
 {
-    public string|null $shippingMethod;
+    public $shippingMethod;
+    public $order;
 
-    public function __construct(public $order)
+    public function __construct($order)
     {
+        $this->order = $order;
         $this->setShippingMethod();
     }
 

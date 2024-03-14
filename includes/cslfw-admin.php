@@ -160,9 +160,12 @@ if( !class_exists('CSLFW_Admin') ) {
                     if ($boxPointId) {
                         $selectedPoint = $this->cargo->findPointById($boxPointId);
 
-                        $data['cities'] = $this->cargo->getPointsCities();
-                        $data['selectedPoint'] = $selectedPoint;
-                        $data['points'] = $this->cargo->getPointsByCity($selectedPoint?->CityName);
+                        if (!is_null($selectedPoint)) {
+                            $data['cities'] = $this->cargo->getPointsCities();
+                            $data['selectedPoint'] = $selectedPoint;
+                            $data['points'] = $this->cargo->getPointsByCity($selectedPoint->CityName);
+
+                        }
                     }
 
                     $this->helpers->load_template('admin/shipment', $data);
@@ -451,8 +454,8 @@ if( !class_exists('CSLFW_Admin') ) {
             $processed_count = 0;
             $skipped_count = 0;
 
-            if (str_contains( $action, 'mark_' )) {
-                $actionName     = substr( $action, 5 ); // Get the status name from action.
+            if (strpos($action, 'mark_') !== false) {
+                $actionName = substr( $action, 5 ); // Get the status name from action.
 
                 if ($actionName === 'cargo-print-label') {
                     $cargoShipping = new CSLFW_Cargo_Shipping();
