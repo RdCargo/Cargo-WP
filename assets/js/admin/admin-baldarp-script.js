@@ -80,6 +80,9 @@
 			var orderId = $(this).data('id');
 			var cargoDeliveryId = $(this).data('deliveryid');
 
+            let nonce = $('#cslfw_cargo_actions_nonce').val() ?? $(`#cslfw_cargo_actions_nonce_${orderId}`).data('value')
+
+            console.log(nonce);
             ToggleLoading(true);
             $.ajax({
                 type : "post",
@@ -89,12 +92,12 @@
                     action: "getOrderStatus",
                     orderId: orderId,
                     deliveryId: cargoDeliveryId,
-                    _wpnonce: $('#cslfw_cargo_actions_nonce').val(),
+                    _wpnonce: nonce,
                 },
                 success: function(response) {
                     console.log(response);
                     ToggleLoading(false);
-                    if(response.deliveryStatus != "") {
+                    if(response.type != "failed") {
                         alert("סטטוס משלוח  "+response.data);
                         location.reload();
                     } else {
@@ -164,7 +167,7 @@
 		    e.preventDefault();
             ToggleLoading(true);
             var orderId = $(this).data('order-id');
-            console.log($('#cslfw_cargo_actions_nonce').val());
+
             $.ajax({
                 type : "post",
                 dataType : "json",
@@ -190,6 +193,8 @@
 			var shipmentId = $(this).data('id');
 			var orderId = $(this).data('order-id');
 
+            let nonce = $('#cslfw_cargo_actions_nonce').val() ?? $(`#cslfw_cargo_actions_nonce_${orderId}`).data('value')
+
 			if(orderId){
 				ToggleLoading(true);
 				$.ajax({
@@ -200,7 +205,7 @@
 					    action: "get_shipment_label",
                         shipmentId : shipmentId,
                         orderId: orderId,
-                        _wpnonce: $('#cslfw_cargo_actions_nonce').val()
+                        _wpnonce: nonce
                     },
 					success: function(response) {
 						console.log(response);

@@ -114,6 +114,8 @@ class Webhook
             } else {
                 update_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
             }
+        } else {
+            delete_option('cslfw_webhooks_installed');
         }
 
         echo wp_json_encode([

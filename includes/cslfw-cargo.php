@@ -290,14 +290,17 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
         /**
          * @param $shipping_id
+         * @param $order_id
          * @return array|string[]
          */
         function getOrderStatusFromCargo($shipping_id) {
             $shipping_method_id = $this->cargoOrder->getShippingMethod();
 
-            if ($shipping_method_id !== null) {
+            if (is_null($shipping_method_id)) {
                 return [
                     "type" => "failed",
+                    "order_id" => $this->order_id,
+                    "shipping_method_id" => $shipping_method_id,
                     "data" => 'No shipping methods found. Contact Support please.'
                 ];
             }
@@ -352,7 +355,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             } else {
                 $response = [
                     "type" => "failed",
-                    "data" => 'something went wrong'
+                    "data" => $data['errorMsg'],
+                    "shipping_id" => $shipping_id
                 ];
             }
 
