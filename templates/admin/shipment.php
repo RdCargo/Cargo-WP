@@ -88,7 +88,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </label>
                     <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100" style="display: <?php echo esc_attr($data['points'] ? 'block' : 'none'); ?>" >
                         <?php foreach ($data['points'] as $key => $point) : ?>
-                            <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($selectedPoint?->DistributionPointID === $point->DistributionPointID) echo 'selected="selected"' ?>>
+                            <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($selectedPoint->DistributionPointID === $point->DistributionPointID) echo 'selected="selected"' ?>>
                                 <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
                             </option>
                         <?php endforeach; ?>
@@ -171,7 +171,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </h2>
                     <h4 style="margin:0;"><?php echo wp_kses_post("{$point->StreetNum} {$point->StreetName} {$point->CityName}") ?></h4>
                     <h4 style="margin:0;"><?php echo wp_kses_post($point->Comment) ?></h4>
-                    <h4 style="margin:0;"><?php echo wp_kses_post($point->Phone) ?></h4>
                 <?php } ?>
             </div>
         <?php }
