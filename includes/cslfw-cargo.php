@@ -323,6 +323,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     if ( $this->deliveries ) {
                         unset($this->deliveries[$shipping_id]);
                         $this->order->update_meta_data('cslfw_shipping', $this->deliveries );
+                        $this->order->save();
                     }
                     $response = [
                         "type" => "success",
@@ -340,6 +341,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     if ((int) $data['deliveryStatus'] === 3 && $cslfw_complete_orders) {
                         $this->order->update_status('completed');
                     }
+                    $this->order->save();
 
                     $response = [
                         "type" => "success",
