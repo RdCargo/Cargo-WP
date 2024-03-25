@@ -27,7 +27,7 @@ if( !class_exists('CSLFW_Admin') ) {
             add_action('init', [$this, 'register_order_status_for_cargo']);
             add_filter('wc_order_statuses', [$this, 'custom_order_status']);
             add_action('add_meta_boxes', [$this, 'add_meta_box']);
-            add_action('add_meta_boxes', [$this, 'remove_shop_order_meta_box'], 90 );
+//            add_action('add_meta_boxes', [$this, 'remove_shop_order_meta_box'], 90 );
             add_action('woocommerce_admin_order_data_after_billing_address', [$this, 'show_shipping_info']);
             add_action('admin_notices', [$this, 'cargo_bulk_action_admin_notice']);
             add_action('woocommerce_shipping_init', [$this,'shipping_method_classes']);
@@ -243,12 +243,12 @@ if( !class_exists('CSLFW_Admin') ) {
             }
         }
 
-        /**
-         * remove meta box from the admin order page
-         */
-        public function remove_shop_order_meta_box() {
-            remove_meta_box( 'postcustom', 'shop_order', 'normal' );
-        }
+//        /**
+//         * remove meta box from the admin order page
+//         */
+//        public function remove_shop_order_meta_box() {
+//            remove_meta_box( 'postcustom', 'shop_order', 'normal' );
+//        }
 
         /**
          * @param $actions

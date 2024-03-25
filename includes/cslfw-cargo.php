@@ -232,8 +232,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             if ($response->shipmentId != '' ) {
                 $response->all_data = $this->addShipment($data['Params'], $response);
                 $this->update_wc_status();
-                $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response->shipmentId} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." SHIPMENT TYPE : {$data['Params']['CarrierName']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
-                if( $data['Params']['CarrierName'] === 'BOX' ) {
+                $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response->shipmentId} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." CarrierID : {$data['Params']['CarrierID']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
+                if( $data['Params']['CarrierID'] === 0) {
                     $message    .= "CARGO BOX POINT ID : {$data['Params']['boxPointId']}". PHP_EOL;
                 }
             }
@@ -261,7 +261,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ]
             ];
 
-            if ($shipment_params['boxPointId']) {
+            if (isset($shipment_params['boxPointId']) && $shipment_params['boxPointId']) {
                 $delivery[$shipment_data->shipmentId]['box_id'] = $shipment_params['boxPointId'];
             }
 
