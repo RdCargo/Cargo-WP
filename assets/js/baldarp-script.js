@@ -363,6 +363,7 @@ function checkLocationSet(shippingMethod = '') {
 }
 $(document).on('click','.js-modal-close',function () {
     $(this).closest('.modal').addClass('hidden');
+    $(this).closest('.modal').removeClass('show');
 });
 
 $(document).on('click','#mapbutton',function(e){
@@ -372,6 +373,7 @@ $(document).on('click','#mapbutton',function(e){
     $('.modal').each(function(){
         if(!$(this).hasClass('descript')){
             $("#mapmodelcargo").removeClass('hidden');
+            $("#mapmodelcargo").addClass('show');
         }
     });
 });

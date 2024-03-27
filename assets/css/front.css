@@ -4,10 +4,12 @@ div#selected_cargo{
 }
 div#mapmodelcargo.hidden{
     display: none;
-    visibility: hidden;
 }
 div#mapmodelcargo{
     z-index: 99999999999;
+}
+div#mapmodelcargo .modal-dialog{
+    left: 0;
 }
 .blockUI#overlay {
   background: #ffffff;
