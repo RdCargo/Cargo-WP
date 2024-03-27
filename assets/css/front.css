@@ -2,6 +2,10 @@ div#selected_cargo{
     margin-top: 10px;
     margin-bottom: 20px;
 }
+div#mapmodelcargo.hidden{
+    display: none;
+    visibility: hidden;
+}
 div#mapmodelcargo{
     z-index: 99999999999;
 }

@@ -264,7 +264,7 @@ $.ajax({
         });
         // $('#mapbutton').css('pointer-events','all');
         $('#mapbutton').show()
-        if($('#mapmodelcargo').is(":hidden")){
+        if($('#mapmodelcargo').hasClass("hidden")){
             if($("#shipping_method").length) {
                 addLocationSection(msgnew.shippingMethod);
             }
@@ -303,7 +303,7 @@ function addLocationSection(shippingMethod){
         if( Cookies.get('cargoPointID') != null ) {
             // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
         } else {
-            if ($('#mapmodelcargo').is(":hidden")) {
+            if ($('#mapmodelcargo').hasClass("hidden")) {
                 checkLocationSet(shippingMethod);
             } else {
                 $("#modal-close").trigger('click');
@@ -331,7 +331,7 @@ function changeShipping(){
         if(Cookies.get('cargoPointID') != null) {
             // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
         }else{
-            if($('#mapmodelcargo').is(":hidden")){
+            if($('#mapmodelcargo').hasClass("hidden")){
                 checkLocationSet();
             }else{
                 $("#modal-close").trigger('click');
@@ -349,7 +349,7 @@ function checkLocationSet(shippingMethod = '') {
         shippingMethod = shippingMethod != '' ? shippingMethod : $('input[name="shipping_method[0]"]:checked').val();
 
         if(shippingMethod.split(':')[0] == 'woo-baldarp-pickup') {
-            if($('#mapmodelcargo').is(":hidden")){
+            if($('#mapmodelcargo').hasClass("hidden")){
                 if(Cookies.get('cargoPointID') == null) {
                     $('#mapbutton').css('pointer-events','all');
                     $('#mapbutton').css('display','block');
@@ -362,7 +362,7 @@ function checkLocationSet(shippingMethod = '') {
     }
 }
 $(document).on('click','.js-modal-close',function () {
-    $(this).closest('.modal').hide();
+    $(this).closest('.modal').addClass('hidden');
 });
 
 $(document).on('click','#mapbutton',function(e){
@@ -371,7 +371,7 @@ $(document).on('click','#mapbutton',function(e){
     initMap();
     $('.modal').each(function(){
         if(!$(this).hasClass('descript')){
-            $("#mapmodelcargo").show();
+            $("#mapmodelcargo").removeClass('hidden');
         }
     });
 });

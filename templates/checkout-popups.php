@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <input type="hidden" id="default_markers" value="<?php echo esc_url(CSLFW_URL.'assets/image/cargo-icon-svg.svg') ?>" >
 <input type="hidden" id="selected_marker" value="<?php echo esc_url(CSLFW_URL.'assets/image/selected_new.png') ?>" >
-<div class="modal" id="mapmodelcargo" tabindex="-1" role="dialog" style="display:none;">
+<div class="modal hidden" id="mapmodelcargo" tabindex="-1" role="dialog">
     <div class="modal-dialog <?php echo esc_attr($cargo_size) ?>"  role="document">
         <div class="modal-content " <?php echo esc_attr($cargo_size_custom) ?>>
             <div class="modal-header">
