@@ -299,7 +299,7 @@ $(document).on('click','.marker-click',function(){
 });
 function addLocationSection(shippingMethod){
     // console.log("Shipping value ",$('input[name="shipping_method[0]"]:checked').val());
-    if(shippingMethod.split(':')[0] == 'woo-baldarp-pickup') {
+    if(shippingMethod?.split(':')[0] === 'woo-baldarp-pickup') {
         if( Cookies.get('cargoPointID') != null ) {
             // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
         } else {
@@ -346,7 +346,7 @@ function changeShipping(){
 }
 function checkLocationSet(shippingMethod = '') {
     if($("#shipping_method").length) {
-        shippingMethod != '' ? shippingMethod : $('input[name="shipping_method[0]"]:checked').val();
+        shippingMethod = shippingMethod != '' ? shippingMethod : $('input[name="shipping_method[0]"]:checked').val();
 
         if(shippingMethod.split(':')[0] == 'woo-baldarp-pickup') {
             if($('#mapmodelcargo').is(":hidden")){
@@ -407,7 +407,7 @@ $(document).on('change','.shipping_method', function() {
         $("div.blockUI").show();
 
         $("#mapbutton").show();
-        $("#mapbutton").trigger('click');
+        // $("#mapbutton").trigger('click');
         $("#selected_cargo").show();
         changeShipping();
     } else {

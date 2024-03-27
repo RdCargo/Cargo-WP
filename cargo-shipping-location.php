@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 4.0.8
+ * Version: 4.0.9
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -31,7 +31,7 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '4.0.7' );
+    define( 'CSLFW_VERSION', '4.0.9' );
 }
 
 require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
@@ -71,7 +71,7 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             add_filter('woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
 
-            add_action('woocommerce_thankyou', [$this, 'auto_create_shipment'], 10, 1);
+            add_action('woocommerce_order_status_processing', [$this, 'auto_create_shipment'], 200, 1);
         }
 
         public function hpos_compability()
