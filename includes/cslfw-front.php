@@ -37,7 +37,7 @@ if( !class_exists('CSLFW_Front') ) {
 
         function import_assets() {
             if ( is_account_page() ) {
-                wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css');
+                wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css', [], CSLFW_VERSION);
 
                 wp_enqueue_script( 'cargo-order', CSLFW_URL .'assets/js/cargo-order.js', [], CSLFW_VERSION, true );
                 wp_localize_script( 'cargo-order', 'cargo_obj',

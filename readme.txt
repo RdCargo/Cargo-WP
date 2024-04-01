@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.4.3
 Requires PHP: 7.4
-Stable tag: 4.1
+Stable tag: 4.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -171,3 +171,6 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 4.1 ===
 * Remove shipment methods for cases when settings are not completed.
 * Fix map display.
+
+== 4.1.1 ===
+* Quickfix of fatal error in checkout.
