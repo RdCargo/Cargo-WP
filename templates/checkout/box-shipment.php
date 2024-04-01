@@ -3,11 +3,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <div class="cargo-map-wrap">
-    <?php if ($data['boxStyle'] === 'cargo_map' ) : ?>
-        <a class="baldrap-btn btn button wp-element-button" id="mapbutton">
-            <?php esc_html_e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?>
-        </a>
-        <div id="selected_cargo"></div>
+    <?php if ($data['boxStyle'] === 'cargo_map' ) :
+        $maps_key = get_option('cslfw_google_api_key');
+        ?>
+        <?php if ($maps_key) : ?>
+            <a class="baldrap-btn btn button wp-element-button" id="mapbutton">
+                <?php esc_html_e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?>
+            </a>
+            <div id="selected_cargo"></div>
+        <?php endif; ?>
     <?php
     elseif ($data['boxStyle'] === 'cargo_dropdowns') :
         if ( $data['cities'] ) { ?>

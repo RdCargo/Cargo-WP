@@ -262,6 +262,9 @@ body.map-open-popup {
 .cargo-map-wrap {
     position: relative;
 }
+.modal.hidden {
+    display: none !important;
+}
 .cargo_input_div input[type="text"] {
     width: 100%;
     border-radius: 30px;
@@ -269,6 +272,9 @@ body.map-open-popup {
     flex: 1;
     border-style: solid;
     border-color: #144378;
+    height: auto;
+    box-sizing: border-box;
+    line-height: 1;
 }
 .cargo_input_div button {
     background: #257ab5;

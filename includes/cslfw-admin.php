@@ -438,8 +438,15 @@ if( !class_exists('CSLFW_Admin') ) {
          * @return mixed
          */
         public function cargo_shipping_methods( $methods ) {
-            $methods['woo-baldarp-pickup'] = 'CSLFW_Shipping_Method';
-            $methods['cargo-express'] = 'Cargo_Express_Shipping_Method';
+            $boxCode = get_option('shipping_cargo_box');
+            $expressCode = get_option('shipping_cargo_express');
+
+            if ($boxCode) {
+                $methods['woo-baldarp-pickup'] = 'CSLFW_Shipping_Method';
+            }
+            if ($expressCode) {
+                $methods['cargo-express'] = 'Cargo_Express_Shipping_Method';
+            }
             return $methods;
         }
 

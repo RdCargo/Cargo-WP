@@ -9,17 +9,17 @@ if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
         public function __construct($instance_id = 0) {
             $this->id                 = 'woo-baldarp-pickup';
             $this->instance_id 		  = absint( $instance_id );
-        	$this->method_title       = esc_html__( 'Collection From a CARGO Delivery Point', 'cargo-shipping-location-for-woocommerce' );
+            $this->method_title       = esc_html__( 'Collection From a CARGO Delivery Point', 'cargo-shipping-location-for-woocommerce' );
             $this->method_description = esc_html__( 'Custom Shipping Method CARGO Box For self pickup', 'cargo-shipping-location-for-woocommerce' );
             $this->supports           = ['shipping-zones','instance-settings','instance-settings-modal','settings'];
-			$this->enabled            = 'yes';
-			$this->title       		  = esc_html__( 'Collection From a CARGO Delivery Point', 'cargo-shipping-location-for-woocommerce');
+            $this->enabled            = 'yes';
+            $this->title       		  = esc_html__( 'Collection From a CARGO Delivery Point', 'cargo-shipping-location-for-woocommerce');
             $this->init();
 
-			$this->title = $this->get_option('title');
-			$this->shipping_cost = $this->get_option('shipping_cost');
-			$this->weight_limit = $this->get_option('weight_limit');
-			$this->free_shipping_amount = $this->get_option('free_shipping_amount');
+            $this->title = $this->get_option('title');
+            $this->shipping_cost = $this->get_option('shipping_cost');
+            $this->weight_limit = $this->get_option('weight_limit');
+            $this->free_shipping_amount = $this->get_option('free_shipping_amount');
 		}
 
 		public function init() {

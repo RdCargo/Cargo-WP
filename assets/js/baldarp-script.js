@@ -380,6 +380,8 @@ $(document).on('click','#mapbutton',function(e){
 
 $(document).on('click','.open-how-it-works',function(){
     $(".descript").show();
+    $(".descript").removeClass('hidden');
+    $(".descript").addClass('show');
 });
 
 $(document).on('updated_checkout', function() {

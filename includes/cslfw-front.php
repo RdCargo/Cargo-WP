@@ -61,7 +61,7 @@ if( !class_exists('CSLFW_Front') ) {
                     $maps_key = get_option('cslfw_google_api_key');
                     wp_enqueue_script( 'baldarp-map-jquery', "https://maps.googleapis.com/maps/api/js?key=$maps_key&language=he&libraries=places&v=weekly", null, null, true );
                 }
-                wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css');
+                wp_enqueue_style('badarp-front-css', CSLFW_URL.'assets/css/front.css', [], CSLFW_VERSION);
 
                 if ( get_option('bootstrap_enalble') == 1 ) {
                     wp_enqueue_script( 'baldarp-bootstrap-jquery',  CSLFW_URL .'assets/js/boostrap_bundle.js', [], CSLFW_VERSION, false );
