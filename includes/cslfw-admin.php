@@ -6,6 +6,7 @@
 
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
+use CSLFW\Includes\CSLFW_Helpers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -57,6 +58,7 @@ if( !class_exists('CSLFW_Admin') ) {
             if( $screen_id === 'toplevel_page_loaction_api_settings' ||
                 $screen_id === 'cargo-shipping-location_page_cargo_shipping_contact' ||
                 $screen_id === 'cargo-shipping-location_page_cargo_shipping_webhook' ||
+                $screen_id === 'cargo-shipping-location_page_cargo_shipments_table' ||
                 $screen_id === 'cargo-shipping-location_page_cargo_orders_reindex' ) {
                 wp_enqueue_script( 'cargo-libs', CSLFW_URL . 'assets/js/libs.js', ['jquery'], CSLFW_VERSION, true);
             }
@@ -319,9 +321,13 @@ if( !class_exists('CSLFW_Admin') ) {
                         echo wp_kses_post('<div id="'. esc_attr($nonceId) .'" data-value="' . esc_attr($nonce) . '"></div>');
 
                         if ( $deliveries ) {
-                            $deliveries = implode(',', $cargo_shipping->get_shipment_ids()) ;
-                            echo wp_kses_post("<p>". $deliveries . "</p>");
                             echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-order-id="'.$order->get_id().'">הדפס תווית</a>');
+                            $printedLabel = $order->get_meta('cslfw_printed_label');
+                            if ($printedLabel) {
+                                echo wp_kses_post("<p>Printed at:</p>");
+                                echo wp_kses_post("<p>". $printedLabel . "</p>");
+
+                            }
                         } else {
                             if ( $box_point_id ) {
                                 echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-box-point-id='$box_point_id' data-id=".$order->get_id()." >שלח  לCARGO</a>");

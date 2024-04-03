@@ -17,6 +17,8 @@
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
 use CSLFW\Includes\CargoAPI\Webhook;
+use CSLFW\Includes\CSLFW_Helpers;
+use CSLFW\Includes\CSLFW_ShipmentsPage;
 
 if ( !defined( 'ABSPATH' ) ) {
     exit;
@@ -34,11 +36,12 @@ if ( !defined( 'CSLFW_VERSION' ) ) {
     define( 'CSLFW_VERSION', '4.1.0' );
 }
 
+require CSLFW_PATH . '/includes/CSLFW_Helpers.php';
 require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
 require CSLFW_PATH . '/includes/CargoApi/CSLFW_Order.php';
 require CSLFW_PATH . '/includes/CargoApi/Cargo.php';
 require CSLFW_PATH . '/includes/CargoApi/Webhook.php';
-require CSLFW_PATH . '/includes/cslfw-helpers.php';
+require CSLFW_PATH . '/includes/CSLFW_ShipmentsPage.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
 require CSLFW_PATH . '/includes/cslfw-contact.php';
 require CSLFW_PATH . '/includes/cslfw-settings.php';
@@ -55,6 +58,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $this->logs = new CSLFW_Logs();
             $this->cargo = new Cargo();
             $this->webhook = new Webhook();
+            new CSLFW_ShipmentsPage();
 
             add_action('before_woocommerce_init', [$this, 'hpos_compability']);
 
@@ -231,6 +235,7 @@ if( !class_exists('CSLFW_Cargo') ) {
          */
 		function get_shipment_label() {
             $orderId = sanitize_text_field($_POST['orderId']);
+            $shipmentId = sanitize_text_field($_POST['shipmentId']);
 
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$orderId}")) {
                 echo wp_json_encode([
@@ -239,9 +244,9 @@ if( !class_exists('CSLFW_Cargo') ) {
                 ]);
                 wp_die();
             }
-		    $cargo_shipping = new CSLFW_Cargo_Shipping($orderId);
 
-            $response = $cargo_shipping->getShipmentLabel();
+		    $cargo_shipping = new CSLFW_Cargo_Shipping($orderId);
+            $response = $cargo_shipping->getShipmentLabel($shipmentId);
 
             echo wp_json_encode($response);
             exit;

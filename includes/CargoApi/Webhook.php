@@ -1,7 +1,7 @@
 <?php
 namespace CSLFW\Includes\CargoAPI;
 
-use CSLFW_Helpers;
+use CSLFW\Includes\CSLFW_Helpers;
 
 class Webhook
 {
@@ -295,6 +295,6 @@ class Webhook
     }
 
     public function import_assets() {
-        wp_enqueue_script( 'cargo-webhook', CSLFW_URL . 'assets/js/admin/cslfw-webhook.js', ['jquery'], '1.0.0', true);
+        wp_enqueue_script( 'cargo-webhook', CSLFW_URL . 'assets/js/admin/cslfw-webhook.js', ['jquery'], CSLFW_VERSION, true);
     }
 }

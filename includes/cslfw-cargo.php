@@ -7,8 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
+use CSLFW\Includes\CSLFW_Helpers;
 
-require CSLFW_PATH . '/includes/cslfw-helpers.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
 if( !class_exists('CSLFW_Cargo_Shipping') ) {
     class CSLFW_Cargo_Shipping
@@ -255,6 +255,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'driver_name'   => $shipment_data->drivername,
                 'line_number'   => $shipment_data->linetext,
                 'customer_code' => $shipment_params['customerCode'],
+                'created_at' => date('Y-m-d H:i:s'),
                 'status'        => [
                     'number' => $shipment_data->status_number ?? 1,
                     'text' => $shipment_data->status_text ?? 'Open',
@@ -375,7 +376,13 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'shipmentId' => $shipment_ids ?? implode(',', array_reverse($this->get_shipment_ids()))
             ];
 
-            return $this->cargo->generateShipmentLabel($args);
+            $cargoLabel = $this->cargo->generateShipmentLabel($args);
+
+            if (!empty($cargoLabel->pdfLink)) {
+                $this->order->update_meta_data('cslfw_printed_label', date('Y-m-d H:i:d'));
+                $this->order->save();
+            }
+            return $cargoLabel;
         }
 
         /**

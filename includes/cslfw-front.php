@@ -10,6 +10,7 @@ if ( class_exists( 'CSLFW_Front', false ) ) {
     return new CSLFW_Front();
 }
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CSLFW_Helpers;
 
 if( !class_exists('CSLFW_Front') ) {
     class CSLFW_Front

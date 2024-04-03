@@ -265,6 +265,9 @@ body.map-open-popup {
 .modal.hidden {
     display: none !important;
 }
+.modal.show {
+    display: block;
+}
 .cargo_input_div input[type="text"] {
     width: 100%;
     border-radius: 30px;

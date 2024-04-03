@@ -4,6 +4,8 @@
  *
  */
 
+use CSLFW\Includes\CSLFW_Helpers;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( class_exists( 'CSLFW_Logs', false ) ) {

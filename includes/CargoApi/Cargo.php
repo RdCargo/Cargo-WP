@@ -58,6 +58,33 @@ class Cargo
     }
 
     /**
+     * @param array $deliveryId
+     * @return mixed
+     */
+    public function generateMultipleLabel(array $deliveryId)
+    {
+        $args = [
+            'deliveryId' => $deliveryId
+        ];
+
+        return $this->post("{$this->host}generateMultipleLabel", $args);
+    }
+
+    /**
+     * @param array $deliveryId
+     * @return mixed
+     */
+    public function generateMultipleLabelsA4(array $deliveryId, $startingPoint = 1)
+    {
+        $args = [
+            'deliveryId' => $deliveryId,
+            'startingPoint' =>$startingPoint
+        ];
+
+        return $this->post("{$this->host}generateMultipleLabelsA4", $args);
+    }
+
+    /**
      * @param null $pointId
      * @return mixed|null
      */

@@ -1,0 +1,123 @@
+<?php
+
+namespace CSLFW\Includes;
+use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CSLFW_Helpers;
+use CSLFW_Logs;
+
+
+class CSLFW_ShipmentsPage
+{
+
+    public function __construct()
+    {
+        $this->helpers = new CSLFW_Helpers();
+        add_action('admin_menu', [$this, 'add_menu_link'], 100);
+        add_action('admin_enqueue_scripts', [$this, 'import_assets'] );
+        add_action('wp_ajax_get_multiple_shipment_labels', [$this, 'getMultipleShipmentLabels']);
+
+    }
+
+    public function add_menu_link()
+    {
+        add_submenu_page('loaction_api_settings', 'Shipments', 'Shipments', 'manage_options', 'cargo_shipments_table', [$this, 'render'] );
+    }
+
+    private function getOrders()
+    {
+        $paged = isset($_GET['paged']) ? sanitize_text_field($_GET['paged']) : 1;
+        $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : null;
+        $metaQuery = [
+                'relation' => 'AND',
+                [
+                    'key' => 'cslfw_shipping',
+                    'compare' => 'EXISTS',
+                ]
+        ];
+
+        if ($search) {
+            $metaQuery[] = [
+                    'key' => 'cslfw_shipping',
+                    'value' => "{$search}",
+                    'compare' => 'LIKE'
+                ];
+        }
+
+        $args = [
+            'paged' => $paged, // Pagination
+            'posts_per_page' => 10,
+            'meta_key' => 'cslfw_shipping',
+            'meta_query' => [
+                [
+                    [
+                        'key'     => 'cslfw_shipping', // meta_key to search
+                        'value'   => "{$search}", // part of the meta_value to match
+                        'compare' => 'LIKE' // Perform a LIKE comparison
+                    ]
+                ]
+            ],
+        ];
+        $orders = $this->helpers->astra_wc_get_orders($args);
+
+        $totalOrders = $this->helpers->astra_wc_get_orders( [
+            'meta_query' => $metaQuery,
+            'meta_key' => 'cslfw_shipping',
+            'posts_per_page' => -1
+        ] );
+
+        $total_pages = ceil( count($totalOrders) / $args['posts_per_page'] );
+
+        return [
+            'orders' => $orders,
+            'total_orders' => count($totalOrders),
+            'total_pages' =>  $total_pages,
+            'current_page' => $paged
+        ];
+    }
+
+    public function getMultipleShipmentLabels()
+    {
+        $cargo = new Cargo();
+
+        parse_str(sanitize_text_field($_POST['form_data']), $data);
+        parse_str($_POST['shipments'], $shipmentIds);
+
+        if ($data['printType'] === 'A4') {
+            $response = $cargo->generateMultipleLabelsA4($shipmentIds['shipments'], $data['startingPoint']);
+        } else {
+            $response = $cargo->generateMultipleLabel($shipmentIds['shipments']);
+        }
+
+
+        echo wp_json_encode($response);
+        exit;
+    }
+
+    public function render()
+    {
+
+        $data =  $this->getOrders();
+
+        $this->helpers->load_template('shipments-table', $data);
+    }
+
+    public function import_assets() {
+        $screen     = get_current_screen();
+        $screen_id  = $screen ? $screen->id : '';
+
+
+        if( $screen_id === 'cargo-shipping-location_page_cargo_shipments_table' ) {
+            wp_enqueue_style( 'admin-baldarp-styles', CSLFW_URL . 'assets/css/admin-baldarp-styles.css', [], CSLFW_VERSION );
+            wp_enqueue_style( 'shipments-table', CSLFW_URL . 'assets/css/shipments-table.css', [], CSLFW_VERSION );
+
+            wp_enqueue_script( 'cargo-shipments-table', CSLFW_URL . 'assets/js/admin/shipments-table.js', ['jquery'], '1.0.0', true);
+            wp_localize_script( 'cargo-shipments-table', 'admin_shipments_obj',
+                [
+                    'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                    'ajax_nonce'    => wp_create_nonce( 'cslfw_shipping_nonce' ),
+                    'path' => CSLFW_URL,
+                ]
+            );
+        }
+    }
+}
