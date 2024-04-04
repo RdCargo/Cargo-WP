@@ -32,11 +32,16 @@ class Webhook
         register_rest_route( 'cargo-shipping-location-for-woocommerce/v1', '/update-status/',
             [
                 'methods'  => 'POST',
-                'callback' => [$this, 'cargo_update_shipment_status']
+                'callback' => [$this, 'cargo_update_shipment_status'],
+                'permission_callback' => [$this, 'cargo_update_shipment_status_permission']
             ]
         );
     }
 
+    public function  cargo_update_shipment_status_permission($request)
+    {
+        return true;
+    }
     /**
      * Webhook callback to update cargo shipment status.
      *

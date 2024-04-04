@@ -1,6 +1,7 @@
-var markersArray = [];
-var bounds;
-var mainJson;
+let markersArray = [];
+let bounds;
+let mainJson;
+let customerAddress = null;
 
 function setMarker(lat,long) {
     markersArray.forEach(function(marker) {
@@ -168,7 +169,7 @@ function initMap() {
     var map = new google.maps.Map(document.getElementById('map'),mapOptions);
 
     var infowindow = new google.maps.InfoWindow();
-    var marker, i;
+    var marker, customerMarker, i;
     map.mapTypes.set("styled_map", styledMapType);
     map.setMapTypeId("styled_map");
 
@@ -183,6 +184,24 @@ function initMap() {
         };
         marker.setIcon(icon);
         markersArray.push(marker);
+
+        if (customerAddress) {
+            let customerLocation = new google.maps.LatLng(customerAddress?.Latitude, customerAddress?.Longitude);
+            customerMarker = new google.maps.Marker({
+                map: map,
+                position: customerLocation,
+            });
+            customerIcon = {
+                url: $('#customer_marker').val(), // url
+                scaledSize: new google.maps.Size(60, 60), // scaled size
+            };
+            customerMarker.setIcon(customerIcon);
+
+            markersArray.push(marker);
+
+            map.setZoom(14);
+            map.setCenter(customerLocation);
+        }
         google.maps.event.addListener(marker, 'click', (function(marker,i)  {
             return function() {
                 infowindow.close();
@@ -298,7 +317,7 @@ $(document).on('click','.marker-click',function(){
     google.maps.event.trigger(markersArray[markerID], 'click');
 });
 function addLocationSection(shippingMethod){
-    // console.log("Shipping value ",$('input[name="shipping_method[0]"]:checked').val());
+
     if(shippingMethod?.split(':')[0] === 'woo-baldarp-pickup') {
         if( Cookies.get('cargoPointID') != null ) {
             // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
@@ -366,17 +385,56 @@ $(document).on('click','.js-modal-close',function () {
     $(this).closest('.modal').removeClass('show');
 });
 
-$(document).on('click','#mapbutton',function(e){
+$(document).on('click','#mapbutton', async function(e){
     e.preventDefault();
-    google.maps.event.trigger(map, 'resize');
-    initMap();
-    $('.modal').each(function(){
-        if(!$(this).hasClass('descript')){
-            $("#mapmodelcargo").removeClass('hidden');
-            $("#mapmodelcargo").addClass('show');
-        }
-    });
+    try {
+        await getCustomerLocation();
+
+        google.maps.event.trigger(map, 'resize');
+        initMap();
+        $('.modal').each(function(){
+            if(!$(this).hasClass('descript')){
+                $("#mapmodelcargo").removeClass('hidden');
+                $("#mapmodelcargo").addClass('show');
+            }
+        });
+    } catch (error) {
+        console.log(error)
+    }
 });
+
+async function getCustomerLocation()
+{
+    let street1 = $('#shipping_address_1').val() ?? $('#billing_address_1').val();
+    let street2 = $('#shipping_address_2').val() ?? $('#billing_address_2').val();
+    let city = $('#shipping_city').val() ?? $('#billing_city').val();
+    let data = {
+        address : `${street1} ${street2}, ${city}`,
+    };
+
+    await $.ajax('https://api.cargo.co.il/Webservice/cargoGeocoding', {
+        type: 'POST',  // http method
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (response, status, xhr) {
+
+            if (response.error === false) {
+                if (response.data.results.length > 0) {
+                    let location = response.data.results[0].geometry.location;
+
+                    customerAddress = {
+                        Latitude: location.lat,
+                        Longitude: location.lng
+                    }
+                } else {
+                    customerAddress = null
+                }
+            } else {
+                customerAddress = null
+            }
+        }
+    })
+}
 
 $(document).on('click','.open-how-it-works',function(){
     $(".descript").show();
@@ -420,7 +478,6 @@ $(document).on('change','.shipping_method', function() {
     }
 });
 function setPointCookie(pointData) {
-    console.log(pointData);
     Cookies.set('cargoLatitude', pointData.Latitude, {expires: 10,path: '/'});
     Cookies.set('cargoLongitude', pointData.Longitude,{expires: 10,path: '/'});
     Cookies.set('cargoPointID', pointData.DistributionPointID, {expires: 10,path: '/'})
@@ -444,7 +501,6 @@ $(document).on('change', '#cargo_city', function() {
         dataType: "json",
         data: JSON.stringify(data),
         success: function (response, status, xhr) {
-            console.log(response);
             if (response.error === false) {
                 if (response.data.results.length > 0) {
                     let location = response.data.results[0].geometry.location;
@@ -460,9 +516,7 @@ $(document).on('change', '#cargo_city', function() {
                             long : location.lng,
                         }),
                         success: function (response, status, xhr) {
-                            console.log(response);
                             $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').remove();
-                            console.log(response.error);
                             if ( response.error === false ) {
                                 if ( response.closest_points.length > 0 ) {
                                     setPointCookie(response.closest_points[0].point_details);

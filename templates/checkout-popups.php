@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     $maps_key = get_option('cslfw_google_api_key');
 ?>
 <?php if ($maps_key) : ?>
+<input type="hidden" id="customer_marker" value="<?php echo esc_url(CSLFW_URL.'assets/image/customer-marker.svg') ?>" >
 <input type="hidden" id="default_markers" value="<?php echo esc_url(CSLFW_URL.'assets/image/cargo-icon-svg.svg') ?>" >
 <input type="hidden" id="selected_marker" value="<?php echo esc_url(CSLFW_URL.'assets/image/selected_new.png') ?>" >
 <div class="modal hidden" id="mapmodelcargo" tabindex="-1" role="dialog">

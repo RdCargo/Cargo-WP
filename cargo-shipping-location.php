@@ -69,6 +69,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             add_action('wp_ajax_nopriv_getOrderStatus', [$this, 'getOrderStatusFromCargo']);
             add_action('wp_ajax_get_delivery_location', [$this, 'cslfw_ajax_delivery_location']);
             add_action('wp_ajax_nopriv_get_delivery_location', [$this, 'cslfw_ajax_delivery_location']);
+
             add_action('wp_ajax_sendOrderCARGO', [$this, 'send_order_to_cargo']);
             add_action('wp_ajax_get_shipment_label', [$this, 'get_shipment_label']);
             add_action('admin_menu', [$this->logs, 'add_menu_link'], 100);
