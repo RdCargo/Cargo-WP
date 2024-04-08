@@ -357,7 +357,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <tr>
                     <th><div style="margin: 10px 0; border-bottom: 1px solid #000"> </div></th>
                     <td><div style="margin: 10px 0; border-bottom: 1px solid #000"> </div></td>
-
+                </tr>
+                <tr>
+                    <th scope="row" align="left" >
+                        <label for="cslfw_products_in_label"><?php esc_html_e('Print products in label', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_products_in_label" style="vertical-align: top;">
+                                <?php
+                                $cslfw_products_in_label = get_option('cslfw_products_in_label');
+                                $checked = $cslfw_products_in_label ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_products_in_label">
+                                    <input type="checkbox" id="cslfw_products_in_label" name="cslfw_products_in_label" <?php echo esc_attr($checked) ?>>
+                                    <span><?php esc_html_e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row" align="left" >

@@ -83,7 +83,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $pickupCustomerCode = get_option('shipping_pickup_code');
 
             $customer_code   = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
-            $customer_code   = (int)$args['shipping_type'] === 2 && $pickupCustomerCode ? $pickupCustomerCode : $customer_code;
+            if ((int)$args['shipping_type'] === 2 ) {
+                $customer_code   = $pickupCustomerCode ? $pickupCustomerCode :  get_option('shipping_cargo_express');
+            }
 
             $name = $order_data['shipping']['first_name'] ? $order_data['shipping']['first_name']. ' ' . $order_data['shipping']['last_name'] : $order_data['billing']['first_name'] . ' ' . $order_data['billing']['last_name'];
 
@@ -152,7 +154,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 $data['Params']['CashOnDeliveryType'] = $args['cargo_cod_type'] ?? 0;
             }
 
-            if ($isBoxShipment) {
+            if ($isBoxShipment && (int)$args['shipping_type'] !== 2) {
                 if ( $cargo_box_style !== 'cargo_automatic' || isset($args['box_point']) ) {
                     $chosen_point = $args['box_point'];
 
@@ -370,17 +372,35 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
          * @param false $shipment_ids
          * @return mixed
          */
-        function getShipmentLabel($shipment_ids = null) {
+        function getShipmentLabel($shipment_ids = null, $orderIds = []) {
+            $shipmentIds = $shipment_ids ?? implode(',', array_reverse($this->get_shipment_ids()));
+
             $args = [
-                'deliveryId' => $shipment_ids ?? implode(',', array_reverse($this->get_shipment_ids())),
-                'shipmentId' => $shipment_ids ?? implode(',', array_reverse($this->get_shipment_ids()))
+                'deliveryId' => $shipmentIds,
+                'shipmentId' => $shipmentIds
             ];
+
+            $orderIds = $orderIds ? $orderIds : [$this->order_id];
+            $shipmentsData = $this->helpers->getProductsForLabels($shipmentIds, $orderIds);
+            $withProducts = get_option('cslfw_products_in_label');
+
+            if ($withProducts && $shipmentsData) {
+                $args['shipmentsData'] = $shipmentsData;
+            }
 
             $cargoLabel = $this->cargo->generateShipmentLabel($args);
 
             if (!empty($cargoLabel->pdfLink)) {
-                $this->order->update_meta_data('cslfw_printed_label', date('Y-m-d H:i:d'));
-                $this->order->save();
+                if ($orderIds) {
+                    foreach ($orderIds as $orderId) {
+                        $order = wc_get_order($orderId);
+                        $order->update_meta_data('cslfw_printed_label', date('Y-m-d H:i:d'));
+                        $order->save();
+                    }
+                } else {
+                    $this->order->update_meta_data('cslfw_printed_label', date('Y-m-d H:i:d'));
+                    $this->order->save();
+                }
             }
             return $cargoLabel;
         }

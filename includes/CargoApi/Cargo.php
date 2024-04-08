@@ -61,11 +61,15 @@ class Cargo
      * @param array $deliveryId
      * @return mixed
      */
-    public function generateMultipleLabel(array $deliveryId)
+    public function generateMultipleLabel(array $deliveryId, array $shipmentsData = [])
     {
         $args = [
             'deliveryId' => $deliveryId
         ];
+
+        if ($shipmentsData) {
+            $args['shipmentsData'] = $shipmentsData;
+        }
 
         return $this->post("{$this->host}generateMultipleLabel", $args);
     }

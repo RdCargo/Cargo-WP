@@ -34,7 +34,7 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
                 <label for="bulk-action-selector-top" class="screen-reader-text">Select bulk action</label>
                 <select name="cslfw_action" id="bulk-action-selector-top">
                     <option value="-1">Bulk actions</option>
-                    <option value="get_multiple_shipment_labels">Print label.</option>
+                    <option value="get_multiple_shipment_labels">Print label</option>
                 </select>
                 <input type="submit" id="cslfw_doaction" class="button action" value="Apply">
             </div>
@@ -115,7 +115,11 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
                 ?>
                 <tr>
                     <th scope="row" class="check-column">
-                        <input id="cb-select-<?php echo esc_attr($shipmentId) ?>" type="checkbox" name="shipments[]" value="<?php echo esc_attr($shipmentId) ?>">
+                        <input id="cb-select-<?php echo esc_attr($shipmentId) ?>"
+                               type="checkbox"
+                               name="shipments[]"
+                               value="<?php echo esc_attr($shipmentId) ?>"
+                               data-order-id="<?php echo esc_attr($order->get_id()) ?>">
                     </th>
                     <td class="column-primary">
                         <a href="<?php echo esc_url($order->get_edit_order_url()) ?>" target="_blank">

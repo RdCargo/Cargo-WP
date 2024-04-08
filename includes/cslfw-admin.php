@@ -321,7 +321,9 @@ if( !class_exists('CSLFW_Admin') ) {
                         echo wp_kses_post('<div id="'. esc_attr($nonceId) .'" data-value="' . esc_attr($nonce) . '"></div>');
 
                         if ( $deliveries ) {
-                            echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-order-id="'.$order->get_id().'">הדפס תווית</a>');
+                            $cargoShippingIds =  implode(',', array_keys($deliveries));
+
+                            echo wp_kses_post('<a  href="#" class="btn btn-success label-cargo-shipping" data-id="' . $cargoShippingIds . '" data-order-id="'.$order->get_id().'">הדפס תווית</a>');
                             $printedLabel = $order->get_meta('cslfw_printed_label');
                             if ($printedLabel) {
                                 echo wp_kses_post("<p>Printed at:</p>");
@@ -466,7 +468,7 @@ if( !class_exists('CSLFW_Admin') ) {
          */
         public function bulk_order_cargo_shipment($redirect_to, $action, $ids = null)
         {
-            $orderIds = $ids ?? sanitize_text_field($_GET['id']) ?? [];
+            $orderIds = $ids ?? array_map('sanitize_text_field', $_GET['id']) ?? [];
             $processed_count = 0;
             $skipped_count = 0;
 
@@ -476,7 +478,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 if ($actionName === 'cargo-print-label') {
                     $cargoShipping = new CSLFW_Cargo_Shipping();
                     $shipmentIds   = $cargoShipping->order_ids_to_shipment_ids($orderIds);
-                    $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ) );
+                    $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
 
                     if ($pdfLabel->pdfLink) {
                         wp_redirect($pdfLabel->pdfLink);

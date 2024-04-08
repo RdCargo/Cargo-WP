@@ -52,7 +52,7 @@ class CSLFW_Helpers {
         } else {
             $addArgs = array_merge($args, [
                 'post_type' => 'shop_order',
-                'post_status'       => 'any',
+                'post_status' => 'any',
                 'fields' => 'ids'
             ]);
             $query = new \WP_Query( $addArgs );
@@ -66,6 +66,41 @@ class CSLFW_Helpers {
         }
 
         return $orders;
+    }
+
+    function getProductsForLabels($shipmentIds, $orderIds)
+    {
+        $shipmentIdsArray = is_array($shipmentIds) ? $shipmentIds : explode(',', $shipmentIds);
+        $shipmentsData = [];
+
+        foreach ($orderIds as $orderId) {
+            $order = wc_get_order($orderId);
+            $orderItems = $order->get_items();
+
+            $orderShipments = $order->get_meta('cslfw_shipping', true);
+            $orderShipmentIds = $orderShipments ? array_keys($orderShipments) : [];
+
+            $products = [];
+
+            foreach ($orderItems as $item) {
+                $products[] = [
+                    "title"=> $item->get_name(),
+                    "quantity"=> $item->get_quantity(),
+                    "item_price"=> floatval($item->get_total())
+                ];
+            }
+
+            foreach ($orderShipmentIds as $shipmentId) {
+                if (in_array($shipmentId, $shipmentIdsArray)) {
+                    $shipmentsData[] = [
+                        "shipmentId" => $shipmentId,
+                        "products" => $products
+                    ];
+                }
+            }
+        }
+
+        return $shipmentsData;
     }
 }
 

@@ -28,19 +28,19 @@ class CSLFW_ShipmentsPage
         $paged = isset($_GET['paged']) ? sanitize_text_field($_GET['paged']) : 1;
         $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : null;
         $metaQuery = [
-                'relation' => 'AND',
-                [
-                    'key' => 'cslfw_shipping',
-                    'compare' => 'EXISTS',
-                ]
+            'relation' => 'AND',
+            [
+                'key' => 'cslfw_shipping',
+                'compare' => 'EXISTS',
+            ]
         ];
 
         if ($search) {
             $metaQuery[] = [
-                    'key' => 'cslfw_shipping',
-                    'value' => "{$search}",
-                    'compare' => 'LIKE'
-                ];
+                'key' => 'cslfw_shipping',
+                'value' => "{$search}",
+                'compare' => 'LIKE'
+            ];
         }
 
         $args = [
@@ -82,10 +82,20 @@ class CSLFW_ShipmentsPage
         parse_str(sanitize_text_field($_POST['form_data']), $data);
         parse_str($_POST['shipments'], $shipmentIds);
 
+        $orderIds = array_map('sanitize_text_field', $_POST['orderIds']);
+
         if ($data['printType'] === 'A4') {
             $response = $cargo->generateMultipleLabelsA4($shipmentIds['shipments'], $data['startingPoint']);
         } else {
-            $response = $cargo->generateMultipleLabel($shipmentIds['shipments']);
+            $orderIds = $orderIds ? $orderIds : [];
+            $shipmentsData = $this->helpers->getProductsForLabels($shipmentIds['shipments'], $orderIds);
+            $withProducts = get_option('cslfw_products_in_label');
+
+            if ($withProducts && $shipmentsData) {
+                $response = $cargo->generateMultipleLabel($shipmentIds['shipments'], $shipmentsData);
+            } else {
+                $response = $cargo->generateMultipleLabel($shipmentIds['shipments']);
+            }
         }
 
 
@@ -95,7 +105,6 @@ class CSLFW_ShipmentsPage
 
     public function render()
     {
-
         $data =  $this->getOrders();
 
         $this->helpers->load_template('shipments-table', $data);

@@ -130,7 +130,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     ?>
 
     <div class="cargo-button" style="margin-top: 10px;">
-        <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>"><?php esc_html_e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
+        <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>" data-id="<?php echo $cargoShippingIds ?>"><?php esc_html_e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
     </div>
 
     <div class="checkstatus-section">
@@ -155,9 +155,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <?php if ($data['shippingMethod'] === 'woo-baldarp-pickup' && $data['shipmentIds']) {
     $boxShipmentType = $order->get_meta('cslfw_box_shipment_type', true);
 
-    foreach ($data['shipmentData'] as $shipping_id => $data) {
+    foreach ($data['shipmentData'] as $shipping_id => $shipmentData) {
+        if (isset($shipmentData['box_id'])) {
         $cargo = new \CSLFW\Includes\CargoAPI\Cargo();
-        $point = $cargo->findPointById($data['box_id']);
+        $point = $cargo->findPointById($shipmentData['box_id']);
 
         if ($point) { ?>
             <div>
@@ -174,6 +175,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <?php } ?>
             </div>
         <?php }
+        }
     } ?>
 
 <?php }

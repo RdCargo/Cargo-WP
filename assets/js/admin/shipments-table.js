@@ -142,10 +142,22 @@
 
     $(document).on('submit', '.js-print-multiple-labels', function(e) {
         e.preventDefault();
+        let shipmentInputs = $('.js-cargo-shipments-data input[name="shipments[]"]:checked');
+        let orderIds = [];
+        if (shipmentInputs) {
+            shipmentInputs.each(function() {
+                let orderId =  parseInt($(this).attr('data-order-id'))
+                if (!orderIds.includes(orderId)) {
+                    orderIds.push(orderId);
+                }
+            })
+        }
 
+        console.log(orderIds);
         let data = {
             action: 'get_multiple_shipment_labels',
             form_data: $(this).serialize(),
+            orderIds: orderIds,
             shipments: $('.js-cargo-shipments-data').serialize(),
         };
 
