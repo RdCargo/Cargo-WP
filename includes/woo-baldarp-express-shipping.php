@@ -71,14 +71,11 @@ if ( !class_exists( 'Cargo_Express_Shipping_Method' ) ) {
         public function is_available( $package )
         {
             if ($this->weight_limit > 0) {
-                $max_weight = 10; // Change this to your desired weight
-
                 $cart_weight = WC()->cart->get_cart_contents_weight();
-                return $cart_weight < $max_weight;
+                return $cart_weight < $this->weight_limit;
             } else {
                 return true;
             }
-
         }
 
         /**
