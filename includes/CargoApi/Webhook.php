@@ -188,14 +188,17 @@ class Webhook
 
                 if ($webhook = get_option($optionKey)) {
                     $response = $this->updateCargoWebhook($customerCode, $webhook);
+                    if (!$response->errors) {
+                        $error = false;
+                    }
                 } else {
                     $response = $this->addWebhookToCargo($customerCode);
-                }
 
-                if (!$response->errors) {
-                    $error = false;
-                    $webhookId = $response->data->id;
-                    update_option($optionKey, $webhookId);
+                    if (!$response->errors) {
+                        $error = false;
+                        $webhookId = $response->data->id;
+                        update_option($optionKey, $webhookId);
+                    }
                 }
             }
         }
@@ -237,6 +240,14 @@ class Webhook
     {
         $args = $this->getWebhookArgs($customerCode);
         $args['webhook_id'] = $webhookId;
+        if (get_option('cslfw_debug_mode')) {
+            $logs = new \CSLFW_Logs();
+            $message = "update WEBHOOK : ".wp_json_encode($args,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
+            $message .= "update WEBHOOK HEADERS: ".wp_json_encode($this->headers,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
+
+            $logs->add_log_message($message . PHP_EOL );
+
+        }
 
         return $this->post("https://dashboard.cargo.co.il/api/webhooks/update", $args, $this->headers);
     }
@@ -248,7 +259,14 @@ class Webhook
     public function addWebhookToCargo($customerCode)
     {
         $args = $this->getWebhookArgs($customerCode);
+        if (get_option('cslfw_debug_mode')) {
 
+            $logs = new \CSLFW_Logs();
+            $message = "ADD WEBHOOK : " . wp_json_encode($args, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+            $message .= "ADD WEBHOOK HEADERS: " . wp_json_encode($this->headers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+
+            $logs->add_log_message($message . PHP_EOL);
+        }
         return $this->post("https://dashboard.cargo.co.il/api/webhooks/create", $args, $this->headers);
     }
 

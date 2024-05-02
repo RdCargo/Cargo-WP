@@ -54,8 +54,10 @@
     $(document).on('click', '.cslfw-remove-webhooks', function(e) {
         e.preventDefault();
         let data = {
-            action: 'cslfw_delete_webhooks'
+            action: 'cslfw_delete_webhooks',
+            _wpnonce: $('#cslfw_cargo_webhook_nonce').val()
         }
+        console.log(data);
         ajaxAction(data)
     })
 })(window.jQuery)
