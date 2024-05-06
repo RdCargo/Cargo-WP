@@ -50,47 +50,44 @@ class Webhook
      */
     public function cargo_update_shipment_status($request)
     {
+        global $wpdb;
+
         $data = $request->get_params();
 
-        $args = [
-            'meta_query' => [
-                [
-                    'key'     => 'cslfw_shipping', // meta_key to search
-                    'value'   => "{$data['shipment_id']}", // part of the meta_value to match
-                    'compare' => 'LIKE' // Perform a LIKE comparison
-                ]
-            ]
-        ];
-
-        if ( class_exists( \WC_Order_Query::class ) ) {
-            $orders_query = new \WC_Order_Query( $args );
-            $orders = $orders_query->get_orders();
-
-            if ( $orders ) {
-                foreach ( $orders as $order ) {
-                    $deliveries = $order->get_meta('cslfw_shipping', true);
-
-                    $deliveries[$data['shipment_id']]['status']['number'] = $data['new_status_code'];
-                    $deliveries[$data['shipment_id']]['status']['text'] = $data['new_status'];
-
-                    $order->update_meta_data('cslfw_shipping', $deliveries);
-                    $order->save();
-                }
-            }
-
-            $response = array(
-                'success' => $orders ? true : false,
-                'data' => $deliveries,
-                'message' => $orders ? 'Database updated successfully' : 'Failed to update database',
-            );
-
+        if ($this->helpers->HPOS_enabled()) {
+            $tableName = 'wc_orders_meta';
+            $orderIdField = 'order_id';
         } else {
-            $response = [
-                'success' => false,
-                'data' => $args,
-                'message' => 'WC_Order_Query not exist'
-            ];
+            $tableName = 'postmeta';
+            $orderIdField = 'post_id';
         }
+        $orders = $wpdb->get_results(
+            "
+            SELECT *
+            FROM {$wpdb->prefix}{$tableName}
+            WHERE meta_key = 'cslfw_shipping' AND meta_value LIKE '%{$data['shipment_id']}%'
+            "
+        );
+
+        if ( $orders ) {
+            foreach ( $orders as $orderData ) {
+                $orderId = $orderData->$orderIdField;
+                $order = wc_get_order($orderId);
+                $deliveries = $order->get_meta('cslfw_shipping');
+
+                $deliveries[$data['shipment_id']]['status']['number'] = $data['new_status_code'];
+                $deliveries[$data['shipment_id']]['status']['text'] = $data['new_status'];
+
+                $order->update_meta_data('cslfw_shipping', $deliveries);
+                $order->save();
+            }
+        }
+
+        $response = array(
+            'success' => $orders ? true : false,
+            'data' => $deliveries,
+            'message' => $orders ? 'Database updated successfully' : 'Failed to update database',
+        );
 
         // Return the response
         return rest_ensure_response($response);
