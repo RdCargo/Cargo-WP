@@ -45,24 +45,76 @@ class CSLFW_Helpers {
         return json_decode( $response );
     }
 
-    function astra_wc_get_orders($args)
+    function astra_wc_get_orders($args, $search = null)
     {
         if ($this->HPOS_enabled()) {
-            $orders = wc_get_orders($args);
-        } else {
-            $addArgs = array_merge($args, [
-                'post_type' => 'shop_order',
-                'post_status' => 'any',
-                'fields' => 'ids'
-            ]);
-            $query = new \WP_Query( $addArgs );
-            $post_ids = $query->get_posts();
+            if ($search) {
+                $args['meta_query'] =  [
+                    'relation' => 'OR',
+                    [
+                        'key'     => 'cslfw_shipping', // meta_key to search
+                        'value'   => "{$search}", // part of the meta_value to match
+                        'compare' => 'LIKE' // Perform a LIKE comparison
+                    ],
+                ];
+               $orders = wc_get_orders($args);
 
-            $orders = wc_get_orders([
-                'post__in' => $post_ids,
-                'posts_per_page' => $args['posts_per_page'] ?? 10,
-                'paged' => $args['pages'] ?? 1,
-            ]);
+                if ($orders->total === 0) {
+                    unset($args['meta_query']);
+                    $args['field_query'] = array(
+                        'relation' => 'OR',
+                        array(
+                            'field' => 'billing_phone',
+                            'value' => "{$search}"
+                        )
+                    );
+                    $orders = wc_get_orders($args);
+                }
+            } else {
+                $orders = wc_get_orders($args);
+            }
+        } else {
+            if ($search) {
+                $addArgs = array_merge($args, [
+                    'post_type' => 'shop_order',
+                    'post_status' => 'any',
+                    'fields' => 'ids',
+                    'posts_per_page' => -1,
+                    'meta_key' => 'cslfw_shipping',
+                    'meta_query' => [
+                        [
+                            'relation' => 'OR',
+                            [
+                                'key'     => 'cslfw_shipping', // meta_key to search
+                                'value'   => "{$search}", // part of the meta_value to match
+                                'compare' => 'LIKE' // Perform a LIKE comparison
+                            ],
+                            [
+                                'key'     => '_billing_phone', // meta_key to search
+                                'value'   => "{$search}", // part of the meta_value to match
+                                'compare' => 'LIKE' // Perform a LIKE comparison
+                            ]
+                        ]
+                    ]
+                ]);
+
+                $query = new \WP_Query( $addArgs );
+                $post_ids = $query->get_posts();
+
+                if ($post_ids) {
+                    $orders = wc_get_orders([
+                        'post__in' => $post_ids,
+                        'paginate' => true,
+                        'posts_per_page' => $args['posts_per_page'] ?? 10,
+                        'paged' => $args['pages'] ?? 1,
+                        'page' => $args['pages'] ?? 1,
+                    ]);
+                } else {
+                    $orders = null;
+                }
+            } else {
+                $orders = wc_get_orders($args);
+            }
         }
 
         return $orders;

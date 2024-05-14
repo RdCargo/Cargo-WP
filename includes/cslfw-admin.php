@@ -136,8 +136,11 @@ if( !class_exists('CSLFW_Admin') ) {
             if (!in_array($orderStatus, ['cancelled', 'refunded', 'pending']) && $shipping_method) {
                 if ($cargo_debug_mode) {
 
-                    var_dump($shipping_method);
-                    print_r($cargo_shipping->deliveries);
+                    echo maybe_serialize($cargo_shipping->deliveries);
+//                    echo "<pre>";
+//                    print_r($cargo_shipping->deliveries);
+//                    echo "</pre>";
+//                    echo json_encode($cargo_shipping->deliveries);
                 }
                 if (
                     $shipping_method === 'cargo-express'

@@ -10,7 +10,6 @@ $prevPageUrl = add_query_arg('paged', $data['current_page'] - 1, $current_url);
 
 $firstPageUrl = add_query_arg('paged', 1, $current_url);
 $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
-
 ?>
 <div class="wrap">
     <h1><?php esc_html_e('Shipments Table', 'cargo-shipping-location-for-woocommerce')?></h1>
@@ -201,7 +200,6 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
         </div>
     </div>
 </div>
-
 
 <div class="cslfw_modal hidden" id="print-labels">
     <div class="cslfw_modal-content">

@@ -44,35 +44,29 @@ class CSLFW_ShipmentsPage
         }
 
         $args = [
-            'paged' => $paged, // Pagination
+            'meta_key' => 'cslfw_shipping',
+            'paginate' => true,
             'posts_per_page' => 10,
-            'meta_key' => 'cslfw_shipping',
-            'meta_query' => [
-                [
-                    [
-                        'key'     => 'cslfw_shipping', // meta_key to search
-                        'value'   => "{$search}", // part of the meta_value to match
-                        'compare' => 'LIKE' // Perform a LIKE comparison
-                    ]
-                ]
-            ],
+            'page' => $paged,
         ];
-        $orders = $this->helpers->astra_wc_get_orders($args);
 
-        $totalOrders = $this->helpers->astra_wc_get_orders( [
-            'meta_query' => $metaQuery,
-            'meta_key' => 'cslfw_shipping',
-            'posts_per_page' => -1
-        ] );
+        $orders = $this->helpers->astra_wc_get_orders($args, $search);
 
-        $total_pages = ceil( count($totalOrders) / $args['posts_per_page'] );
-
-        return [
-            'orders' => $orders,
-            'total_orders' => count($totalOrders),
-            'total_pages' =>  $total_pages,
-            'current_page' => $paged
-        ];
+        if ($orders) {
+            return [
+                'orders' => $orders->orders,
+                'total_orders' => $orders->total,
+                'total_pages' =>  $orders->max_num_pages,
+                'current_page' => $paged
+            ];
+        } else {
+            return [
+                'orders' => [],
+                'total_orders' => 0,
+                'total_pages' =>  1,
+                'current_page' => 1
+            ];
+        }
     }
 
     public function getMultipleShipmentLabels()

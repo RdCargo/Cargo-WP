@@ -80,3 +80,6 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 
 == 4.2.3 ==
 * Fix Webhooks Bugs
+
+== 4.2.4 ==
+* Fix Shipments page. added search by phone number.
