@@ -122,7 +122,8 @@ if( !class_exists('CSLFW_Admin') ) {
          * @param $post
          */
         public function render_meta_box_content( $post ) {
-            $order = wc_get_order($post->ID);
+            $order_id = $post instanceof \WP_Post ? $post->ID : $post->get_id();
+            $order = wc_get_order($order_id);
             $cargoOrder = new CSLFW_Order($order);
             $shipping_method = $cargoOrder->getShippingMethod();
 
@@ -166,13 +167,14 @@ if( !class_exists('CSLFW_Admin') ) {
                     if ($boxPointId) {
                         $selectedPoint = $this->cargo->findPointById($boxPointId);
 
-                        if (!is_null($selectedPoint)) {
-                            $data['cities'] = $this->cargo->getPointsCities();
-                            $data['selectedPoint'] = $selectedPoint;
-                            $data['points'] = $this->cargo->getPointsByCity($selectedPoint->CityName);
 
-                        }
+                    } else {
+                        $data['selectedPoint'] = null;
+                        $data['points'] = [];
                     }
+
+                    $data['cities'] = $this->cargo->getPointsCities();
+
 
                     $this->helpers->load_template('admin/shipment', $data);
                 } else {

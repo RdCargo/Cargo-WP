@@ -63,9 +63,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <?php
         $selectedPoint = $data['selectedPoint'];
 
-        if ( $selectedPoint ) :
             $cities = $data['cities'];
-            $selectedCity = $data['selectedPoint']->CityName;
+            $selectedCity = isset($data['selectedPoint']->CityName) ? $data['selectedPoint']->CityName : null;
             if ($cities) { ?>
                 <p class="form-row form-row-wide">
                     <label for="cargo_city">
@@ -75,7 +74,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <select name="cargo_city" id="cargo_city" class="">
                         <option><?php esc_html_e('נא לבחור עיר', 'cargo-shipping-location-for-woocommerce') ?></option>
                         <?php foreach ($cities as $city) : ?>
-                            <option value="<?php echo esc_attr($city) ?>" <?php if (trim($selectedCity) === trim($city) ) echo esc_attr('selected="selected"'); ?>><?php echo esc_html($city) ?></option>
+                            <option value="<?php echo esc_attr($city) ?>" <?php if (!is_null($selectedCity) && trim($selectedCity) === trim($city) ) echo esc_attr('selected="selected"'); ?>><?php echo esc_html($city) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </p>
@@ -86,7 +85,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <label for="cargo_pickup_point">
                         <span><?php esc_html_e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></span>
                     </label>
-                    <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100" style="display: <?php echo esc_attr($data['points'] ? 'block' : 'none'); ?>" >
+
+                    <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100" >
+                        <option><?php esc_html_e('בחירת נקודת חלוקה', 'cargo-shipping-location-for-woocommerce') ?></option>
+
                         <?php foreach ($data['points'] as $key => $point) : ?>
                             <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($selectedPoint->DistributionPointID === $point->DistributionPointID) echo 'selected="selected"' ?>>
                                 <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
@@ -95,8 +97,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </select>
                 </p>
             </div>
-        <?php
-        endif; ?>
+
     <?php endif; // End express check ?>
     <div class="cargo-radio">
         <strong><?php esc_html_e('Shipment Type', 'cargo-shipping-location-for-woocommerce') ?></strong>

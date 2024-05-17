@@ -37,12 +37,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </th>
 					<td >
 						<div style="display: inline-block; margin-right: 15px;" class="text">
+                            <?php
+                                $boxCode = get_option('shipping_cargo_box');
+                            ?>
 							<label for="shipping_cargo_box" style="vertical-align: top;">
                                 <input type="text"
                                        placeholder="<?php esc_html_e('Please Insert CARGO BOX code', 'cargo-shipping-location-for-woocommerce') ?>"
                                        id="shipping_cargo_box"
                                        name="shipping_cargo_box"
-                                       value="<?php echo esc_attr( get_option('shipping_cargo_box') ) ?>" autocomplete="off"/>
+                                       value="<?php echo esc_attr( $boxCode ) ?>" autocomplete="off"/>
                             </label>
 						</div>
 					</td>
@@ -65,7 +68,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="cslfw-cargo-box-style" style="display: <?php echo strlen($boxCode) > 0 ? 'table-row' : 'none' ?>">
                     <th scope="row" align="left"  style="vertical-align: top;">
                         <label for="cargo_box_style"><?php esc_html_e('Cargo Box Checkout Style', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
@@ -92,7 +95,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </td>
                 </tr>
 
-				<tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' || !$cargo_box_style ? 'table-row' : 'none' ?>">
+				<tr class="cslfw-google-maps" style="display: <?php echo ($cargo_box_style === 'cargo_map' || !$cargo_box_style) &&  strlen($boxCode) > 0 ? 'table-row' : 'none' ?>">
 					<th scope="row" align="left" style="vertical-align: top;">
                         <label for="cslfw-google-api-key"><?php esc_html_e('Google maps API key:', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
@@ -112,9 +115,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         </div>
 					</td>
 				</tr>
-                <tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' ? 'table-row' : 'none' ?>">
+                <tr class="cslfw-google-maps" style="display: <?php echo $cargo_box_style === 'cargo_map' && strlen($boxCode) > 0 ? 'table-row' : 'none' ?>">
                     <th scope="row" align="left" >
-                        <label for="cargo_box_style"><?php esc_html_e('Map size presets', 'cargo-shipping-location-for-woocommerce') ?></label>
+                        <label for="cslfw_map_size"><?php esc_html_e('Map size presets', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
                         <div style="display: inline-block; margin-right: 15px;" class="text">
@@ -137,7 +140,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         </div>
                     </td>
                 </tr>
-                <tr class="cslfw-map-size" style="display: <?php echo $cargo_map_style === 'map_custom' ? 'table-row' : 'none' ?>">
+                <tr class="cslfw-map-size" style="display: <?php echo $cargo_map_style === 'map_custom' &&  strlen($boxCode) > 0 ? 'table-row' : 'none' ?>">
                     <th scope="row" align="left" >
                         <label for="cslfw_custom_map_size"><?php esc_html_e('Map custom size', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>

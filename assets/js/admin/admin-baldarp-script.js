@@ -6,6 +6,20 @@
 		}
 	})
 
+    $("input#shipping_cargo_box").on('input', function() {
+        console.log($(this).val());
+
+        if ($(this).val().length > 0) {
+            $('.cslfw-google-maps').show();
+            $('.cslfw-cargo-box-style').show();
+            $('#cslfw_google_api_key').prop('required', true)
+        } else {
+            $('.cslfw-google-maps').hide();
+            $('.cslfw-cargo-box-style').hide();
+            $('#cslfw_google_api_key').prop('required', false)
+        }
+    })
+
 	$('select[name="cargo_box_style"]').change(function() {
 		if ( $(this).val() === 'cargo_map' ) {
 			$('.cslfw-google-maps').show();
