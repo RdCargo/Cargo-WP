@@ -31,7 +31,8 @@ if( !class_exists('CSLFW_Front') ) {
             add_action( 'wp_ajax_get_order_tracking_details', [$this,'get_order_tracking_details']);
             add_action( 'woocommerce_after_shipping_rate', [$this, 'checkout_cargo_actions'], 20, 2);
             add_action( 'woocommerce_my_account_my_orders_column_order-track', [$this, 'add_account_orders_column_rows']);
-            add_action( 'woocommerce_checkout_process', [$this, 'action_woocommerce_checkout_process'], 10, 1);
+            add_action( 'woocommerce_checkout_process', [$this, 'action_woocommerce_checkout_process']);
+            add_action('woocommerce_after_checkout_validation', [$this, 'custom_woocommerce_checkout_field_process'], 10, 2);
 
             // WC 8+
         }
@@ -240,14 +241,28 @@ if( !class_exists('CSLFW_Front') ) {
             return $template;
         }
 
-        public function action_woocommerce_checkout_process($wccs_custom_checkout_field_pro_process) {
+        function custom_woocommerce_checkout_field_process($data, $errors) {
             $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
             $chosen_method_id = explode(':', $chosen_shipping_methods[0]);
             $chosen_method_id = reset($chosen_method_id);
             $cargo_box_style = get_option('cargo_box_style');
 
             if ( $chosen_method_id === 'woo-baldarp-pickup' && $cargo_box_style !== 'cargo_automatic') {
-                if ( sanitize_text_field($_POST['DistributionPointID']) === '' ) {
+                if ( isset($_POST['DistributionPointID']) && sanitize_text_field($_POST['DistributionPointID']) === '' ) {
+                    $errors->add('validation', __('נא לבחור נקודת חלוקה בשיטת משלוח זה או שיטת משלוח אחרת', 'cargo-shipping-location-for-woocommerce'));
+                }
+            }
+        }
+        public function action_woocommerce_checkout_process() {
+            $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
+            $chosen_method_id = explode(':', $chosen_shipping_methods[0]);
+            $chosen_method_id = reset($chosen_method_id);
+            $cargo_box_style = get_option('cargo_box_style');
+
+            if ( $chosen_method_id === 'woo-baldarp-pickup' && $cargo_box_style !== 'cargo_automatic') {
+                wc_add_notice( esc_html_e( 'cargo pickup', 'cargo-shipping-location-for-woocommerce' ), 'error' );
+
+                if ( isset($_POST['DistributionPointID']) && sanitize_text_field($_POST['DistributionPointID']) === '' ) {
                     wc_add_notice( esc_html_e( 'נא לבחור נקודת חלוקה בשיטת משלוח זה או שיטת משלוח אחרת', 'cargo-shipping-location-for-woocommerce' ), 'error' );
                 }
             }
