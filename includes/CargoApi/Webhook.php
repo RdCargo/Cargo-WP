@@ -79,6 +79,13 @@ class Webhook
                 $deliveries[$data['shipment_id']]['status']['text'] = $data['new_status'];
 
                 $order->update_meta_data('cslfw_shipping', $deliveries);
+
+                $cslfw_complete_orders = get_option('cslfw_complete_orders');
+
+                if ((int) $data['new_status_code'] === 3 && $cslfw_complete_orders) {
+                    $order->update_status('completed');
+                }
+
                 $order->save();
             }
         }

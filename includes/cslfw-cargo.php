@@ -160,6 +160,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     $data['Params']['boxPointId'] = $this->order->get_meta('cargo_DistributionPointID', true);
                     $data['Params']['boxPointId'] = isset($args['box_point']) ? $chosen_point->DistributionPointID : $data['Params']['boxPointId'];
                 } else {
+                    // TODO cargo auto is done in the API side this part can be removed.
                     $address = $data['Params']['to_address']['street1'] . ' ' . $data['Params']['to_address']['street2'] . ',' . $data['Params']['to_address']['city'];
                     $geocoding = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/cargoGeocoding', ['address' => $address] );
 
