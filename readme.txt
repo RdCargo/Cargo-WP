@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.4.3
 Requires PHP: 7.4
-Stable tag: 4.2.8
+Stable tag: 4.2.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,3 +96,10 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 
 == 4.2.8 ==
 * Fix order status complete when shipment is completed.
+
+== 4.2.9 ==
+* Fix checkout dropdowns.
+
+== 4.2.10 ==
+* Fix issue with duplicate shipments create.
+* Add cslfw_change_recipient_phone hook to modify recipient phone number.

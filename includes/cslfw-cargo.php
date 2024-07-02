@@ -103,6 +103,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $website = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
             $website.= sanitize_text_field($_SERVER['HTTP_HOST']);
 
+            $toPhone = isset($order_data['shipping']['phone']) && !empty($order_data['shipping']['phone']) ? $order_data['shipping']['phone'] : $order_data['billing']['phone'];
+            $toPhone = apply_filters( 'cslfw_change_recipient_phone', $toPhone, $this->order );
+
             $data['Method'] = "ship";
             $data['Params'] = [
                 'shipping_type'         => $args['shipping_type'] ?? 1,
@@ -125,7 +128,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     'street2'   => isset($order_data['shipping']['address_2']) && !empty($order_data['shipping']['address_2']) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
                     'city'      => isset($order_data['shipping']['city']) && !empty($order_data['shipping']['city']) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
                     'country'   => $order_data['shipping']['country'] ?? $order_data['billing']['country'],
-                    'phone'     => isset($order_data['shipping']['phone']) && !empty($order_data['shipping']['phone']) ? $order_data['shipping']['phone'] : $order_data['billing']['phone'],
+                    'phone'     => $toPhone,
                     'email'     => $order_data['shipping']['email'] ?? $order_data['billing']['email'],
                     'floor'     => $this->order->get_meta('cargo_floor', true),
                     'appartment' => $this->order->get_meta('cargo_apartment', true),

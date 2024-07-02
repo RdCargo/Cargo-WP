@@ -492,21 +492,21 @@ function toRad(Value) {
     });
 
     $(document).on('updated_checkout', function() {
-        // let cityParent = $('#cargo_city').closest('.cargo-select-wrap');
-        // let pointParent = $('#cargo_pickup_point').closest('.cargo-select-wrap');
-        // $('#cargo_city').select2({
-        //     dropdownParent: cityParent,
-        //     dropdownCss: {
-        //         top: cityParent.height() // Adjust the value as per your requirements
-        //     }
-        // })
-        // $('#cargo_pickup_point').select2({
-        //     minimumResultsForSearch: -1,
-        //     dropdownParent: pointParent,
-        // })
-        $('#cargo_city').select2({dropdownParent: $('#shipping_method')});
-        $('#cargo_pickup_point').select2({minimumResultsForSearch: -1, dropdownParent: $('#shipping_method')});
-        $('#cargo_city, #cargo_pickup_point').focusout();
+        let cityParent = $('#cargo_city').closest('.cargo-select-wrap');
+        let pointParent = $('#cargo_pickup_point').closest('.cargo-select-wrap');
+        $('#cargo_city').select2({
+            dropdownParent: cityParent,
+            dropdownCss: {
+                top: cityParent.height() // Adjust the value as per your requirements
+            }
+        })
+        $('#cargo_pickup_point').select2({
+            minimumResultsForSearch: -1,
+            dropdownParent: pointParent,
+        })
+        // $('#cargo_city').select2({dropdownParent: $('#shipping_method')});
+        // $('#cargo_pickup_point').select2({minimumResultsForSearch: -1, dropdownParent: $('#shipping_method')});
+        // $('#cargo_city, #cargo_pickup_point').focusout();
     })
 
     $(document).on('change','.shipping_method', function() {

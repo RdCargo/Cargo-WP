@@ -490,6 +490,16 @@ if( !class_exists('CSLFW_Admin') ) {
                         exit;
                     }
                 } else if (in_array($actionName, ['send-cargo-shipping', 'send-cargo-dd', 'send-cargo-pickup'])) {
+                    $currentProcess = get_transient( 'bulk_shipment_create');
+                    $currentProcess = $currentProcess ? $currentProcess : [];
+
+                    if (array_intersect($currentProcess, $orderIds)) {
+                        $orderIds = array_diff($orderIds, $currentProcess);
+                    }
+
+                    $currentProcess = array_unique([...$currentProcess, ...$orderIds]);
+                    set_transient( 'bulk_shipment_create', $currentProcess, 300);
+
                     foreach ($orderIds as $orderId) {
                         $cargoShipping = new CSLFW_Cargo_Shipping($orderId);
                         $order = wc_get_order($orderId);
@@ -512,6 +522,8 @@ if( !class_exists('CSLFW_Admin') ) {
                             $skipped_count++;
                         }
                     }
+
+                    delete_transient( 'bulk_shipment_create', $orderIds, 300);
                 }
             }
 

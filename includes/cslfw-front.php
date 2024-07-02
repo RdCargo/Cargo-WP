@@ -52,7 +52,7 @@ if( !class_exists('CSLFW_Front') ) {
 
             if ( is_cart() || is_checkout() ) {
 
-                wp_enqueue_script( 'baldarp-script', CSLFW_URL .'assets/js/baldarp-script.js', [], CSLFW_VERSION . "-edited", true);
+                wp_enqueue_script( 'baldarp-script', CSLFW_URL .'assets/js/baldarp-script.js', [], CSLFW_VERSION, true);
                 wp_localize_script( 'baldarp-script', 'baldarp_obj',
                     [
                         'ajaxurl' => admin_url( 'admin-ajax.php' ),
