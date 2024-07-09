@@ -19,15 +19,13 @@
                 console.log(response);
                 response = JSON.parse(response);
 
-                if ( response.DeliveryStatusText !== '' ) {
-                    $('.order-details-ajax .delivery-status').text(response.DeliveryStatusText);
+                if ( !response.errors ) {
+                    $('.order-details-ajax .delivery-status').text(response.status_text);
                     $('.order-details-ajax .delivery-status').show();
 
-                }
-                if (response.deliveryStatusTime != undefined)
-                    $('.order-details-ajax .delivery-status').append(', ' + response.deliveryStatusTime);
-                if ( response.errorMsg != '' ) {
-                    let errorMsg = response.error_msg ? response.error_msg : response.errorMsg
+                } else {
+
+                    let errorMsg = response.message
                     $('.order-details-ajax .delivery-error').text(`${errorMsg}`);
                     $('.order-details-ajax .delivery-error').show();
                 }

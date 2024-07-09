@@ -38,14 +38,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </label>
                 <div class="cargo-select-wrap">
                     <select name="cargo_pickup_point" id="cargo_pickup_point" class=" w-100">
-                    <?php
-                        foreach ($data['points'] as $key => $value) :
-                            $point = $value->point_details;
-                        ?>
-                            <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($data['selectedPointId'] === $point->DistributionPointID) echo 'selected="selected"' ?>>
-                                <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
-                            </option>
-                        <?php endforeach; ?>
+                    <?php foreach ($data['points'] as $key => $point) :?>
+                        <option value="<?php echo esc_attr($point->DistributionPointID) ?>" <?php if ($data['selectedPointId'] === $point->DistributionPointID) echo 'selected="selected"' ?>>
+                            <?php echo esc_html($point->DistributionPointName) ?>, <?php echo esc_html($point->CityName) ?>, <?php echo esc_html($point->StreetName) ?> <?php echo esc_html($point->StreetNum) ?>
+                        </option>
+                    <?php endforeach; ?>
                     </select>
                 </div>
             </div>

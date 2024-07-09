@@ -59,6 +59,15 @@ if( !class_exists('CSLFW_Logs') ) {
             file_put_contents($path, $msg, FILE_APPEND) or die('failed to put');
         }
 
+        /**
+         * @param $msg
+         */
+        function add_debug_message($msg) {
+            if (get_option('cslfw_debug_mode')) {
+                $this->add_log_message($msg);
+            }
+        }
+
         public function get_logs() {
             if ( ! empty( $this->files ) ) {
                 foreach ( $this->files as $key => $value ) {

@@ -10,6 +10,7 @@ if ( class_exists( 'CSLFW_Front', false ) ) {
     return new CSLFW_Front();
 }
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use CSLFW\Includes\CSLFW_Helpers;
 
 if( !class_exists('CSLFW_Front') ) {
@@ -18,8 +19,13 @@ if( !class_exists('CSLFW_Front') ) {
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();
-            $this->cargo = new Cargo();
+            $api_key = get_option('cslfw_cargo_api_key');
 
+            if ($api_key) {
+                $this->cargo = new CargoAPIV2();
+            } else {
+                $this->cargo = new Cargo();
+            }
             add_action( 'wp_enqueue_scripts', [$this, 'import_assets']);
 
             add_filter( 'woocommerce_account_orders_columns', [$this, 'add_account_orders_column'], 10, 1);
@@ -34,6 +40,11 @@ if( !class_exists('CSLFW_Front') ) {
 //            add_action( 'woocommerce_checkout_process', [$this, 'action_woocommerce_checkout_process']);
             add_action('woocommerce_after_checkout_validation', [$this, 'custom_woocommerce_checkout_field_process'], 10, 2);
 
+            add_action('wp_ajax_cslfw_cargo_geocoding', [$this, 'cargo_geocoding']);
+            add_action('wp_ajax_nopriv_cslfw_cargo_geocoding', [$this, 'cargo_geocoding']);
+
+            add_action('wp_ajax_cslfw_find_closest_points', [$this, 'find_closest_points']);
+            add_action('wp_ajax_nopriv_cslfw_find_closest_points', [$this, 'find_closest_points']);
             // WC 8+
         }
 
@@ -73,6 +84,21 @@ if( !class_exists('CSLFW_Front') ) {
             }
         }
 
+        public function cargo_geocoding()
+        {
+            $address = sanitize_text_field($_POST['address']);
+
+            $geocoding = $this->cargo->cargoGeocoding($address);
+
+            echo wp_json_encode($geocoding);
+            wp_die();
+        }
+
+        public function find_closest_points()
+        {
+
+        }
+
         /**
          * Display fields for checkout page, and cargo box selector..
          *
@@ -88,29 +114,29 @@ if( !class_exists('CSLFW_Front') ) {
 
             if ( $selectedShippingMethod === 'woo-baldarp-pickup' && $method->method_id === 'woo-baldarp-pickup' ) {
                 $pointId = isset($_COOKIE['cargoPointID']) ? sanitize_text_field($_COOKIE['cargoPointID']) : null;
-                $coordinates = [
-                    'lat' => isset($_COOKIE['cargoLatitude']) ? sanitize_text_field($_COOKIE['cargoLatitude']) : 31.046051,
-                    'long' => isset($_COOKIE['cargoLongitude']) ? sanitize_text_field($_COOKIE['cargoLongitude']) : 34.851612,
-                    'distance' => 10,
-                ];
+                $city = isset($_COOKIE['CargoCityName']) ? sanitize_text_field($_COOKIE['CargoCityName']) : null;
 
                 $cities = $this->cargo->getPointsCities();
-                $points = $this->cargo->findClosestPoints($coordinates);
+                $points = $this->cargo->getPointsByCity($city);
 
-                $selectedPoint = $this->cargo->findPointById($pointId);
+                if (!$points->errors || !$city) {
+                    $selectedPoint = $this->cargo->findPointById($pointId);
 
-                $cargoBoxStyle = get_option('cargo_box_style');
+                    $cargoBoxStyle = get_option('cargo_box_style');
+                    $data = [
+                        'boxStyle' => $cargoBoxStyle,
+                        'cities' => $cities,
+                        'selectedCity' => $city ?? '',
+                        'selectedPointId' => $pointId,
+                        'selectedPoint' => !$selectedPoint->errors ? $selectedPoint->data : null,
+                        'points' => $city ? $points->data : [],
+                    ];
 
-                $data = [
-                    'boxStyle' => $cargoBoxStyle,
-                    'cities' => $cities,
-                    'selectedCity' => isset($_COOKIE['CargoCityName_dropdown']) ? sanitize_text_field($_COOKIE['CargoCityName_dropdown']) : '',
-                    'selectedPointId' => $pointId,
-                    'selectedPoint' => $selectedPoint,
-                    'points' => $points,
-                ];
-
-                $this->helpers->load_template('checkout/box-shipment', $data);
+                    $this->helpers->load_template('checkout/box-shipment', $data);
+                } else {
+                    echo "<div>FAILED TO LOAD POINTS $city</div><pre>";
+                    print_r($points);
+                }
             }
         }
 
@@ -173,7 +199,6 @@ if( !class_exists('CSLFW_Front') ) {
         }
 
         function get_order_tracking_details() {
-
             if ( !isset($_POST['shipping_id']) || sanitize_text_field($_POST['shipping_id']) === '' ) {
                 echo wp_json_encode(
                     [
@@ -194,7 +219,7 @@ if( !class_exists('CSLFW_Front') ) {
                 wp_die();
             }
 
-            $result = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/CheckShipmentStatus', $data);
+            $result = $this->cargo->checkShipmentStatus($data['deliveryId'], null);
             echo wp_json_encode( $result );
             die();
         }

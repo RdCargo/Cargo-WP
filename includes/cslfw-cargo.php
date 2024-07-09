@@ -6,6 +6,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
 use CSLFW\Includes\CSLFW_Helpers;
 
@@ -20,7 +21,13 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         public $cargoOrder;
 
         function __construct($order_id = 0) {
-            $this->cargo = new Cargo();
+            $api_key = get_option('cslfw_cargo_api_key');
+
+            if ($api_key) {
+                $this->cargo = new CargoAPIV2();
+            } else {
+                $this->cargo = new Cargo();
+            }
             $this->helpers = new CSLFW_Helpers();
 
             if ($order_id) {
@@ -49,8 +56,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
          * @return string[]
          */
         function createCargoObject($args = []) {
-            $logs = new CSLFW_Logs();
-
             if ( $this->deliveries && is_array($this->deliveries) && count($this->deliveries) >= 4 ) {
                 return [
                     'shipmentId' => "",
@@ -82,8 +87,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $pickupCustomerCode = get_option('shipping_pickup_code');
 
-            $customer_code   = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
-            if ((int)$args['shipping_type'] === 2 ) {
+            $customer_code = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            $shipping_type = (int) $args['shipping_type'] ?? 1;
+            if ($shipping_type === 2 ) {
                 $customer_code   = $pickupCustomerCode ? $pickupCustomerCode :  get_option('shipping_cargo_express');
             }
 
@@ -91,7 +97,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $notes = '';
             $cslfw_fulfill_all = get_option('cslfw_fulfill_all');
-            if ( $args['fulfillment'] || $cslfw_fulfill_all ) {
+            if ( (isset($args['fulfillment']) && $args['fulfillment']) || $cslfw_fulfill_all ) {
                 foreach ($this->order->get_items() as $item) {
                     $product = $item['variation_id'] ? wc_get_product($item['variation_id']) : wc_get_product($item['product_id']);
                     $notes .= '|' .  $product->get_sku() . '*' . $item->get_quantity();
@@ -108,11 +114,12 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $data['Method'] = "ship";
             $data['Params'] = [
-                'shipping_type'         => $args['shipping_type'] ?? 1,
+                'shipping_type'         => $shipping_type,
                 'doubleDelivery'        => $args['double_delivery'] ?? 1,
                 'noOfParcel'            => $args['no_of_parcel'] ?? 0,
                 'TransactionID'         => $this->order_id,
-                'CashOnDelivery'        => $args['cargo_cod'] ? floatval($this->order->get_total()) : 0,
+                'CashOnDelivery'        => isset($args['cargo_cod']) && $args['cargo_cod'] ? floatval($this->order->get_total()) : 0,
+                'TotalValue'            => floatval($this->order->get_total()),
                 'CarrierID'             => $isBoxShipment ? 0 : 1,
                 'OrderID'               => $this->order_id,
                 'PaymentMethod'         => $order_data['payment_method'],
@@ -146,7 +153,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ]
             ];
 
-            if ((int)$args['shipping_type'] === 2) {
+            if (isset($args['shipping_type']) && (int)$args['shipping_type'] === 2) {
                 $tmp_from_address = $data['Params']['from_address'];
                 $data['Params']['from_address'] = $data['Params']['to_address'];
                 $data['Params']['to_address'] = $tmp_from_address;
@@ -156,51 +163,13 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 $data['Params']['CashOnDeliveryType'] = $args['cargo_cod_type'] ?? 0;
             }
 
-            if ($isBoxShipment && (int)$args['shipping_type'] !== 2) {
+
+            if ($isBoxShipment && $shipping_type !== 2) {
                 if ( $cargo_box_style !== 'cargo_automatic' || isset($args['box_point']) ) {
-                    $chosen_point = $args['box_point'];
+                    $chosen_point = $args['box_point'] ?? null;
 
                     $data['Params']['boxPointId'] = $this->order->get_meta('cargo_DistributionPointID', true);
-                    $data['Params']['boxPointId'] = isset($args['box_point']) ? $chosen_point->DistributionPointID : $data['Params']['boxPointId'];
-                } else {
-                    // TODO cargo auto is done in the API side this part can be removed.
-                    $address = $data['Params']['to_address']['street1'] . ' ' . $data['Params']['to_address']['street2'] . ',' . $data['Params']['to_address']['city'];
-                    $geocoding = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/cargoGeocoding', ['address' => $address] );
-
-                    if ( $geocoding->error === false ) {
-                        if ( !empty($geocoding->data->results) ) {
-                            $geocoding = $geocoding->data->results[0]->geometry->location;
-                            $coordinates = ['lat' => $geocoding->lat, 'long' => $geocoding->lng, 'distance' => 10];
-                            $closest_point = $this->cargo->findClosestPoints($coordinates);
-
-                                if ( $closest_point ) {
-                                    // THE SUCCESS FOR DETERMINE CARGO POINT ID IN AUTOMATIC MODE.
-                                    $chosen_point = $closest_point[0]->point_details;
-                                    $data['Params']['boxPointId'] = $chosen_point->DistributionPointID;
-
-                                    $this->order->save();
-                                } else {
-                                    $logs->add_log_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );
-                                    return [
-                                        'shipmentId' => "",
-                                        'error_msg' => 'No closest points found by the radius.'
-                                    ];
-                                }
-                        } else {
-                            $logs->add_log_message("ERROR.FAIL: Empty geocoding data." . PHP_EOL );
-                            return [
-                                'shipmentId' => "",
-                                'error_msg' => 'Empty geocoding data.'
-                            ];
-                        }
-
-                    } else {
-                        $logs->add_log_message("ERROR.FAIL: Address geocoding fail for address $address" . PHP_EOL );
-                        return [
-                            'shipmentId' => "",
-                            'error_msg' => 'Failed to create geocoding. Contact support please.'
-                        ];
-                    }
+                    $data['Params']['boxPointId'] = $chosen_point->DistributionPointID ?? $data['Params']['boxPointId'];
                 }
             }
 
@@ -221,9 +190,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         /**
          * Main create shipment function
          *
-         * @param $order_id
          * @param array $args
-         * @return array|int|string[]
+         * @return mixed|string[]
          */
         public function createShipment($args = []) {
             $logs = new CSLFW_Logs();
@@ -234,10 +202,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $response = $this->cargo->createShipment($data);
             $message = '==============================' . PHP_EOL;
 
-            if ($response->shipmentId != '' ) {
-                $response->all_data = $this->addShipment($data['Params'], $response);
+            if (!$response->errors) {
+                $response->all_data = $this->addShipment($data['Params'], $response->data);
                 $this->update_wc_status();
-                $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response->shipmentId} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." CarrierID : {$data['Params']['CarrierID']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
+                $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response->data->shipment_id} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." CarrierID : {$data['Params']['CarrierID']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
                 if( $data['Params']['CarrierID'] === 0) {
                     $message    .= "CARGO BOX POINT ID : {$data['Params']['boxPointId']}". PHP_EOL;
                 }
@@ -256,9 +224,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
          */
         public function addShipment( $shipment_params, $shipment_data ) {
             $delivery = is_array($this->deliveries) ? $this->deliveries : [];
-            $delivery[$shipment_data->shipmentId] = [
-                'driver_name'   => $shipment_data->drivername,
-                'line_number'   => $shipment_data->linetext,
+            $delivery[$shipment_data->shipment_id] = [
+                'driver_name'   => $shipment_data->driver_name,
+                'line_number'   => $shipment_data->line_text,
                 'customer_code' => $shipment_params['customerCode'],
                 'created_at' => date('Y-m-d H:i:s'),
                 'status'        => [
@@ -268,7 +236,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             ];
 
             if (isset($shipment_params['boxPointId']) && $shipment_params['boxPointId']) {
-                $delivery[$shipment_data->shipmentId]['box_id'] = $shipment_params['boxPointId'];
+                $delivery[$shipment_data->shipment_id]['box_id'] = $shipment_params['boxPointId'];
             }
 
             $this->deliveries = $delivery;
@@ -293,7 +261,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             return $this->deliveries;
         }
 
-
         /**
          * @param $shipping_id
          * @param $order_id
@@ -317,42 +284,41 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ];
             }
 
-            $post_data = [
-                'deliveryId' => (int) $shipping_id,
-                'customerCode' => $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express'),
-            ];
+            $customer_code = $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
 
-            $data = (array) $this->cargo->checkShipmentStatus($post_data);
+            $shipment_status = $this->cargo->checkShipmentStatus($shipping_id, $customer_code);
 
-            if ( $data['errorMsg']  == '' && $shipping_id) {
-                if ( (int) $data['deliveryStatus'] === 8 ) {
-                    if ( $this->deliveries ) {
+            if (!$shipment_status->errors && $shipping_id) {
+                $data = $shipment_status->data;
+                if ($data->status_code === 8) {
+                    if ($this->deliveries) {
                         unset($this->deliveries[$shipping_id]);
                         $this->order->update_meta_data('cslfw_shipping', $this->deliveries );
                         $this->order->save();
                     }
                     $response = [
                         "type" => "success",
-                        "data" => $data['DeliveryStatusText'],
-                        "orderStatus" => (int) $data['deliveryStatus']
+                        "data" => $data->status_text,
+                        "orderStatus" => $data->status_code
                     ];
-                } elseif ((int) $data['deliveryStatus'] > 0) {
-                    $this->deliveries[$shipping_id]['status']['number'] = (int) $data['deliveryStatus'];
-                    $this->deliveries[$shipping_id]['status']['text'] = sanitize_text_field( $data['DeliveryStatusText']);
+                } elseif ($data->status_code > 0) {
+                    $this->deliveries[$shipping_id]['status']['number'] = $data->status_code;
+                    $this->deliveries[$shipping_id]['status']['text'] = sanitize_text_field($data->status_text);
 
                     $this->order->update_meta_data('cslfw_shipping', $this->deliveries);
 
                     $cslfw_complete_orders = get_option('cslfw_complete_orders');
 
-                    if ((int) $data['deliveryStatus'] === 3 && $cslfw_complete_orders) {
+                    if ($data->status_code === 3 && $cslfw_complete_orders) {
                         $this->order->update_status('completed');
                     }
+
                     $this->order->save();
 
                     $response = [
                         "type" => "success",
-                        "data" => $data['DeliveryStatusText'],
-                        "orderStatus" => (int)$data['deliveryStatus']
+                        "data" => $data->status_text,
+                        "orderStatus" => $data->status_code
                     ];
                 } else {
                     $response =  [
@@ -363,7 +329,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             } else {
                 $response = [
                     "type" => "failed",
-                    "data" => $data['errorMsg'],
+                    "data" => $shipment_status->message,
                     "shipping_id" => $shipping_id
                 ];
             }
@@ -393,7 +359,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
             $cargoLabel = $this->cargo->generateShipmentLabel($args);
 
-            if (!empty($cargoLabel->pdfLink)) {
+            if (!$cargoLabel->errors) {
                 if ($orderIds) {
                     foreach ($orderIds as $orderId) {
                         $order = wc_get_order($orderId);

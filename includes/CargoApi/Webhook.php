@@ -249,7 +249,7 @@ class Webhook
             $message = "update WEBHOOK : ".wp_json_encode($args,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
             $message .= "update WEBHOOK HEADERS: ".wp_json_encode($this->headers,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
 
-            $logs->add_log_message($message . PHP_EOL );
+            $logs->add_debug_message($message . PHP_EOL );
 
         }
 
@@ -269,7 +269,7 @@ class Webhook
             $message = "ADD WEBHOOK : " . wp_json_encode($args, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
             $message .= "ADD WEBHOOK HEADERS: " . wp_json_encode($this->headers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
 
-            $logs->add_log_message($message . PHP_EOL);
+            $logs->add_debug_message($message . PHP_EOL);
         }
         return $this->post("https://dashboard.cargo.co.il/api/webhooks/create", $args, $this->headers);
     }
@@ -291,7 +291,7 @@ class Webhook
 
     public function add_menu_link()
     {
-        add_submenu_page('loaction_api_settings', 'Status Webhook', 'Status Webhook', 'manage_options', 'cargo_shipping_webhook', [$this, 'render'] );
+        add_submenu_page('loaction_api_settings', 'Api and Webhook', 'Api and Webhook', 'manage_options', 'cargo_shipping_webhook', [$this, 'render'] );
     }
 
     public function render()

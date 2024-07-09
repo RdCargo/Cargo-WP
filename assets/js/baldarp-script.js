@@ -3,7 +3,12 @@ let markersArray = [];
 
 function setMarker(lat,long) {
     markersArray.forEach(function(marker) {
-        if(marker.getPosition().lat() == lat && marker.getPosition().lng() == long){
+        // TODO rebuild with distribution point
+        if(
+            (marker.getPosition().lat() == Math.round(lat * 100) / 100 && marker.getPosition().lng() == Math.round(long * 100) / 100)
+            ||
+            (marker.getPosition().lat() == lat && marker.getPosition().lng() == long)
+        ){
             google.maps.event.trigger(marker, 'click');
         }
     });
@@ -15,7 +20,6 @@ function toRad(Value) {
 
 
 (function($) {
-    let bounds;
     let mainJson;
     let customerAddress = null;
 
@@ -105,16 +109,17 @@ function toRad(Value) {
         let street2 = $('#shipping_address_2').val() ?? $('#billing_address_2').val();
         let city = $('#shipping_city').val() ?? $('#billing_city').val();
         let data = {
-            address : `${street1} ${street2}, ${city}`,
+            action: 'cslfw_cargo_geocoding',
+            address: `${street1} ${street2}, ${city}`
         };
-
-        await $.ajax('https://api.cargo.co.il/Webservice/cargoGeocoding', {
+        console.log('getCustomerLocation', data)
+        await $.ajax({
             type: 'POST',  // http method
             dataType: "json",
-            data: JSON.stringify(data),
+            url: baldarp_obj.ajaxurl,
+            data: data,
             success: function (response, status, xhr) {
-
-                if (response.error === false) {
+                if (response.errors === false) {
                     if (response.data.results.length > 0) {
                         let location = response.data.results[0].geometry.location;
 
@@ -178,8 +183,7 @@ function toRad(Value) {
             // $("#selected_cargo").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
             // $("#FlyingCargo_loc_name").html(decodeURIComponent(escape(atob(Cookies.get('fullAddress')))));
             $("#selected_cargo").show();
-
-        }else{
+        } else {
             var myloc = new google.maps.LatLng(32.4631, 35.0433);
         }
         var mapOptions = {
@@ -334,6 +338,8 @@ function toRad(Value) {
                 map: map,
                 position: new google.maps.LatLng(mainJson[index].Latitude, mainJson[index].Longitude),
             });
+            marker.DistributionPointID = mainJson[index].DistributionPointID
+
             icon = {
                 url: $('#default_markers').val(), // url
                 scaledSize: new google.maps.Size(60, 60), // scaled size
@@ -401,7 +407,7 @@ function toRad(Value) {
     $.ajax({
         type: "post",
         url: baldarp_obj.ajaxurl,
-        data: {action:"get_delivery_location"},
+        data: {action: "get_delivery_location"},
         success: function(msg){
             $("div.blockUI").removeClass('blockOverlay');
             $("div.blockUI").removeAttr('id')
@@ -441,6 +447,7 @@ function toRad(Value) {
             $("div.blockUI").hide();
         }
     },5000);
+
     $(document).ready(function() {
         if($('body').hasClass('woocommerce-cart')) {
             resetCargo();
@@ -453,7 +460,6 @@ function toRad(Value) {
         }
 
         // addLocationSection();
-
     });
 
     $(document).on('click','.marker-click',function(){
@@ -531,64 +537,38 @@ function toRad(Value) {
         resetCargo();
         Cookies.set('CargoCityName_dropdown', $(this).val(), {expires: 10,path: '/'})
         $('#CityName').val($(this).val());
-
         let data = {
-            address : $(this).val(),
-        };
-        $.ajax('https://api.cargo.co.il/Webservice/cargoGeocoding', {
+            action: 'cslfw_get_points_by_city',
+            city: $(this).val()
+        }
+        $.ajax({
             type: 'POST',  // http method
             dataType: "json",
-            data: JSON.stringify(data),
+            url: baldarp_obj.ajaxurl,
+            data: data,
             success: function (response, status, xhr) {
-                if (response.error === false) {
-                    if (response.data.results.length > 0) {
-                        let location = response.data.results[0].geometry.location;
-                        Cookies.set('cargoLatitude', location.lat, {expires: 10,path: '/'});
-                        Cookies.set('cargoLongitude', location.lng, {expires: 10,path: '/'});
-                        $('#Longitude').val(location.lat);
-                        $('#Longitude').val(location.lng);
+                $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').remove();
 
-                        $.ajax('https://api.cargo.co.il/Webservice/findClosestPoints', {
-                            type: 'POST',  // http method
-                            data: JSON.stringify( {
-                                lat: location.lat,
-                                long : location.lng,
-                            }),
-                            success: function (response, status, xhr) {
-                                $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').remove();
-                                if ( response.error === false ) {
-                                    if ( response.closest_points.length > 0 ) {
-                                        setPointCookie(response.closest_points[0].point_details);
-
-                                    } else {
-                                        $('#cargo_pickup_point').parent().hide();
-                                        $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').show();
-                                    }
-                                } else {
-                                    $('#cargo_pickup_point').parent().hide();
-                                    alert('response.error');
-                                }
-                                setTimeout(function() {
-                                    $( document.body ).trigger( 'update_checkout' );
-                                }, 200)
-                            },
-                            error: function (jqXhr, textStatus, errorMessage) {
-                                console.log(textStatus);
-                            }
-                        });
+                if ( response.errors === false ) {
+                    if ( response.data.length > 0 ) {
+                        setPointCookie(response.data[0]);
                     } else {
                         $('#cargo_pickup_point').parent().hide();
+                        $('#cargo_pickup_point').parent().parent().find('.woocommerce-info').show();
                     }
-
                 } else {
-                    console.log('error')
-                    alert(response.error);
+                    $('#cargo_pickup_point').parent().hide();
+                    alert('response.error');
                 }
+                setTimeout(function() {
+                    $( document.body ).trigger( 'update_checkout' );
+                }, 200)
             },
-            error: function(e) {
-                console.log(e);
+            error: function (jqXhr, textStatus, errorMessage) {
+                console.log(textStatus);
             }
-        })
+        });
+
     })
 
     $(document).on('change', '#cargo_pickup_point', function() {
@@ -650,17 +630,19 @@ function toRad(Value) {
     });
 
     $(".cargo_address_check").on("click", function () {
-        var address = $(this).siblings("input").val();
+        let address = $(this).siblings("input").val();
         let data = {
             address : address,
+            action: 'cslfw_cargo_geocoding'
         };
-        $.ajax('https://api.cargo.co.il/Webservice/cargoGeocoding', {
+
+        $.ajax({
             type: 'POST',  // http method
             dataType: "json",
-            data: JSON.stringify(data),
+            url: baldarp_obj.ajaxurl,
+            data: data,
             success: function (response, status, xhr) {
-                console.log(response);
-                if (response.error === false) {
+                if (response.errors === false) {
                     if (response.data.results.length > 0) {
                         let location = response.data.results[0].geometry.location;
                         getlocationfromSearch(location.lat, location.lng)
@@ -669,7 +651,7 @@ function toRad(Value) {
                     }
 
                 } else {
-                    alert(response.error);
+                    alert(response.message);
                 }
             },
             error: function(e) {

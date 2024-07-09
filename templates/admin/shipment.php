@@ -1,4 +1,8 @@
 <?php
+
+use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CargoAPIV2;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
     $order = $data['order'];
@@ -137,7 +141,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     <div class="checkstatus-section">
         <?php
         $webhook_installed = get_option('cslfw_webhooks_installed');
+
         foreach ($data['shipmentData'] as $key => $value) {
+
             echo wp_kses_post('<div class=""><p class="cslfw-status status-' . $value['status']['number'] .'">'. $key .' - ' . $value['status']['text'] . '</p></div>');
 
             if ($webhook_installed !== 'yes') {
@@ -158,10 +164,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     foreach ($data['shipmentData'] as $shipping_id => $shipmentData) {
         if (isset($shipmentData['box_id'])) {
-        $cargo = new \CSLFW\Includes\CargoAPI\Cargo();
-        $point = $cargo->findPointById($shipmentData['box_id']);
+            $api_key = get_option('cslfw_cargo_api_key');
+            if ($api_key) {
+                $cargo = new CargoAPIV2();
+            } else {
+                $cargo = new Cargo();
+            }
+            $point = $cargo->findPointById($shipmentData['box_id']);
 
-        if ($point) { ?>
+        if (!$point->errors) {
+            $point = $point->data;
+            ?>
             <div>
                 <h3>SHIPPING <?php wp_kses_post($shipping_id) ?></h3>
                 <h4 style="margin-bottom: 5px;"><?php esc_html_e('Cargo Point Details', 'cargo-shipping-location-for-woocommerce') ?></h4>

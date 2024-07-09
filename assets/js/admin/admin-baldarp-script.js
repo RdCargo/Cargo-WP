@@ -56,24 +56,23 @@
 
     $(document).on('change', '#cargo_city',function() {
         let data = {
+            action: 'cslfw_get_points_by_city',
             city: $(this).val()
         }
         ToggleLoading(true);
         $.ajax({
             type: "post",
-            url: "https://api.cargo.co.il/Webservice/getPickUpPoints",
-            data: JSON.stringify(data),
+            url : admin_cargo_obj.ajaxurl,
+            dataType: "json",
+            data: data,
             success: function(response) {
-                //location.reload();
-                console.log(response);
                 let html = '';
 
-                if ( response.PointsDetails.length > 0 ) {
-                    response.PointsDetails.forEach( (point) => {
+                if ( !response.errors && response.data.length > 0 ) {
+                    response.data.forEach( (point) => {
                         html += `<option value="${point.DistributionPointID}">${point.DistributionPointName}, ${point.CityName}, ${point.StreetName} ${point.StreetNum}</option>`;
                     })
                     $('#cargo_pickup_point').html(html).show();
-
                 } else {
                     $('#cargo_pickup_point').hide();
 
@@ -82,7 +81,7 @@
                 ToggleLoading(false);
             },
             error: function( jqXHR, textStatus, errorThrown ) {
-                console.log('error');
+                console.log('error', errorThrown);
                 console.log(textStatus);
             }
         });
@@ -127,7 +126,6 @@
 			$(this).attr('disabled', true);
             let orderId = $(this).data('id');
 			let nonce = $('#cslfw_cargo_actions_nonce').val() ?? $(`#cslfw_cargo_actions_nonce_${orderId}`).data('value')
-			console.log('submitshipping nonce', nonce)
 
 			let data = {
 				action: "sendOrderCARGO",
@@ -144,7 +142,6 @@
 
 			if ( $('#cargo_pickup_point').length > 0 &&  $('#cargo_pickup_point option:selected').attr('value') !== '' ) data['box_point_id'] = $('#cargo_pickup_point option:selected').attr('value');
 			if ( $(this).attr('data-box-point-id') ) data['box_point_id'] = $(this).attr('data-box-point-id');
-			console.log(data);
 
 			ToggleLoading(true);
 			$.ajax({
@@ -158,7 +155,7 @@
 					ToggleLoading(false);
                     $(this).attr('disabled', false);
 
-                    if( response.shipmentId != "" ) {
+                    if(!response.errors) {
 						$(window).scrollTop(0);
 						$('#wpbody-content').prepend('<div class="notice removeClass is-dismissible notice-success"><p>הזמנת העברה מוצלחת עבור CARGO</p></div>').delay(500).queue(function(n) {
 							$('.removeClass').hide();
@@ -166,7 +163,7 @@
 							location.reload();
 						});
 					} else {
-					  alert(response.error_msg);
+					  alert(response.messagge);
 				   }
 				},
 				error: function( jqXHR, textStatus, errorThrown ) {
@@ -224,10 +221,10 @@
 					success: function(response) {
 						console.log(response);
 						ToggleLoading(false);
-						if(response.pdfLink != "") {
-							window.open(response.pdfLink, '_blank');
+						if(!response.errors) {
+							window.open(response.data, '_blank');
 						} else {
-						  alert(response.error_msg);
+						  alert(response.message);
 						}
 					}
 				});

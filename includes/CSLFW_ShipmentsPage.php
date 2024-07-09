@@ -2,6 +2,7 @@
 
 namespace CSLFW\Includes;
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use CSLFW\Includes\CSLFW_Helpers;
 use CSLFW_Logs;
 
@@ -71,8 +72,13 @@ class CSLFW_ShipmentsPage
 
     public function getMultipleShipmentLabels()
     {
-        $cargo = new Cargo();
+        $api_key = get_option('cslfw_cargo_api_key');
 
+        if ($api_key) {
+            $cargo = new CargoAPIV2();
+        } else {
+            $cargo = new Cargo();
+        }
         parse_str(sanitize_text_field($_POST['form_data']), $data);
         parse_str($_POST['shipments'], $shipmentIds);
 

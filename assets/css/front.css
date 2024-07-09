@@ -373,7 +373,9 @@ body.map-open-popup {
     text-align: center;
     cursor: pointer;
 }
-
+.woocommerce-js .select2-container--default .select2-selection--single .select2-selection__rendered {
+    white-space: normal;
+}
 @media (max-width: 600px) {
     .cargo_input_div input[type="text"] {
         width: 99%;

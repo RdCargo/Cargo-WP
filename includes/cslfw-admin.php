@@ -5,6 +5,7 @@
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
 use CSLFW\Includes\CSLFW_Helpers;
 
@@ -13,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 if ( class_exists( 'CSLFW_Admin', false ) ) {
     return new CSLFW_Admin();
 }
-require CSLFW_PATH . '/includes/cslfw-cargo.php';
 
 if( !class_exists('CSLFW_Admin') ) {
     class CSLFW_Admin
@@ -21,14 +21,20 @@ if( !class_exists('CSLFW_Admin') ) {
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();
-            $this->cargo = new Cargo();
+            $api_key = get_option('cslfw_cargo_api_key');
+
+            if ($api_key) {
+                $this->cargo = new CargoAPIV2();
+            } else {
+                $this->cargo = new Cargo();
+            }
 
             add_action('admin_enqueue_scripts', [$this, 'import_assets']);
 
             add_action('init', [$this, 'register_order_status_for_cargo']);
             add_filter('wc_order_statuses', [$this, 'custom_order_status']);
             add_action('add_meta_boxes', [$this, 'add_meta_box']);
-//            add_action('add_meta_boxes', [$this, 'remove_shop_order_meta_box'], 90 );
+
             add_action('woocommerce_admin_order_data_after_billing_address', [$this, 'show_shipping_info']);
             add_action('admin_notices', [$this, 'cargo_bulk_action_admin_notice']);
             add_action('woocommerce_shipping_init', [$this,'shipping_method_classes']);
@@ -49,7 +55,10 @@ if( !class_exists('CSLFW_Admin') ) {
             add_filter('bulk_actions-woocommerce_page_wc-orders', [$this, 'custom_dropdown_bulk_actions_shop_order'], 20, 1);
             add_filter('handle_bulk_actions-woocommerce_page_wc-orders', [$this, 'bulk_order_cargo_shipment'], 10, 2);
 
+            add_action('wp_ajax_cslfw_get_points_by_city', [$this, 'get_points_by_city']);
+            add_action('wp_ajax_nopriv_cslfw_get_points_by_city', [$this, 'get_points_by_city']);
         }
+
         public function import_assets() {
             $screen       = get_current_screen();
             $screen_id    = $screen ? $screen->id : '';
@@ -138,10 +147,6 @@ if( !class_exists('CSLFW_Admin') ) {
                 if ($cargo_debug_mode) {
 
                     echo maybe_serialize($cargo_shipping->deliveries);
-//                    echo "<pre>";
-//                    print_r($cargo_shipping->deliveries);
-//                    echo "</pre>";
-//                    echo json_encode($cargo_shipping->deliveries);
                 }
                 if (
                     $shipping_method === 'cargo-express'
@@ -167,14 +172,22 @@ if( !class_exists('CSLFW_Admin') ) {
                     if ($boxPointId) {
                         $selectedPoint = $this->cargo->findPointById($boxPointId);
 
+                        if (!$selectedPoint->errors) {
+                            $city = $selectedPoint->data->CityName;
+                            $points = $this->cargo->getPointsByCity($city);
 
+                            $data['selectedPoint'] = !$points->errors ? $selectedPoint->data : null;
+                            $data['points'] = !$points->errors ? $points->data : null;
+                        } else {
+                            $data['selectedPoint'] = null;
+                            $data['points'] = [];
+                        }
                     } else {
                         $data['selectedPoint'] = null;
                         $data['points'] = [];
                     }
 
                     $data['cities'] = $this->cargo->getPointsCities();
-
 
                     $this->helpers->load_template('admin/shipment', $data);
                 } else {
@@ -249,13 +262,6 @@ if( !class_exists('CSLFW_Admin') ) {
                 }
             }
         }
-
-//        /**
-//         * remove meta box from the admin order page
-//         */
-//        public function remove_shop_order_meta_box() {
-//            remove_meta_box( 'postcustom', 'shop_order', 'normal' );
-//        }
 
         /**
          * @param $actions
@@ -485,8 +491,8 @@ if( !class_exists('CSLFW_Admin') ) {
                     $shipmentIds   = $cargoShipping->order_ids_to_shipment_ids($orderIds);
                     $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
 
-                    if ($pdfLabel->pdfLink) {
-                        wp_redirect($pdfLabel->pdfLink);
+                    if (!$pdfLabel->errors) {
+                        wp_redirect($pdfLabel->data);
                         exit;
                     }
                 } else if (in_array($actionName, ['send-cargo-shipping', 'send-cargo-dd', 'send-cargo-pickup'])) {
@@ -511,8 +517,9 @@ if( !class_exists('CSLFW_Admin') ) {
                             ];
 
                             if ($distribution_point = (int)$order->get_meta('cargo_DistributionPointID', true)) {
-                                if ($point = $this->cargo->findPointById($distribution_point)) {
-                                    $args['box_point'] = $point;
+                                $point = $this->cargo->findPointById($distribution_point);
+                                if (!$point->errors) {
+                                    $args['box_point'] = $point->data;
                                 }
                             }
 
@@ -534,6 +541,19 @@ if( !class_exists('CSLFW_Admin') ) {
                     'skipped_count' => $skipped_count,
                     'processed_ids'  => implode( ',', $orderIds ),
                 ], $redirect_to );
+        }
+
+        /**
+         * @return mixed
+         */
+        public function get_points_by_city()
+        {
+            $city = sanitize_text_field($_POST['city']);
+
+            $pointsByCity = $this->cargo->getPointsByCity($city);
+
+            echo wp_json_encode($pointsByCity,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            wp_die();
         }
     }
 }

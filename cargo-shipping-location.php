@@ -15,6 +15,7 @@
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
+use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use CSLFW\Includes\CargoAPI\CSLFW_Order;
 use CSLFW\Includes\CargoAPI\Webhook;
 use CSLFW\Includes\CSLFW_Helpers;
@@ -40,6 +41,7 @@ require CSLFW_PATH . '/includes/CSLFW_Helpers.php';
 require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
 require CSLFW_PATH . '/includes/CargoApi/CSLFW_Order.php';
 require CSLFW_PATH . '/includes/CargoApi/Cargo.php';
+require CSLFW_PATH . '/includes/CargoApi/CargoAPIV2.php';
 require CSLFW_PATH . '/includes/CargoApi/Webhook.php';
 require CSLFW_PATH . '/includes/CSLFW_ShipmentsPage.php';
 require CSLFW_PATH . '/includes/cslfw-logs.php';
@@ -56,7 +58,13 @@ if( !class_exists('CSLFW_Cargo') ) {
         function __construct() {
             $this->helpers = new CSLFW_Helpers();
             $this->logs = new CSLFW_Logs();
-            $this->cargo = new Cargo();
+            $api_key = get_option('cslfw_cargo_api_key');
+
+            if ($api_key) {
+                $this->cargo = new CargoAPIV2();
+            } else {
+                $this->cargo = new Cargo();
+            }
             $this->webhook = new Webhook();
             new CSLFW_ShipmentsPage();
 
@@ -113,15 +121,19 @@ if( !class_exists('CSLFW_Cargo') ) {
                     $box_shipment_type = $order->get_meta('cslfw_box_shipment_type', true);
 
                     foreach ($shipmentsData as $shipping_id => $data) {
-                        if ($point = $this->cargo->findPointById($data['box_id'])) {
-                            $chosen_point = $point;
-                            echo wp_kses_post(esc_html_e("Cargo Point Details", 'cargo-shipping-location-for-woocommerce')) . PHP_EOL;
-                            if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
-                                echo wp_kses_post(esc_html_e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce')). PHP_EOL;
-                            } else {
-                                echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
-                                echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;
-                                echo wp_kses_post( $chosen_point->Comment ) . PHP_EOL;
+
+                        if (isset($data['box_id'])) {
+                            $point = $this->cargo->findPointById($data['box_id']);
+                            if (!$point->errors) {
+                                $chosen_point = $point->data;
+                                echo wp_kses_post(esc_html_e("Cargo Point Details", 'cargo-shipping-location-for-woocommerce')) . PHP_EOL;
+                                if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
+                                    echo wp_kses_post(esc_html_e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce')). PHP_EOL;
+                                } else {
+                                    echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
+                                    echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;
+                                    echo wp_kses_post( $chosen_point->Comment ) . PHP_EOL;
+                                }
                             }
                         }
                     }
@@ -217,10 +229,12 @@ if( !class_exists('CSLFW_Cargo') ) {
             ];
 
             if (isset($_POST['box_point_id'])) {
-                if ($point = $this->cargo->findPointById(sanitize_text_field($_POST['box_point_id']))) {
-                    $args['box_point'] = $point;
+                $point = $this->cargo->findPointById(sanitize_text_field($_POST['box_point_id']));
 
-                    $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($point->DistributionPointID));
+                if (!$point->errors && $point->data) {
+                    $args['box_point'] = $point->data;
+
+                    $order->update_meta_data('cargo_DistributionPointID', $point->data->DistributionPointID);
                 }
                 $order->update_meta_data('cslfw_shipping_method', 'woo-baldarp-pickup');
             }
@@ -290,13 +304,16 @@ if( !class_exists('CSLFW_Cargo') ) {
         	if ( ! $order_id ) return;
 
         	$order = wc_get_order( $order_id );
-            $cargoOrder = new CSLFW_Order($order);
-            $shipping_method = $cargoOrder->getShippingMethod();
+            $cargo_order = new CSLFW_Order($order);
+            $shipping_method = $cargo_order->getShippingMethod();
 
             if ($shipping_method !== null) {
                 if ($shipping_method === 'woo-baldarp-pickup') {
-                    $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']));
                     $order->update_meta_data('cslfw_shipping_method', $shipping_method);
+
+                    if (isset($_POST['DistributionPointID'])) {
+                        $order->update_meta_data('cargo_DistributionPointID', sanitize_text_field($_POST['DistributionPointID']));
+                    }
                 }
             } else if ($shipping_method === 'cargo-express') {
                 $order->update_meta_data('cslfw_shipping_method', $shipping_method);
@@ -309,11 +326,46 @@ if( !class_exists('CSLFW_Cargo') ) {
         {
             $order = wc_get_order($order_id);
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
+            $cargo_order = new CSLFW_Order($order);
+            $shipping_method = $cargo_order->getShippingMethod();
+
+            $autoBoxChose = get_option('cargo_box_style');
+
+            if ($shipping_method === 'woo-baldarp-pickup' && $autoBoxChose === 'cargo_automatic') {
+                $logs = new \CSLFW_Logs();
+
+                $data = $cargo_shipping->createCargoObject();
+                $address = $data['Params']['to_address']['street1'] . ' ' . $data['Params']['to_address']['street2'] . ',' . $data['Params']['to_address']['city'];
+                $geocoding = $this->cargo->cargoGeocoding($address);
+
+                if ($geocoding->errors === false) {
+                    if ( !empty($geocoding->data->results) ) {
+
+                        $coordinates = $geocoding->data->results[0]->geometry->location;
+
+                        $closest_point = $this->cargo->findClosestPoints($coordinates->lat, $coordinates->lng, 30);
+
+                        if ( !$closest_point->errors ) {
+                            // THE SUCCESS FOR DETERMINE CARGO POINT ID IN AUTOMATIC MODE.
+                            $chosen_point = $closest_point->data[0];
+                            $order->update_meta_data('cargo_DistributionPointID', $chosen_point->DistributionPointID);
+
+                            $order->save();
+                        } else {
+                            $logs->add_debug_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );
+                        }
+                    } else {
+                        $logs->add_debug_message("ERROR.FAIL: Empty geocoding data." . PHP_EOL );
+                    }
+
+                } else {
+                    $logs->add_debug_message("ERROR.FAIL: Address geocoding fail for address $address" . PHP_EOL );
+                }
+            }
 
             $autoShipmentCreate = get_option('cslfw_auto_shipment_create');
             if ($autoShipmentCreate === 'on' && !$cargo_shipping->get_shipment_data()) {
-                $response = $cargo_shipping->createShipment();
-                $order->update_meta_data('custom_checkout_field_update_order_meta', $response);
+                $cargo_shipping->createShipment();
             }
 
             $order->save();
@@ -353,15 +405,23 @@ if( !class_exists('CSLFW_Cargo') ) {
          */
         public function cslfw_ajax_delivery_location() {
             if ( WC()->session->get('chosen_shipping_methods') !== null) {
-                $results = $this->helpers->cargoAPI('https://api.cargo.co.il/Webservice/getPickUpPoints');
-                $point = !empty($results->PointsDetails) ? $results->PointsDetails : '';
+                $results = $this->cargo->getPickupPoints();
+                if (!$results->errors && count($results->data) > 0) {
+                    $response = [
+                        "info"             => "Everything is fine.",
+                        "data"             => 1,
+                        "dataval"          => wp_json_encode($results->data),
+                        'shippingMethod'   => WC()->session->get('chosen_shipping_methods')[0],
+                    ];
+                } else {
+                    $response = [
+                        "info"             => "Error",
+                        "data"             => 0,
+                        "dataval"          => '',
+                        'shippingMethod'   => ''
+                    ];
+                }
 
-                $response = [
-                    "info"             => "Everything is fine.",
-                    "data"             => 1,
-                    "dataval"          => wp_json_encode($point),
-                    'shippingMethod'   => WC()->session->get('chosen_shipping_methods')[0],
-                ];
             } else {
                 $response = [
                     "info"             => "Error",

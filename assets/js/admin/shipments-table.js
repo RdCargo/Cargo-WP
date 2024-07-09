@@ -5,14 +5,14 @@
         $.ajax({
             type : "post",
             url : admin_shipments_obj.ajaxurl,
+            dataType: "json",
             data : data,
             success: function(response) {
-                response = JSON.parse(response);
                 console.log(response);
                 ToggleLoading(false);
 
                 let html = '';
-                if ( response.error === false || response.type === 'success') {
+                if ( response.errors === false || response.error === false || response.type === 'success') {
 
                     html = `<div class="notice notice-success"><p>${response.message ?? response.data}</p> </div>`;
                     setTimeout(() => {
@@ -113,10 +113,10 @@
                 success: function(response) {
                     console.log(response);
                     ToggleLoading(false);
-                    if(response.pdfLink !== "") {
-                        window.open(response.pdfLink, '_blank');
+                    if(!response.errors) {
+                        window.open(response.data, '_blank');
                     } else {
-                        alert(response.error_msg);
+                        alert(response.message);
                     }
                 }
             });
@@ -171,10 +171,10 @@
             success: function(response) {
                 console.log(response);
                 ToggleLoading(false);
-                if(response.pdfLink !== "") {
-                    window.open(response.pdfLink, '_blank');
+                if(!response.errors) {
+                    window.open(response.data, '_blank');
                 } else {
-                    alert(response.error_msg);
+                    alert(response.message);
                 }
             }
         });
