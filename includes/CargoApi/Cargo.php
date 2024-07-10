@@ -42,6 +42,10 @@ class Cargo
      */
     public function createShipment($args)
     {
+        $logs = new \CSLFW_Logs();
+        $logs->add_log_message('cargo.api.shipment-create:: ', [
+            'request' => $args
+        ]);
         $response = $this->post("{$this->host}CreateShipment", $args);
 
         if (empty($response->shipmentId)) {
@@ -86,6 +90,41 @@ class Cargo
 
         return (object) ['errors' => false, 'data' => $data, 'messages' => 'Successfully got the status'];
     }
+
+    /**
+     * @param int $shipment_id
+     * @param int $customer_code
+     * @param int $status
+     * @return mixed
+     */
+    public function updateShipmentStatus(int $shipment_id, int $customer_code, int $status)
+    {
+        $args = [
+            "deliveryId" => $shipment_id,
+            "CustomerCode" => $customer_code,
+            "UpdateStatus" => $status
+        ];
+
+        $shipmentStatus =  $this->post("{$this->host}updateStatus", $args);
+
+        $logs = new \CSLFW_Logs();
+        $logs->add_debug_message("updateStatus: {$this->host}updateStatus.", ['request' => $args, 'response' => $shipmentStatus]);
+
+        if (empty($shipmentStatus->error_code)) {
+            $data = (object)[
+                "shipment_id" => $shipment_id,
+                "updated" => empty($shipmentStatus->error_code),
+                "status_code" => $status,
+                "status_text" => ''
+            ];
+
+            return (object) ['errors' => false, 'data' => $data, 'messages' => 'Successfully got the status'];
+        } else {
+            return (object) ['errors' => false, 'data' => [], 'messages' => $shipmentStatus->error_msg];
+        }
+
+    }
+
 
     /**
      * @param $args

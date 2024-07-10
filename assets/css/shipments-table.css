@@ -32,6 +32,11 @@
     border: 1px solid green;
 }
 
+.btn.btn-red {
+    background-color: red;
+    border: 1px solid red;
+    color: #fff;
+}
 .btn.btn-yellow {
     background-color: #e1d111;
     border: 1px solid #e1d111;

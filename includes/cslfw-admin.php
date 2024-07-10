@@ -506,7 +506,7 @@ if( !class_exists('CSLFW_Admin') ) {
                     $currentProcess = array_unique([...$currentProcess, ...$orderIds]);
                     set_transient( 'bulk_shipment_create', $currentProcess, 300);
 
-                    $lastOrderId = count($currentProcess > 0) ? $currentProcess[count($currentProcess) - 1] : null;
+                    $lastOrderId = $currentProcess && count($currentProcess) > 0 ? $currentProcess[count($currentProcess) - 1] : null;
                     $delay = 1;
                     $logs = new CSLFW_Logs();
                     $logs->add_log_message('BULK PROCESS:: add orders', ['orders' => $orderIds]);

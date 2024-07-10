@@ -55,7 +55,7 @@ if( !class_exists('CSLFW_Logs') ) {
             if (!file_exists($path)) {
                 $file = fopen($path, 'w') or die("Can't create file");
             }
-            $message = empty($data) ? $msg . PHP_EOL  : $msg . wp_json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) . PHP_EOL;
+            $message = empty($data) ? $msg . PHP_EOL  : "$msg " . wc_print_r($data, true) . PHP_EOL;
             file_put_contents($path, $message, FILE_APPEND) or die('failed to put');
         }
 

@@ -28,6 +28,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             } else {
                 $this->cargo = new Cargo();
             }
+
             $this->helpers = new CSLFW_Helpers();
 
             if ($order_id) {
@@ -219,9 +220,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 }
             }
 
-            $message .= "Shipment Data : ".wp_json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
-            $message .= "Response : ".wp_json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
-            $logs->add_log_message($message);
+            $message .= "Cargo.shipment.create response::";
+            $logs->add_log_message($message, [
+                'response' => $response
+            ]);
             return $response;
         }
 
@@ -275,16 +277,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
          * @return array|string[]
          */
         function getOrderStatusFromCargo($shipping_id) {
-            $shipping_method_id = $this->cargoOrder->getShippingMethod();
-
-            if (is_null($shipping_method_id)) {
-                return [
-                    "type" => "failed",
-                    "order_id" => $this->order_id,
-                    "shipping_method_id" => $shipping_method_id,
-                    "data" => 'No shipping methods found. Contact Support please.'
-                ];
-            }
             if (in_array($this->order->get_status(), ['cancelled', 'refunded', 'pending'])) {
                 return [
                     "type" => "failed",
@@ -292,7 +284,23 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ];
             }
 
-            $customer_code = $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            if ($this->deliveries) {
+                $shipment = $this->deliveries[$shipping_id];
+                $customer_code = $shipment['customer_code'];
+            } else {
+                $shipping_method_id = $this->cargoOrder->getShippingMethod();
+
+                if (is_null($shipping_method_id)) {
+                    return [
+                        "type" => "failed",
+                        "order_id" => $this->order_id,
+                        "shipping_method_id" => $shipping_method_id,
+                        "data" => 'No shipping methods found. Contact Support please.'
+                    ];
+                }
+
+                $customer_code = $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            }
 
             $shipment_status = $this->cargo->checkShipmentStatus($shipping_id, $customer_code);
 
@@ -346,6 +354,54 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         }
 
         /**
+         * @param $shipping_id
+         * @param $status_code
+         * @return array|string[]
+         */
+        function updateShipmentStatus($shipping_id, $status_code)
+        {
+            if (in_array($this->order->get_status(), ['cancelled', 'refunded', 'pending'])) {
+                return [
+                    "type" => "failed",
+                    "data" => "Can't process order with cancelled, pending or refunded status"
+                ];
+            }
+
+            if ($this->deliveries) {
+                $shipment = $this->deliveries[$shipping_id];
+                $customer_code = $shipment['customer_code'];
+            } else {
+                $shipping_method_id = $this->cargoOrder->getShippingMethod();
+
+                if (is_null($shipping_method_id)) {
+                    return [
+                        "type" => "failed",
+                        "order_id" => $this->order_id,
+                        "shipping_method_id" => $shipping_method_id,
+                        "data" => 'No shipping methods found. Contact Support please.'
+                    ];
+                }
+
+                $customer_code = $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            }
+            $shipment_status = $this->cargo->updateShipmentStatus($shipping_id, $customer_code, $status_code);
+
+            if (!$shipment_status->errors && $shipping_id) {
+                if ($status_code === 8) {
+                    if ($this->deliveries) {
+                        unset($this->deliveries[$shipping_id]);
+                        $this->order->update_meta_data('cslfw_shipping', $this->deliveries );
+                        $this->order->delete_meta_data('cslfw_printed_label');
+                        $this->order->save();
+                    }
+                }
+            }
+
+            echo json_encode($shipment_status);
+            exit;
+        }
+
+            /**
          * @param false $shipment_ids
          * @return mixed
          */

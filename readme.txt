@@ -105,6 +105,8 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 * Add cslfw_change_recipient_phone hook to modify recipient phone number.
 
 == 5.0 ==
-* Added new cargo api support with api tokens. Faster, more accurate, more secured.
+* Added new cargo api support with api tokens. Much faster, much accurate, much secured.
 * Added action scheduler for creating bulk shipments in a background.
 * Add Action Scheduler and Make queues for bulk shipment create
+* Improved debug logging
+* Cancel shipment feature.

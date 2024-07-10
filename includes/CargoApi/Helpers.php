@@ -12,7 +12,8 @@ trait Helpers
      */
     public function post($url, $data = [], $headers = []) {
         $postHeaders = array_merge($headers, [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
         ]);
 
         $args = [
@@ -41,7 +42,8 @@ trait Helpers
      */
     public function get($url, $data = [], $headers = []) {
         $postHeaders = array_merge($headers, [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
         ]);
 
         $args = [
@@ -65,7 +67,8 @@ trait Helpers
      */
     public function put($url, $data = [], $headers = []) {
         $postHeaders = array_merge($headers, [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
         ]);
 
         $args = [
@@ -90,7 +93,8 @@ trait Helpers
      */
     public function delete($url, $data = [], $headers = []) {
         $postHeaders = array_merge($headers, [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
         ]);
 
         $args = [

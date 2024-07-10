@@ -68,6 +68,10 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             add_action('wp_ajax_getOrderStatus', [$this, 'getOrderStatusFromCargo']);
             add_action('wp_ajax_nopriv_getOrderStatus', [$this, 'getOrderStatusFromCargo']);
+
+            add_action('wp_ajax_cancelShipment', [$this, 'cancelShipment']);
+            add_action('wp_ajax_nopriv_cancelShipment', [$this, 'cancelShipment']);
+
             add_action('wp_ajax_get_delivery_location', [$this, 'cslfw_ajax_delivery_location']);
             add_action('wp_ajax_nopriv_get_delivery_location', [$this, 'cslfw_ajax_delivery_location']);
 
@@ -303,6 +307,25 @@ if( !class_exists('CSLFW_Cargo') ) {
 			echo wp_json_encode( $cargo_shipping->getOrderStatusFromCargo($shipping_id) );
 			exit;
 		}
+
+		function cancelShipment() {
+            $order_id = (int) sanitize_text_field($_POST['orderId']);
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), "cslfw_cargo_actions{$order_id}")) {
+                echo wp_json_encode([
+                    'error' => true,
+                    'message' => 'Bad request, try again later.',
+                ]);
+                wp_die();
+            }
+            $shipping_id    = (int) sanitize_text_field($_POST['deliveryId']);
+            $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
+            $response = $cargo_shipping->updateShipmentStatus($shipping_id, 8);
+            $logs = new CSLFW_Logs();
+            $logs->add_log_message('CARGO CANCEL SHIPMENT::', ['shipment_id' => $shipping_id, 'data' => $response]);
+
+            echo wp_json_encode( $response );
+            exit;
+        }
 
         /**
          * Update order on status change.

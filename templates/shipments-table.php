@@ -148,6 +148,10 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
                     </td>
                     <td class="">
 
+                        <button class="btn btn-red js-cancel-shipment"
+                                data-nonce="<?php echo esc_attr($nonce) ?>"
+                                data-order-id="<?php echo wp_kses_post($order->get_id()) ?>"
+                                data-shipment-id="<?php echo wp_kses_post($shipmentId) ?>">ביטול</button>
                         <button class="btn btn-yellow js-print-shipment-label"
                                 data-nonce="<?php echo esc_attr($nonce) ?>"
                                 data-order-id="<?php echo wp_kses_post($order->get_id()) ?>"

@@ -31,6 +31,10 @@ class CargoAPIV2
     {
         $cargoObject = $this->transformFromOldToNew($args['Params']);
 
+        $logs = new \CSLFW_Logs();
+        $logs->add_log_message('cargo.apiV2.shipment-create', [
+            'request' => $cargoObject
+        ]);
         return $this->post("{$this->host}shipments/create", $cargoObject, $this->headers);
     }
 
@@ -127,20 +131,20 @@ class CargoAPIV2
     }
 
     /**
-     * @param int $shipmentId
-     * @param int $customerCode
+     * @param int $shipment_id
+     * @param int $customer_code
      * @param int $status
      * @return mixed
      */
-    public function updateShipmentStatus(int $shipmentId, int $customerCode, int $status)
+    public function updateShipmentStatus(int $shipment_id, int $customer_code, int $status)
     {
         $data = [
-            "shipment_id" => $shipmentId,
-            "customer_code" => $customerCode,
+            "shipment_id" => $shipment_id,
+            "customer_code" => $customer_code,
             "status_code" => $status
         ];
 
-        return $this->put( 'shipments/update-status', $data, $this->headers);
+        return $this->put( "{$this->host}shipments/update-status", $data, $this->headers);
     }
 
     /**
