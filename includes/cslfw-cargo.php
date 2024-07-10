@@ -90,7 +90,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $customer_code = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
             $shipping_type = (int) $args['shipping_type'] ?? 1;
             if ($shipping_type === 2 ) {
-                $customer_code   = $pickupCustomerCode ? $pickupCustomerCode :  get_option('shipping_cargo_express');
+                $customer_code = $pickupCustomerCode ? $pickupCustomerCode :  get_option('shipping_cargo_express');
             }
 
             $name = $order_data['shipping']['first_name'] ? $order_data['shipping']['first_name']. ' ' . $order_data['shipping']['last_name'] : $order_data['billing']['first_name'] . ' ' . $order_data['billing']['last_name'];
@@ -153,16 +153,16 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 ]
             ];
 
-            if (isset($args['shipping_type']) && (int)$args['shipping_type'] === 2) {
+            if ($shipping_type === 2) {
                 $tmp_from_address = $data['Params']['from_address'];
                 $data['Params']['from_address'] = $data['Params']['to_address'];
                 $data['Params']['to_address'] = $tmp_from_address;
+                $data['Params']['CarrierID'] = 1;
             }
 
             if ( $data['Params']['CashOnDelivery'] ) {
                 $data['Params']['CashOnDeliveryType'] = $args['cargo_cod_type'] ?? 0;
             }
-
 
             if ($isBoxShipment && $shipping_type !== 2) {
                 if ( $cargo_box_style !== 'cargo_automatic' || isset($args['box_point']) ) {
@@ -171,6 +171,14 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     $data['Params']['boxPointId'] = $this->order->get_meta('cargo_DistributionPointID', true);
                     $data['Params']['boxPointId'] = $chosen_point->DistributionPointID ?? $data['Params']['boxPointId'];
                 }
+            }
+
+            if ($shipping_type === 2) {
+                $tmp_from_address = $data['Params']['from_address'];
+                $data['Params']['from_address'] = $data['Params']['to_address'];
+                $data['Params']['to_address'] = $tmp_from_address;
+                $data['Params']['CarrierID'] = 1;
+                unset($data['Params']['boxPointId']);
             }
 
             return $data;

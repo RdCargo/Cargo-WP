@@ -506,31 +506,15 @@ if( !class_exists('CSLFW_Admin') ) {
                     $currentProcess = array_unique([...$currentProcess, ...$orderIds]);
                     set_transient( 'bulk_shipment_create', $currentProcess, 300);
 
+                    $lastOrderId = count($currentProcess > 0) ? $currentProcess[count($currentProcess) - 1] : null;
+                    $delay = 1;
+                    $logs = new CSLFW_Logs();
+                    $logs->add_log_message('BULK PROCESS:: add orders', ['orders' => $orderIds]);
                     foreach ($orderIds as $orderId) {
-                        $cargoShipping = new CSLFW_Cargo_Shipping($orderId);
-                        $order = wc_get_order($orderId);
-
-                        if (!$cargoShipping->get_shipment_data()) {
-                            $args = [
-                                'double_delivery' => $actionName === 'send-cargo-dd' ? 2 : 1,
-                                'shipping_type' => $actionName === 'send-cargo-pickup' ? 2 : 1
-                            ];
-
-                            if ($distribution_point = (int)$order->get_meta('cargo_DistributionPointID', true)) {
-                                $point = $this->cargo->findPointById($distribution_point);
-                                if (!$point->errors) {
-                                    $args['box_point'] = $point->data;
-                                }
-                            }
-
-                            $cargoShipping->createShipment($args);
-                            $processed_count++;
-                        } else {
-                            $skipped_count++;
-                        }
+                        $handler = new CSLFW_Cargo_Process_Shipment_Create($orderId, $actionName, $lastOrderId);
+                        cslfw_handle_or_queue($handler, $delay);
+                        $delay++;
                     }
-
-                    delete_transient( 'bulk_shipment_create', $orderIds, 300);
                 }
             }
 

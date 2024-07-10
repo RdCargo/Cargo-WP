@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 4.2.10
+ * Version: 5.0
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -34,27 +34,20 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '4.2.10' );
+    define( 'CSLFW_VERSION', '5.0' );
 }
 
-require CSLFW_PATH . '/includes/CSLFW_Helpers.php';
-require CSLFW_PATH . '/includes/CargoApi/Helpers.php';
-require CSLFW_PATH . '/includes/CargoApi/CSLFW_Order.php';
-require CSLFW_PATH . '/includes/CargoApi/Cargo.php';
-require CSLFW_PATH . '/includes/CargoApi/CargoAPIV2.php';
-require CSLFW_PATH . '/includes/CargoApi/Webhook.php';
-require CSLFW_PATH . '/includes/CSLFW_ShipmentsPage.php';
-require CSLFW_PATH . '/includes/cslfw-logs.php';
-require CSLFW_PATH . '/includes/cslfw-contact.php';
-require CSLFW_PATH . '/includes/cslfw-settings.php';
-require CSLFW_PATH . '/includes/cslfw-admin.php';
-require CSLFW_PATH . '/includes/cslfw-front.php';
-require CSLFW_PATH . '/includes/cslfw-cargo.php';
-//include_once __DIR__ . '/blocks/cargo-shipping.php';
+if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
+    // require Action Scheduler
+    if( file_exists( __DIR__ . "/includes/vendor/action-scheduler/action-scheduler.php" ) ){
+        include_once __DIR__ . "/includes/vendor/action-scheduler/action-scheduler.php";
+    }
+
+    include_once __DIR__ . "/bootstrap.php";
+}
 
 if( !class_exists('CSLFW_Cargo') ) {
     class CSLFW_Cargo {
-
         function __construct() {
             $this->helpers = new CSLFW_Helpers();
             $this->logs = new CSLFW_Logs();
@@ -87,11 +80,27 @@ if( !class_exists('CSLFW_Cargo') ) {
             add_action( 'plugins_loaded', array($this, 'load_plugin_translations') );
 
             add_action('woocommerce_order_status_processing', [$this, 'auto_create_shipment'], 200, 1);
+
+            add_action('CSLFW_Cargo_Process_Shipment_Create', [$this, 'cslfw_process_single_job'], 10, 3);
+        }
+
+        function cslfw_process_single_job($obj_id = null, $action_name = '', $last_order_id = null)
+        {
+            $logs = new CSLFW_Logs();
+            $message = "********************************************* \n";
+            $message .= "********************************************* \n";
+            $message .= 'cslfw_process_single_job fired';
+            $logs->add_debug_message($message, ['obj' => $obj_id, 'action_name' => $action_name, 'last_order_id' => $last_order_id]);
+            $job = new CSLFW_Cargo_Process_Shipment_Create($obj_id, $action_name, $last_order_id);
+            $job->handle();
+
+            return true;
         }
 
         function load_plugin_translations() {
             load_plugin_textdomain( 'cargo-shipping-location-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
         }
+
         public function hpos_compability()
         {
             if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
@@ -371,7 +380,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             $order->save();
         }
 
-            /**
+        /**
          * Update Order meta
          *
          * @param $order_id

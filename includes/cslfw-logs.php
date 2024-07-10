@@ -43,7 +43,7 @@ if( !class_exists('CSLFW_Logs') ) {
          *
          * Add Log for Order
          */
-        function add_log_message($msg) {
+        function add_log_message($msg, $data = []) {
             $upload = wp_upload_dir();
             $upload_dir = $upload['basedir'];
             $upload_dir = $upload_dir . '/cargo-shipping-location';
@@ -55,16 +55,16 @@ if( !class_exists('CSLFW_Logs') ) {
             if (!file_exists($path)) {
                 $file = fopen($path, 'w') or die("Can't create file");
             }
-
-            file_put_contents($path, $msg, FILE_APPEND) or die('failed to put');
+            $message = empty($data) ? $msg . PHP_EOL  : $msg . wp_json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) . PHP_EOL;
+            file_put_contents($path, $message, FILE_APPEND) or die('failed to put');
         }
 
         /**
          * @param $msg
          */
-        function add_debug_message($msg) {
+        function add_debug_message($msg, $data = []) {
             if (get_option('cslfw_debug_mode')) {
-                $this->add_log_message($msg);
+                $this->add_log_message($msg, $data);
             }
         }
 

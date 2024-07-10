@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.4.3
 Requires PHP: 7.4
-Stable tag: 4.2.10
+Stable tag: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,3 +103,8 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 4.2.10 ==
 * Fix issue with duplicate shipments create.
 * Add cslfw_change_recipient_phone hook to modify recipient phone number.
+
+== 5.0 ==
+* Added new cargo api support with api tokens. Faster, more accurate, more secured.
+* Added action scheduler for creating bulk shipments in a background.
+* Add Action Scheduler and Make queues for bulk shipment create

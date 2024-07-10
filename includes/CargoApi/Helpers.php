@@ -26,8 +26,8 @@ trait Helpers
         if ( $data ) $args['body'] = wp_json_encode($data);
         $response   = wp_remote_post($url, $args);
         $logs = new \CSLFW_Logs();
-        $logs->add_debug_message("POST ARGS: $url." . wp_json_encode($args,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) . PHP_EOL);
-        $logs->add_debug_message("RESPONSE: $url." . wp_json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) . PHP_EOL);
+//        $logs->add_debug_message("POST ARGS: $url." . wp_json_encode($args,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) . PHP_EOL);
+//        $logs->add_debug_message("RESPONSE: $url." . wp_json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) . PHP_EOL);
         $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
 
         return json_decode( $response );
