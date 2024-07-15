@@ -106,7 +106,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                        placeholder="<?php esc_html_e('Please Google maps API key', 'cargo-shipping-location-for-woocommerce') ?>"
                                        id="cslfw_google_api_key"
                                        name="cslfw_google_api_key"
-                                    <?php echo $cargo_box_style === 'cargo_map' ? 'required' : '' ?>
+                                    <?php echo $cargo_box_style === 'cargo_map' && !empty($boxCode) ? 'required' : '' ?>
                                        value="<?php echo esc_attr( get_option('cslfw_google_api_key') )?>" />
 
                             </label>

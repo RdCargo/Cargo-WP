@@ -41,6 +41,17 @@ class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
     {
         $logs = new CSLFW_Logs();
         $logs->add_debug_message("CARGO QUEUE:: started job handle", ['order_id' => $this->id, 'action_name' => $this->action_name]);
+        $progress = get_transient( 'cslfw_bulk_shipment_process');
+
+        // Loop through the array of objects
+        if ($progress) {
+            foreach ($progress as &$singleProgress) {
+                if ($singleProgress['orderId'] == $this->id) {
+                    $singleProgress['status'] = 'Processing ...';
+                    break;
+                }
+            }
+        }
 
         $cargoShipping = new CSLFW_Cargo_Shipping($this->id);
         $order = wc_get_order($this->id);
@@ -59,13 +70,37 @@ class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
             }
 
             $shipment = $cargoShipping->createShipment($args);
+
+            if (!$shipment->errors) {
+                $shipment_id = $shipment->data->shipment_id;
+                $newProgressStatus = "ShipmentID: $shipment_id";
+            } else {
+                $newProgressStatus = "ERROR:: {$shipment->message}";
+                $logs->add_debug_message("CARGO QUEUE:: processed order", ['order_id' => $this->id, 'action_name' => $this->action_name, 'shipment' => $shipment]);
+            }
+
             $logs->add_debug_message("CARGO QUEUE:: processed order", ['order_id' => $this->id, 'action_name' => $this->action_name, 'shipment' => $shipment]);
+
         } else {
+            $newProgressStatus = 'Order skipped because shipment already exist';
             $logs->add_debug_message("CARGO QUEUE:: skip the order because shipment already exist", ['order_id' => $this->id, 'action_name' => $this->action_name]);
         }
 
+        if ($progress) {
+            foreach ($progress as &$singleProgress) {
+                if ($singleProgress['orderId'] == $this->id) {
+                    $singleProgress['status'] = $newProgressStatus;
+                    break;
+                }
+            }
+        }
+        set_transient( 'cslfw_bulk_shipment_process', $progress, 300);
+
         if (!is_null($this->last_order_id) && $this->id === $this->last_order_id) {
             delete_transient('bulk_shipment_create');
+
+            sleep(5);
+            delete_transient( 'cslfw_bulk_shipment_process');
         }
     }
 

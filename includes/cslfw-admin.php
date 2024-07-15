@@ -57,12 +57,13 @@ if( !class_exists('CSLFW_Admin') ) {
 
             add_action('wp_ajax_cslfw_get_points_by_city', [$this, 'get_points_by_city']);
             add_action('wp_ajax_nopriv_cslfw_get_points_by_city', [$this, 'get_points_by_city']);
+
+            add_action('wp_ajax_cslfw_get_bulk_action_progress', [$this, 'get_bulk_action_progress']);
         }
 
         public function import_assets() {
             $screen       = get_current_screen();
             $screen_id    = $screen ? $screen->id : '';
-
 
             if( $screen_id === 'toplevel_page_loaction_api_settings' ||
                 $screen_id === 'cargo-shipping-location_page_cargo_shipping_contact' ||
@@ -71,6 +72,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 $screen_id === 'cargo-shipping-location_page_cargo_orders_reindex' ) {
                 wp_enqueue_script( 'cargo-libs', CSLFW_URL . 'assets/js/libs.js', ['jquery'], CSLFW_VERSION, true);
             }
+
             wp_enqueue_style( 'admin-baldarp-styles', CSLFW_URL . 'assets/css/admin-baldarp-styles.css' );
             wp_enqueue_script( 'cargo-global', CSLFW_URL . 'assets/js/global.js', ['jquery'], CSLFW_VERSION, true);
 
@@ -82,6 +84,10 @@ if( !class_exists('CSLFW_Admin') ) {
                     'path' => CSLFW_URL,
                 ]
             );
+
+            if ($screen_id === 'edit-shop_order' || $screen_id === 'woocommerce_page_wc-orders') {
+                wp_enqueue_script( 'cargo-libs', CSLFW_URL . 'assets/js/admin/bulk-actions-script.js', ['jquery'], CSLFW_VERSION, true);
+            }
         }
 
         public function change_carrier_id()
@@ -392,6 +398,7 @@ if( !class_exists('CSLFW_Admin') ) {
          */
         function cargo_bulk_action_admin_notice() {
             global $pagenow;
+
             if ( 'edit.php' === $pagenow ) {
                 $args = [
                     'posts_per_page' => -1,
@@ -413,33 +420,65 @@ if( !class_exists('CSLFW_Admin') ) {
                 }
             }
 
-            if ( 'edit.php' === $pagenow
+            if ( ('edit.php' === $pagenow
                 && isset($_GET['post_type'])
                 && 'shop_order' === sanitize_text_field($_GET['post_type'])
-                && isset( $_GET['cargo_send']) ) {
+                && isset( $_GET['cargo_send'])) || ($pagenow === 'admin.php' && isset($_GET['page']) && 'wc-orders' == sanitize_text_field($_GET['page'])) ) {
 
-                if ( isset($_REQUEST['processed_count']) ) {
-                    $processed_count = intval( sanitize_text_field($_REQUEST['processed_count']) );
+                if ( isset($_REQUEST['processed_ids']) ) {
+                    $processed_orders = sanitize_text_field($_REQUEST['processed_ids']);
+                    $processed_orders = explode(',', $processed_orders);
+                    $processed_count = count($processed_orders);
+                    $progress = get_transient( 'cslfw_bulk_shipment_process');
+                    $processing = get_transient('bulk_shipment_create');
 
-                    echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
-                        _n( '%s Order Sent for Shipment',
-                            '%s Orders Sent For Shipment',
-                            $processed_count,
-                            'cargo-shipping-location-for-woocommerce'
-                        ) . '</p></div>', $processed_count ) );
-                }
+                    if ($processing) {
+                        $noticeText = '<div class="notice notice-success fade is-dismissible"><div id="cslfw_bulk_shipment_progress" ><p>';
+                        $noticeText .=  _n( '%s Order Sent for Shipment. They will start processing really soon. be patient.',
+                                '%s Order Sent for Shipment. They will start processing really soon. be patient.',
+                                $processed_count,
+                                'cargo-shipping-location-for-woocommerce'
+                            );
+                        $noticeText .='</p>';
+                        if ($progress) {
+                            foreach ($progress as $value) {
+                                $noticeText .= "<p>Order <b>#{$value['orderId']}</b> :: {$value['status']}</p>";
+                            }
+                        }
 
-                if ( isset($_REQUEST['skipped_count']) ) {
-                    $skipped_count = intval( sanitize_text_field($_REQUEST['skipped_count']) );
-
-                    echo wp_kses_post( printf( '<div class="notice notice-success fade is-dismissible"><p>' .
-                        _n( '%s Were skipped because they already have shipment created.',
-                            '%s Were skipped because they already have shipment created.',
-                            $skipped_count,
-                            'cargo-shipping-location-for-woocommerce'
-                        ) . '</p></div>', $skipped_count ) );
+                        $noticeText .='</div></div>';
+                        echo wp_kses_post( printf( $noticeText, $processed_count ) );
+                    }
                 }
             }
+        }
+
+        public function get_bulk_action_progress()
+        {
+            $progress = get_transient( 'cslfw_bulk_shipment_process');
+            $completed = !get_transient('bulk_shipment_create');
+
+            $countProgress = count($progress);
+            $noticeText = '<p>';
+            $noticeText .=  "$countProgress Order Sent for Shipment. They will start processing really soon. be patient.";
+            $noticeText .='</p>';
+            if ($progress) {
+                foreach ($progress as $value) {
+                    $noticeText .= "<p>Order <b>#{$value['orderId']}</b> :: {$value['status']}</p>";
+                }
+            }
+            if ($completed) {
+                $noticeText .='<p>All shipments are completed.</p>';
+                $noticeText .='<p><a class="cslfw-remove-webhooks button" href="#" onclick="window.location.reload()">Reload page</a></p>';
+            }
+            $data = [
+                'completed' => $completed,
+                'progress_html' => $noticeText,
+                'progress' => $progress,
+            ];
+
+            echo wp_json_encode($data);
+            wp_die();
         }
 
         /**
@@ -480,8 +519,6 @@ if( !class_exists('CSLFW_Admin') ) {
         public function bulk_order_cargo_shipment($redirect_to, $action, $ids = null)
         {
             $orderIds = $ids ?? array_map('sanitize_text_field', $_GET['id']) ?? [];
-            $processed_count = 0;
-            $skipped_count = 0;
 
             if (strpos($action, 'mark_') !== false) {
                 $actionName = substr( $action, 5 ); // Get the status name from action.
@@ -505,11 +542,19 @@ if( !class_exists('CSLFW_Admin') ) {
 
                     $currentProcess = array_unique([...$currentProcess, ...$orderIds]);
                     set_transient( 'bulk_shipment_create', $currentProcess, 300);
+                    $progress = array_map(function($orderId) {
+                        return [
+                            'orderId' => $orderId,
+                            'status' => 'Queued...'
+                        ];
+                    }, $currentProcess);
+                    set_transient( 'cslfw_bulk_shipment_process', $progress, 300);
 
                     $lastOrderId = $currentProcess && count($currentProcess) > 0 ? $currentProcess[count($currentProcess) - 1] : null;
                     $delay = 1;
                     $logs = new CSLFW_Logs();
                     $logs->add_log_message('BULK PROCESS:: add orders', ['orders' => $orderIds]);
+
                     foreach ($orderIds as $orderId) {
                         $handler = new CSLFW_Cargo_Process_Shipment_Create($orderId, $actionName, $lastOrderId);
                         cslfw_handle_or_queue($handler, $delay);
@@ -520,10 +565,8 @@ if( !class_exists('CSLFW_Admin') ) {
 
             return add_query_arg(
                 [
-                    'old_stutus'     => '',
-                    'processed_count' => $processed_count,
-                    'skipped_count' => $skipped_count,
                     'processed_ids'  => implode( ',', $orderIds ),
+                    'cargo_send' => true
                 ], $redirect_to );
         }
 
