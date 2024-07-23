@@ -219,7 +219,10 @@ if( !class_exists('CSLFW_Front') ) {
                 wp_die();
             }
 
-            $result = $this->cargo->checkShipmentStatus($data['deliveryId'], null);
+            $customer_code = get_option('shipping_cargo_express');
+            $customer_code = $customer_code ? $customer_code : get_option('shipping_cargo_box');
+
+            $result = $this->cargo->checkShipmentStatus($data['deliveryId'], $customer_code);
             echo wp_json_encode( $result );
             die();
         }

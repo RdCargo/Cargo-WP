@@ -55,7 +55,15 @@ function cslfw_push_cargo_job(CSLFW_Cargo_Job $job, $delay = 0 )  {
             $action_args['page'] = $current_page;
         }
 
-        $action = as_schedule_single_action( strtotime( '+'.$delay.' seconds' ), get_class($job), $action_args, "cslfw-cargo-shipping-location");
+        if ($delay === 0) {
+            $logs->add_debug_message('action_scheduler.reschedule_job:: SCHEDULED RIGHT AWAY');
+
+            $action = as_schedule_single_action( time(), get_class($job), $action_args, "cslfw-cargo-shipping-location");
+        } else {
+            $logs->add_debug_message('action_scheduler.reschedule_job:: SCHEDULED WITH DELAY ' . $delay . ' seconds');
+
+            $action = as_schedule_single_action( strtotime( '+'.$delay.' seconds' ), get_class($job), $action_args, "cslfw-cargo-shipping-location");
+        }
 
         if (!empty($existing_actions)) {
             $logs->add_debug_message('action_scheduler.reschedule_job::' . get_class($job) . ($delay > 0 ? ' restarts in '.$delay. ' seconds' : ' re-queued' ) . $message . $attempts);

@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.4.3
 Requires PHP: 7.4
-Stable tag: 5.0.1
+Stable tag: 5.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -113,3 +113,6 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 
 == 5.0.1 ==
 * Add progress bar to bulk shipments with auto refresh
+
+== 5.0.2 ==
+* Fix progress bar issue.

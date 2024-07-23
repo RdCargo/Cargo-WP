@@ -458,7 +458,7 @@ if( !class_exists('CSLFW_Admin') ) {
             $progress = get_transient( 'cslfw_bulk_shipment_process');
             $completed = !get_transient('bulk_shipment_create');
 
-            $countProgress = count($progress);
+            $countProgress = !$completed && is_array($progress) ? count($progress) : 0;
             $noticeText = '<p>';
             $noticeText .=  "$countProgress Order Sent for Shipment. They will start processing really soon. be patient.";
             $noticeText .='</p>';
@@ -551,14 +551,13 @@ if( !class_exists('CSLFW_Admin') ) {
                     set_transient( 'cslfw_bulk_shipment_process', $progress, 300);
 
                     $lastOrderId = $currentProcess && count($currentProcess) > 0 ? $currentProcess[count($currentProcess) - 1] : null;
-                    $delay = 1;
+                    $delay = 0;
                     $logs = new CSLFW_Logs();
                     $logs->add_log_message('BULK PROCESS:: add orders', ['orders' => $orderIds]);
 
                     foreach ($orderIds as $orderId) {
                         $handler = new CSLFW_Cargo_Process_Shipment_Create($orderId, $actionName, $lastOrderId);
                         cslfw_handle_or_queue($handler, $delay);
-                        $delay++;
                     }
                 }
             }

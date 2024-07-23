@@ -39,6 +39,7 @@
                     }
                 },
                 error: function( jqXHR, textStatus, errorThrown ) {
+                    clearInterval(bulkActionsInterval)
                     console.log('error', errorThrown);
                     console.log(textStatus);
                 }
