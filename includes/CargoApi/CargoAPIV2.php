@@ -12,7 +12,7 @@ class CargoAPIV2
     private $api_key;
     private $headers;
 
-    protected String $host = 'https://api-v2.cargo.co.il/api/';
+    protected $host = 'https://api-v2.cargo.co.il/api/';
 
     public function __construct()
     {
@@ -51,14 +51,15 @@ class CargoAPIV2
             "total_value" => $oldApiParams['TotalValue'],
             "transaction_id" => $oldApiParams['TransactionID'],
             "cash_on_delivery" => $oldApiParams['CashOnDelivery'],
+            "cod_type" => $oldApiParams['CashOnDeliveryType'],
             "carrier_id" => $oldApiParams['CarrierID'],
             "order_id" => $oldApiParams['OrderID'],
             "notes" => $oldApiParams['Note'],
             "website" => $oldApiParams['website'],
             "platform" => "Wordpress",
             "customer_code" => $oldApiParams['customerCode'],
-            "to_address" => $oldApiParams['shipping_type'] === 2 ? $oldApiParams['from_address'] : $oldApiParams['to_address'],
-            "from_address" => $oldApiParams['shipping_type'] === 2 ? $oldApiParams['to_address'] : $oldApiParams['from_address']
+            "to_address" => $oldApiParams['to_address'],
+            "from_address" => $oldApiParams['from_address']
         ];
 
         if (isset($oldApiParams['boxPointId']) && $oldApiParams['boxPointId']) {

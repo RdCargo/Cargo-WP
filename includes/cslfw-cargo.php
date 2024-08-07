@@ -159,6 +159,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 $data['Params']['from_address'] = $data['Params']['to_address'];
                 $data['Params']['to_address'] = $tmp_from_address;
                 $data['Params']['CarrierID'] = 1;
+
+                if (isset($data['Params']['boxPointId'])) {
+                    unset($data['Params']['boxPointId']);
+                }
             }
 
             if ( $data['Params']['CashOnDelivery'] ) {
@@ -172,14 +176,6 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     $data['Params']['boxPointId'] = $this->order->get_meta('cargo_DistributionPointID', true);
                     $data['Params']['boxPointId'] = $chosen_point->DistributionPointID ?? $data['Params']['boxPointId'];
                 }
-            }
-
-            if ($shipping_type === 2) {
-                $tmp_from_address = $data['Params']['from_address'];
-                $data['Params']['from_address'] = $data['Params']['to_address'];
-                $data['Params']['to_address'] = $tmp_from_address;
-                $data['Params']['CarrierID'] = 1;
-                unset($data['Params']['boxPointId']);
             }
 
             return $data;
@@ -234,25 +230,28 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
          */
         public function addShipment( $shipment_params, $shipment_data ) {
             $delivery = is_array($this->deliveries) ? $this->deliveries : [];
-            $delivery[$shipment_data->shipment_id] = [
-                'driver_name'   => $shipment_data->driver_name,
-                'line_number'   => $shipment_data->line_text,
-                'customer_code' => $shipment_params['customerCode'],
-                'created_at' => date('Y-m-d H:i:s'),
-                'status'        => [
-                    'number' => $shipment_data->status_number ?? 1,
-                    'text' => $shipment_data->status_text ?? 'Open',
-                ]
-            ];
+            if ($shipment_data->shipment_id > 0) {
+                $delivery[$shipment_data->shipment_id] = [
+                    'driver_name'   => $shipment_data->driver_name,
+                    'line_number'   => $shipment_data->line_text,
+                    'customer_code' => $shipment_params['customerCode'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'status'        => [
+                        'number' => $shipment_data->status_number ?? 1,
+                        'text' => $shipment_data->status_text ?? 'Open',
+                    ]
+                ];
 
-            if (isset($shipment_params['boxPointId']) && $shipment_params['boxPointId']) {
-                $delivery[$shipment_data->shipment_id]['box_id'] = $shipment_params['boxPointId'];
+                if (isset($shipment_params['boxPointId']) && $shipment_params['boxPointId']) {
+                    $delivery[$shipment_data->shipment_id]['box_id'] = $shipment_params['boxPointId'];
+                }
+
+                $this->deliveries = $delivery;
+
+                $this->order->update_meta_data('cslfw_shipping', $this->deliveries);
+                $this->order->save();
             }
 
-            $this->deliveries = $delivery;
-
-            $this->order->update_meta_data('cslfw_shipping', $this->deliveries);
-            $this->order->save();
 
             return $this->deliveries;
         }
