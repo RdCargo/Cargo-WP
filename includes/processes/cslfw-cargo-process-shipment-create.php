@@ -62,6 +62,12 @@ class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
                 'shipping_type' => $this->action_name === 'send-cargo-pickup' ? 2 : 1
             ];
 
+            $autoCashOnDeliveryMethod = get_option('cslfw_cod_check') ?  get_option('cslfw_cod_check') : 'cod';
+
+            if ($autoCashOnDeliveryMethod === $order->get_payment_method()) {
+                $args['cargo_cod'] = $order->get_total();
+            }
+
             if ($distribution_point = (int)$order->get_meta('cargo_DistributionPointID', true)) {
                 $point = $this->cargo->findPointById($distribution_point);
                 if (!$point->errors) {

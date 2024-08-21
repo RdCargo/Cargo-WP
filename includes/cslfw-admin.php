@@ -425,6 +425,27 @@ if( !class_exists('CSLFW_Admin') ) {
                 && 'shop_order' === sanitize_text_field($_GET['post_type'])
                 && isset( $_GET['cargo_send'])) || ($pagenow === 'admin.php' && isset($_GET['page']) && 'wc-orders' == sanitize_text_field($_GET['page'])) ) {
 
+                session_start();
+
+                if ( isset($_SESSION['cslfw_print_label']) && !empty($_SESSION["cslfw_print_label"])) {
+                    $label_link = sanitize_text_field($_SESSION['cslfw_print_label']);
+
+                    $noticeText = '<div class="notice notice-success fade is-dismissible"><p>';
+                    $noticeText .=  esc_html__( "If it didn't redirect you to the labels, click button below", 'cargo-shipping-location-for-woocommerce');
+                    $noticeText .='</p>';
+                    $noticeText .='<p><a class="button" href="#" onclick="window.open(\''.$label_link.'\', \'_blank\')">Pdf link</a></p>';
+                    $noticeText .='</div>';
+                    echo wp_kses_post( printf( $noticeText ) );
+                    echo '<script>
+                                window.open("' . $label_link . '", "_blank")
+                                const url = new URL(window.location.href);
+                                const params = new URLSearchParams(url.search);
+                                params.delete("cslfw_print_label");
+                                window.history.replaceState({}, "", `${url.pathname}?${params}`);
+                            </script>';
+
+                    unset($_SESSION["cslfw_print_label"]);
+                }
                 if ( isset($_REQUEST['processed_ids']) ) {
                     $processed_orders = sanitize_text_field($_REQUEST['processed_ids']);
                     $processed_orders = explode(',', $processed_orders);
@@ -529,8 +550,9 @@ if( !class_exists('CSLFW_Admin') ) {
                     $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
 
                     if (!$pdfLabel->errors) {
-                        wp_redirect($pdfLabel->data);
-                        exit;
+                        session_start();
+                        $_SESSION["cslfw_print_label"] = $pdfLabel->data;
+                        return $redirect_to;
                     }
                 } else if (in_array($actionName, ['send-cargo-shipping', 'send-cargo-dd', 'send-cargo-pickup'])) {
                     $currentProcess = get_transient( 'bulk_shipment_create');

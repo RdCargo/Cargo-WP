@@ -1,13 +1,9 @@
 (function($) {
     $(document).ready(function() {
-        console.log('bulk actions script', admin_cargo_obj.ajaxurl)
         let data = {
             action: 'cslfw_get_bulk_action_progress'
         }
-        console.log('find selector', {
-            key: `tr#post-122 td.cslfw_delivery_status`,
-            selector: $(`tr#post-122 td.cslfw_delivery_status`)
-        })
+
         let bulkActionsInterval = setInterval(function() {
             $.ajax({
                 type: "post",
