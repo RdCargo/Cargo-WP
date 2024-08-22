@@ -142,6 +142,7 @@
 
 			if ( $('#cargo_pickup_point').length > 0 &&  $('#cargo_pickup_point option:selected').attr('value') !== '' ) data['box_point_id'] = $('#cargo_pickup_point option:selected').attr('value');
 			if ( $(this).attr('data-box-point-id') ) data['box_point_id'] = $(this).attr('data-box-point-id');
+			if ( $(this).attr('data-cargo-cod') ) data['cargo_cod'] = $(this).attr('data-cargo-cod');
 
 			ToggleLoading(true);
 			$.ajax({

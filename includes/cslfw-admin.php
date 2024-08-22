@@ -348,10 +348,13 @@ if( !class_exists('CSLFW_Admin') ) {
 
                             }
                         } else {
+                            $autoCashOnDeliveryMethod = get_option('cslfw_cod_check') ?  get_option('cslfw_cod_check') : 'cod';
+
+                            $order_total = $autoCashOnDeliveryMethod === $order->get_payment_method() ? $order->get_total() : 0;
                             if ( $box_point_id ) {
-                                echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-box-point-id='$box_point_id' data-id=".$order->get_id()." >שלח  לCARGO</a>");
+                                echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-cargo-cod='$order_total' data-box-point-id='$box_point_id' data-id=".$order->get_id()." >שלח  לCARGO</a>");
                             } else {
-                                echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-id=".$order->get_id()." >שלח  לCARGO</a>");
+                                echo wp_kses_post("<a href='#' class='btn btn-success submit-cargo-shipping' data-cargo-cod='$order_total' data-id=".$order->get_id()." >שלח  לCARGO</a>");
                             }
                         }
                     }
