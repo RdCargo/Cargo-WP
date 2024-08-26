@@ -423,15 +423,13 @@ if( !class_exists('CSLFW_Admin') ) {
                 }
             }
 
-            if ( ('edit.php' === $pagenow
-                && isset($_GET['post_type'])
-                && 'shop_order' === sanitize_text_field($_GET['post_type'])
-                && isset( $_GET['cargo_send'])) || ($pagenow === 'admin.php' && isset($_GET['page']) && 'wc-orders' == sanitize_text_field($_GET['page'])) ) {
+            if ( ('edit.php' === $pagenow && isset($_GET['post_type']) && 'shop_order' === sanitize_text_field($_GET['post_type']) )
+                || ($pagenow === 'admin.php' && isset($_GET['page']) && 'wc-orders' == sanitize_text_field($_GET['page'])) ) {
 
-                session_start();
+                $print_label = get_transient('cslfw_print_label');
 
-                if ( isset($_SESSION['cslfw_print_label']) && !empty($_SESSION["cslfw_print_label"])) {
-                    $label_link = sanitize_text_field($_SESSION['cslfw_print_label']);
+                if ($print_label) {
+                    $label_link = sanitize_text_field($print_label);
 
                     $noticeText = '<div class="notice notice-success fade is-dismissible"><p>';
                     $noticeText .=  esc_html__( "If it didn't redirect you to the labels, click button below", 'cargo-shipping-location-for-woocommerce');
@@ -447,9 +445,10 @@ if( !class_exists('CSLFW_Admin') ) {
                                 window.history.replaceState({}, "", `${url.pathname}?${params}`);
                             </script>';
 
-                    unset($_SESSION["cslfw_print_label"]);
+                    delete_transient('cslfw_print_label');
                 }
-                if ( isset($_REQUEST['processed_ids']) ) {
+
+                if ( isset($_REQUEST['processed_ids']) && isset( $_GET['cargo_send'])) {
                     $processed_orders = sanitize_text_field($_REQUEST['processed_ids']);
                     $processed_orders = explode(',', $processed_orders);
                     $processed_count = count($processed_orders);
@@ -553,8 +552,8 @@ if( !class_exists('CSLFW_Admin') ) {
                     $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
 
                     if (!$pdfLabel->errors) {
-                        session_start();
-                        $_SESSION["cslfw_print_label"] = $pdfLabel->data;
+                        set_transient("cslfw_print_label", $pdfLabel->data, 60);
+
                         return $redirect_to;
                     }
                 } else if (in_array($actionName, ['send-cargo-shipping', 'send-cargo-dd', 'send-cargo-pickup'])) {
