@@ -8,6 +8,11 @@ class Webhook
     use Helpers;
     private $apiKey;
     private $headers;
+    /**
+     * @var CSLFW_Helpers
+     */
+    private $helpers;
+
     public function __construct()
     {
         $this->helpers = new CSLFW_Helpers();

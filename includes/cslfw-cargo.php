@@ -19,6 +19,10 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
         public $order;
         public $cargo;
         public $cargoOrder;
+        /**
+         * @var CSLFW_Helpers
+         */
+        private $helpers;
 
         function __construct($order_id = 0) {
             $api_key = get_option('cslfw_cargo_api_key');

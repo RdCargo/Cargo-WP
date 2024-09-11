@@ -10,6 +10,11 @@ use CSLFW_Logs;
 class CSLFW_ShipmentsPage
 {
 
+    /**
+     * @var \CSLFW\Includes\CSLFW_Helpers
+     */
+    private $helpers;
+
     public function __construct()
     {
         $this->helpers = new CSLFW_Helpers();

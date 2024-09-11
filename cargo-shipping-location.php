@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 5.0.6
+ * Version: 5.1.0
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -11,7 +11,7 @@
  * Text Domain: cargo-shipping-location-for-woocommerce
   *
   * WC requires at least: 6.0.0
-  * WC tested up to: 8.6.1
+  * WC tested up to: 9.2.3
  */
 
 use CSLFW\Includes\CargoAPI\Cargo;
@@ -34,7 +34,7 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '5.0.6' );
+    define( 'CSLFW_VERSION', '5.1.0' );
 }
 
 if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
@@ -48,6 +48,23 @@ if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
 
 if( !class_exists('CSLFW_Cargo') ) {
     class CSLFW_Cargo {
+        /**
+         * @var CSLFW_Helpers
+         */
+        private $helpers;
+        /**
+         * @var CSLFW_Logs
+         */
+        private $logs;
+        /**
+         * @var Cargo|CargoAPIV2
+         */
+        private $cargo;
+        /**
+         * @var Webhook
+         */
+        private $webhook;
+
         function __construct() {
             $this->helpers = new CSLFW_Helpers();
             $this->logs = new CSLFW_Logs();

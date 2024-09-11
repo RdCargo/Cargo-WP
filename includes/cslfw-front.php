@@ -16,6 +16,9 @@ use CSLFW\Includes\CSLFW_Helpers;
 if( !class_exists('CSLFW_Front') ) {
     class CSLFW_Front
     {
+        public $helpers;
+        public $cargo;
+
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();

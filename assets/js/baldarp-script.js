@@ -63,7 +63,6 @@ function toRad(Value) {
         Cookies.set('cargoStreetName',"",{expires: -1,path: '/'});
         Cookies.set('cargoStreetNum',"",{expires: -1,path: '/'});
         Cookies.set('cargoComment',"",{expires: -1,path: '/'});
-        Cookies.set('cargoPhone',"",{expires: -1,path: '/'});
     }
 
     function changeShipping(){
@@ -172,7 +171,6 @@ function toRad(Value) {
         Cookies.set('cargoStreetName', pointData.StreetName,{expires: 10,path: '/'})
         Cookies.set('cargoStreetNum', pointData.StreetNum,{expires: 10,path: '/'})
         Cookies.set('cargoComment', pointData.Comment,{expires: 10,path: '/'})
-        Cookies.set('cargoPhone',pointData.Phone,{expires: 10,path: '/'})
     }
 
 
@@ -373,9 +371,9 @@ function toRad(Value) {
                             '<div id="siteNotice"></div>'+
                             '<h5 style="margin: 0;">'+mainJson[index].DistributionPointName+'</h5>'+
                             '<div id="bodyContent">'+
-                            '<p>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+' </p>'+
+                            '<p>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+ mainJson[index].Comment +' </p>'+
                             '</div>'+
-                            '<button type="button" class="selected-location btn button wp-element-button" id="FlyingCargo_confirm" data-lat="'+mainJson[index].Latitude+'" data-long="'+mainJson[index].Longitude+'" data-fulladd="'+btoa(unescape(encodeURIComponent('<div>'+mainJson[index].DistributionPointName+'</div> <div>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+' '+mainJson[index].Phone+' '+mainJson[index].Comment+'</div>')))+'" data-disctipointid="'+mainJson[index].DistributionPointID+'" data-pointname="'+mainJson[index].DistributionPointName+'" data-city="'+mainJson[index].CityName+'" data-street="'+mainJson[index].StreetName+'" data-streetnum="'+mainJson[index].StreetNum+'" data-comment="'+mainJson[index].Comment+'" data-locationname="'+mainJson[index].DistributionPointName+'" data-cargoph="'+mainJson[index].Phone+'">בחירה וסיום</button>'+
+                            '<button type="button" class="selected-location btn button wp-element-button" id="FlyingCargo_confirm" data-lat="'+mainJson[index].Latitude+'" data-long="'+mainJson[index].Longitude+'" data-fulladd="'+btoa(unescape(encodeURIComponent('<div>'+mainJson[index].DistributionPointName+'</div> <div>'+mainJson[index].StreetNum+' , '+mainJson[index].StreetName+' '+mainJson[index].CityName+mainJson[index].Comment+'</div>')))+'" data-disctipointid="'+mainJson[index].DistributionPointID+'" data-pointname="'+mainJson[index].DistributionPointName+'" data-city="'+mainJson[index].CityName+'" data-street="'+mainJson[index].StreetName+'" data-streetnum="'+mainJson[index].StreetNum+'" data-comment="'+mainJson[index].Comment+'" data-locationname="'+mainJson[index].DistributionPointName+'" data-cargoph="'+''+'">בחירה וסיום</button>'+
                             '</div>' });
                     infowindow.open(map,marker);
                     const icon = {
@@ -426,7 +424,6 @@ function toRad(Value) {
                     $('#StreetName').val(mainJson[index].StreetName);
                     $('#StreetNum').val(mainJson[index].StreetNum);
                     $('#Comment').val(mainJson[index].Comment);
-                    $('#cargoPhone').val(mainJson[index].Phone);
                     $('#Latitude').val(mainJson[index].Latitude);
                     $('#Longitude').val(mainJson[index].Longitude);
                 }
@@ -602,7 +599,6 @@ function toRad(Value) {
         $('#StreetName').val($(this).attr("data-street"));
         $('#StreetNum').val($(this).attr("data-streetNum"));
         $('#Comment').val($(this).attr("data-comment"));
-        $('#cargoPhone').val($(this).attr("data-cargoPh"));
         $('#Latitude').val($(this).attr("data-lat"));
         $('#Longitude').val($(this).attr("data-long"));
         Cookies.set('cargoLatitude', $(this).attr("data-lat"), {expires: 10,path: '/'});
@@ -613,7 +609,6 @@ function toRad(Value) {
         Cookies.set('cargoStreetName',$(this).attr("data-street"),{expires: 10,path: '/'})
         Cookies.set('cargoStreetNum',$(this).attr("data-streetNum"),{expires: 10,path: '/'})
         Cookies.set('cargoComment',$(this).attr("data-comment"),{expires: 10,path: '/'})
-        Cookies.set('cargoPhone',$(this).attr("data-cargoPh"),{expires: 10,path: '/'})
         Cookies.set('fullAddress',$(this).attr("data-fullAdd"),{expires: 10,path: '/'})
         $('#selected_cargo').show();
         $('.modal').removeClass('show');

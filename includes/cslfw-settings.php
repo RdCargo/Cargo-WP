@@ -15,6 +15,8 @@ if ( class_exists( 'CSLFW_Settings', false ) ) {
 if( !class_exists('CSLFW_Settings') ) {
     class CSLFW_Settings
     {
+        public $helpers;
+
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();

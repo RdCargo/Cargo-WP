@@ -18,6 +18,9 @@ if ( class_exists( 'CSLFW_Admin', false ) ) {
 if( !class_exists('CSLFW_Admin') ) {
     class CSLFW_Admin
     {
+        public $helpers;
+        public $cargo;
+
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();

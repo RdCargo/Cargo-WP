@@ -3,7 +3,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
     class CSLFW_Shipping_Method extends WC_Shipping_Method {
-		/**
+        public $shipping_cost;
+        public $weight_limit;
+        public $free_shipping_amount;
+        /**
+         * @var string
+         */
+        public $id;
+        public $instance_id;
+        public $method_title;
+        public $method_description;
+        /**
+         * @var array|string[]
+         */
+        public $supports;
+        /**
+         * @var string
+         */
+        public $enabled;
+        public $title;
+
+        /**
          * Constructor for your shipping class
          */
         public function __construct($instance_id = 0) {

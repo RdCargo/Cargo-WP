@@ -16,6 +16,36 @@ if( !class_exists('CSLFW_Logs') ) {
     class CSLFW_Logs
     {
 
+        /**
+         * @var CSLFW_Helpers
+         */
+        private $helpers;
+        private $upload;
+        /**
+         * @var mixed
+         */
+        private $upload_dir;
+        /**
+         * @var string
+         */
+        private $logs_dir;
+        /**
+         * @var array|false
+         */
+        private $files;
+        /**
+         * @var array
+         */
+        private $result;
+        /**
+         * @var array
+         */
+        private $handles;
+        /**
+         * @var string
+         */
+        private $viewed_log;
+
         function __construct()
         {
             $this->helpers = new CSLFW_Helpers();
