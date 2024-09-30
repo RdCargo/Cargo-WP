@@ -1,4 +1,4 @@
-div#selected_cargo{
+div.selected_cargo{
     margin-top: 10px;
     margin-bottom: 20px;
 }

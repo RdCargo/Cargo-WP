@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             <a class="baldrap-btn btn button wp-element-button" id="mapbutton">
                 <?php esc_html_e(' בחירת נקודה', 'cargo-shipping-location-for-woocommerce') ?>
             </a>
-            <div id="selected_cargo"></div>
+            <div class="selected_cargo"></div>
         <?php endif; ?>
     <?php
     elseif ($data['boxStyle'] === 'cargo_dropdowns') :
