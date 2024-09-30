@@ -145,10 +145,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     'floor'     => $this->order->get_meta('cargo_floor', true),
                     'appartment' => $this->order->get_meta('cargo_apartment', true),
                 ],
-
                 'from_address' => [
-                    'name'      => get_option('website_name_cargo'),
-                    'company'   => get_option('website_name_cargo'),
+                    'name'      => apply_filters('cslfw_from_address_name', get_option('website_name_cargo'), $this->order_id),
+                    'company'   => apply_filters('cslfw_from_address_name', get_option('website_name_cargo'), $this->order_id),
                     'street1'   => get_option('from_street'),
                     'street2'   => get_option('from_street_name'),
                     'city'      => get_option('from_city'),

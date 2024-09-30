@@ -89,7 +89,7 @@ if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
         public function is_available( $package )
         {
             if ($this->weight_limit > 0) {
-                $cart_weight = WC()->cart->get_cart_contents_weight();
+                $cart_weight = \WC()->cart->get_cart_contents_weight();
                 return $cart_weight < $this->weight_limit;
             } else {
                 return true;
@@ -100,6 +100,8 @@ if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
          * @param array $package
          */
         public function calculate_shipping( $package = [] ) {
+            $cart_weight = \WC()->cart->get_cart_contents_weight();
+
             if(!empty($this->shipping_cost)) {
                 $this->add_rate([
                     'id'    => $this->id .":" .$this->instance_id,

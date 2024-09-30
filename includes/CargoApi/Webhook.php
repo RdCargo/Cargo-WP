@@ -122,14 +122,27 @@ class Webhook
         ];
         $response = $this->get("https://api-v2.cargo.co.il/api/token/auth", [], $headers);
 
-        if ($response && !$response->errors) {
+        if ($response && !$response->errors && !empty($data['cslfw_api_key'])) {
             if (empty($this->apiKey)) {
                 add_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
             } else {
                 update_option('cslfw_cargo_api_key', $data['cslfw_api_key']);
             }
         } else {
+            delete_option('cslfw_cargo_api_key');
             delete_option('cslfw_webhooks_installed');
+
+            $customerCodes = [
+                'express' => get_option('shipping_cargo_express'),
+                'box' => get_option('shipping_cargo_box'),
+                'pickup' => get_option('shipping_pickup_code')
+            ];
+            foreach ($customerCodes as $key => $customerCode) {
+                if (!empty($customerCode)) {
+                    $optionKey = "cslfw_cargo_{$key}_webhook_id";
+                    delete_option($optionKey);
+                }
+            }
         }
 
         echo wp_json_encode([
@@ -174,6 +187,8 @@ class Webhook
                 }
             }
         }
+
+        delete_option('cslfw_webhooks_installed');
 
         echo wp_json_encode([
             'error' => $error,

@@ -134,3 +134,7 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 5.1.0 ==
 * Fix deprecated issue on latest php versions
 * Fix phone number for boxes
+
+== 5.1.1 ==
+* Add filter for from address name and company
+* Fix webhook removal
