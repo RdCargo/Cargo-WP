@@ -159,6 +159,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 }
                 if (
                     $shipping_method === 'cargo-express'
+                    || $shipping_method === 'cargo-express-24'
                     || $shipping_method === 'woo-baldarp-pickup'
                     || in_array($shipping_method, $cslfw_shiping_methods)
                     || $allowForAllShippingMethods
@@ -255,6 +256,7 @@ if( !class_exists('CSLFW_Admin') ) {
 
                 if (!in_array($order->get_status() , ['cancelled', 'refunded', 'pending']) && $shipping_method !== null) {
                     if ( $shipping_method === 'cargo-express'
+                        || $shipping_method === 'cargo-express-24'
                         || $shipping_method === 'woo-baldarp-pickup'
                         || in_array($shipping_method, $cslfw_shiping_methods)
                         || $allowForAllShippingMethods
@@ -314,6 +316,7 @@ if( !class_exists('CSLFW_Admin') ) {
             if (!in_array($order->get_status() , ['cancelled', 'refunded', 'pending'])) {
 
                 if ($shipping_method === 'cargo-express'
+                    || $shipping_method === 'cargo-express-24'
                     || $shipping_method === 'woo-baldarp-pickup'
                     || in_array($shipping_method, $cslfw_shiping_methods)
                     || $allowForAllShippingMethods
@@ -513,6 +516,7 @@ if( !class_exists('CSLFW_Admin') ) {
         public function shipping_method_classes() {
             require_once CSLFW_PATH . 'includes/woo-baldarp-shipping.php';
             require_once CSLFW_PATH . 'includes/woo-baldarp-express-shipping.php';
+            require_once CSLFW_PATH . 'includes/woo-cargo-express-24.php';
         }
 
         /**
@@ -524,12 +528,18 @@ if( !class_exists('CSLFW_Admin') ) {
         public function cargo_shipping_methods( $methods ) {
             $boxCode = get_option('shipping_cargo_box');
             $expressCode = get_option('shipping_cargo_express');
+            $express24Code = get_option('shipping_cargo_express_24');
 
             if ($boxCode) {
                 $methods['woo-baldarp-pickup'] = 'CSLFW_Shipping_Method';
             }
+
             if ($expressCode) {
                 $methods['cargo-express'] = 'Cargo_Express_Shipping_Method';
+            }
+
+            if ($express24Code) {
+                $methods['cargo-express-24'] = 'Cargo_Express_24_Method';
             }
             return $methods;
         }

@@ -134,6 +134,7 @@ class Webhook
 
             $customerCodes = [
                 'express' => get_option('shipping_cargo_express'),
+                'express_24' => get_option('shipping_cargo_express_24'),
                 'box' => get_option('shipping_cargo_box'),
                 'pickup' => get_option('shipping_pickup_code')
             ];
@@ -168,6 +169,7 @@ class Webhook
 
         $customerCodes = [
             'express' => get_option('shipping_cargo_express'),
+            'express_24' => get_option('shipping_cargo_express_24'),
             'box' => get_option('shipping_cargo_box'),
             'pickup' => get_option('shipping_pickup_code')
         ];
@@ -201,6 +203,7 @@ class Webhook
     {
         $customerCodes = [
             'express' => get_option('shipping_cargo_express'),
+            'express_24' => get_option('shipping_cargo_express_24'),
             'box' => get_option('shipping_cargo_box'),
             'pickup' => get_option('shipping_pickup_code')
         ];
@@ -318,6 +321,7 @@ class Webhook
     {
         $customerCodes = [
             'express' => get_option('shipping_cargo_express'),
+            'express_24' => get_option('shipping_cargo_express_24'),
             'box' => get_option('shipping_cargo_box'),
             'pickup' => get_option('shipping_pickup_code'),
         ];

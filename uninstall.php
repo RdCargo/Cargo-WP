@@ -24,6 +24,7 @@ function cslfw_single_uninstall() {
         'cslfw_complete_orders',
         'cslfw_custom_map_size',
         'shipping_cargo_express',
+        'shipping_cargo_express_24',
         'shipping_cargo_box',
         'shipping_pickup_code',
         'from_street',

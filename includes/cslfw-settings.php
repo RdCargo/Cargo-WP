@@ -50,6 +50,7 @@ if( !class_exists('CSLFW_Settings') ) {
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_complete_orders');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_custom_map_size');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express');
+            register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express_24');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_box');
             register_setting('cslfw_shipping_api_settings_fg', 'shipping_pickup_code');
             register_setting('cslfw_shipping_api_settings_fg', 'from_street');
@@ -79,6 +80,7 @@ if( !class_exists('CSLFW_Settings') ) {
             delete_option('cslfw_complete_orders');
             delete_option('cslfw_custom_map_size');
             delete_option('shipping_cargo_express');
+            delete_option('shipping_cargo_express_24');
             delete_option('shipping_cargo_box');
             delete_option('shipping_pickup_code');
             delete_option('website_name_cargo');

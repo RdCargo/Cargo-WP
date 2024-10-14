@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 5.1.1
+ * Version: 5.2
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -151,9 +151,9 @@ if( !class_exists('CSLFW_Cargo') ) {
                             $point = $this->cargo->findPointById($data['box_id']);
                             if (!$point->errors) {
                                 $chosen_point = $point->data;
-                                echo wp_kses_post(esc_html_e("Cargo Point Details", 'cargo-shipping-location-for-woocommerce')) . PHP_EOL;
+                                echo esc_html_e("Cargo Point Details", 'cargo-shipping-location-for-woocommerce') . PHP_EOL;
                                 if ( $box_shipment_type === 'cargo_automatic' && !$chosen_point ) {
-                                    echo wp_kses_post(esc_html_e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce')). PHP_EOL;
+                                    echo esc_html_e('Details will appear after sending to cargo.', 'cargo-shipping-location-for-woocommerce'). PHP_EOL;
                                 } else {
                                     echo wp_kses_post( $chosen_point->DistributionPointName ) ?> : <?php echo wp_kses_post($chosen_point->DistributionPointID ) . PHP_EOL;
                                     echo wp_kses_post( $chosen_point->StreetNum.' '.$chosen_point->StreetName.' '. $chosen_point->CityName ) . PHP_EOL;

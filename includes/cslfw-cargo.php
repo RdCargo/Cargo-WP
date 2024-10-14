@@ -86,6 +86,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             }
 
             $isBoxShipment = $shipping_method_id === 'woo-baldarp-pickup';
+            $isExpress24 = $shipping_method_id === 'cargo-express-24';
 
             $cargo_box_style    = $this->order->get_meta('cslfw_box_shipment_type', true) ?? 'cargo_automatic';
             $cargo_box_style    = empty($cargo_box_style) ? 'cargo_automatic' : $cargo_box_style;
@@ -93,6 +94,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $pickupCustomerCode = get_option('shipping_pickup_code');
 
             $customer_code = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+            $customer_code = $isExpress24 ? get_option('shipping_cargo_express_24') : $customer_code;
+
             $shipping_type = (int) $args['shipping_type'] ?? 1;
             if ($shipping_type === 2 ) {
                 $customer_code = $pickupCustomerCode ? $pickupCustomerCode :  get_option('shipping_cargo_express');
@@ -301,7 +304,11 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     ];
                 }
 
-                $customer_code = $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+                $isBoxShipment = $shipping_method_id === 'woo-baldarp-pickup';
+                $isExpress24 = $shipping_method_id === 'cargo-express-24';
+
+                $customer_code = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+                $customer_code = $isExpress24 ? get_option('shipping_cargo_express_24') : $customer_code;
             }
 
             $shipment_status = $this->cargo->checkShipmentStatus($shipping_id, $customer_code);
@@ -384,7 +391,11 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     ];
                 }
 
-                $customer_code = $shipping_method_id === 'woo-baldarp-pickup' ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+                $isBoxShipment = $shipping_method_id === 'woo-baldarp-pickup';
+                $isExpress24 = $shipping_method_id === 'cargo-express-24';
+
+                $customer_code = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
+                $customer_code = $isExpress24 ? get_option('shipping_cargo_express_24') : $customer_code;
             }
             $shipment_status = $this->cargo->updateShipmentStatus($shipping_id, $customer_code, $status_code);
 

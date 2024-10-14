@@ -31,6 +31,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						</div>
 					</td>
 				</tr>
+
+                <tr>
+					<th scope="row" align="left" >
+                        <label for="shipping_cargo_express_24"><?php esc_html_e('Cargo Express 24: ', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+					<td >
+						<div style="display: inline-block; margin-right: 15px;" class="text">
+							<label for="shipping_cargo_express_24" style="vertical-align: top;">
+                                <input type="text"
+                                       placeholder="<?php esc_html_e('Please Insert CARGO Express 24 Code', 'cargo-shipping-location-for-woocommerce')?>"
+                                       id="shipping_cargo_express_24"
+                                       name="shipping_cargo_express_24"
+                                       value="<?php echo esc_attr( get_option('shipping_cargo_express_24') ) ?>" autocomplete="off"/>
+                            </label>
+						</div>
+					</td>
+				</tr>
 				<tr>
 					<th scope="row" align="left" >
                         <label for="shipping_cargo_box"><?php esc_html_e('Cargo BOX: ', 'cargo-shipping-location-for-woocommerce') ?></label>
@@ -412,7 +429,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
                                 foreach ($shipping_methods as $method) :
                                     $checked = in_array($method->id, $cslfw_shiping_methods) ? 'checked' : '';
-                                    if ($method->id !== 'cargo-express' && $method->id !== 'woo-baldarp-pickup') :
+                                    if ($method->id !== 'cargo-express' && $method->id !== 'cargo-express-24' && $method->id !== 'woo-baldarp-pickup') :
                                 ?>
                                     <label for="cslfw_shipping_methods_<?php echo esc_attr($method->id) ?>" style="display: block">
                                         <input type="checkbox" id="cslfw_shipping_methods_<?php echo esc_attr($method->id) ?>" name="cslfw_shipping_methods[]" value="<?php echo esc_attr($method->id) ?>" <?php echo esc_attr($checked) ?>>
