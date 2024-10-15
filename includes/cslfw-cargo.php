@@ -138,13 +138,13 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
                 'to_address' => [
                     'name'      => $name,
-                    'company'   => $order_data['shipping']['company'] ?? $name,
-                    'street1'   => $order_data['shipping']['address_1'] ?? $order_data['billing']['address_1'],
-                    'street2'   => isset($order_data['shipping']['address_2']) && !empty($order_data['shipping']['address_2']) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
-                    'city'      => isset($order_data['shipping']['city']) && !empty($order_data['shipping']['city']) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
-                    'country'   => $order_data['shipping']['country'] ?? $order_data['billing']['country'],
+                    'company'   => !empty($order_data['shipping']['company']) ?? $name,
+                    'street1'   => !empty($order_data['shipping']['address_1']) ? $order_data['shipping']['address_1'] : $order_data['billing']['address_1'],
+                    'street2'   => !empty($order_data['shipping']['address_2']) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
+                    'city'      => !empty($order_data['shipping']['city']) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
+                    'country'   => !empty($order_data['shipping']['country']) ? $order_data['shipping']['country'] : $order_data['billing']['country'],
                     'phone'     => $toPhone,
-                    'email'     => $order_data['shipping']['email'] ?? $order_data['billing']['email'],
+                    'email'     => !empty($order_data['shipping']['email']) ? $order_data['shipping']['email'] : $order_data['billing']['email'],
                     'floor'     => $this->order->get_meta('cargo_floor', true),
                     'appartment' => $this->order->get_meta('cargo_apartment', true),
                 ],
@@ -154,9 +154,9 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     'street1'   => get_option('from_street'),
                     'street2'   => get_option('from_street_name'),
                     'city'      => get_option('from_city'),
-                    'country'   => $order_data['shipping']['country'] ?? $order_data['billing']['country'],
+                    'country'   => 'Israel',
                     'phone'     => get_option('phonenumber_from'),
-                    'email'     => $order_data['shipping']['email'] ?? $order_data['billing']['email'],
+                    'email'     => '',
                 ]
             ];
 
