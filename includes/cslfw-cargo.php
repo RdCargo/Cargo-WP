@@ -138,7 +138,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
 
                 'to_address' => [
                     'name'      => $name,
-                    'company'   => !empty($order_data['shipping']['company']) ?? $name,
+                    'company'   => !empty($order_data['shipping']['company']) ? $order_data['shipping']['company'] :  $name,
                     'street1'   => !empty($order_data['shipping']['address_1']) ? $order_data['shipping']['address_1'] : $order_data['billing']['address_1'],
                     'street2'   => !empty($order_data['shipping']['address_2']) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
                     'city'      => !empty($order_data['shipping']['city']) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
