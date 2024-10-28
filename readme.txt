@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.6.2
 Requires PHP: 7.4
-Stable tag: 5.2.1
+Stable tag: 5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -144,3 +144,6 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 
 == 5.2.1 ==
 * Fix destination address in case shipping details are not set.
+
+== 5.3 ==
+* Add option to print labels in queue, when a lot of labels need to print at once.
