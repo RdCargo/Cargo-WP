@@ -64,6 +64,7 @@ if( !class_exists('CSLFW_Settings') ) {
             register_setting('cslfw_shipping_api_settings_fg', 'disable_order_status');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_shipping_methods');
             register_setting('cslfw_shipping_api_settings_fg', 'cslfw_products_in_label');
+            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_queued_bulk_labels');
         }
 
         public function cslfw_uninstall() {
@@ -90,6 +91,7 @@ if( !class_exists('CSLFW_Settings') ) {
             delete_option('disable_order_status');
             delete_option('cslfw_shipping_methods');
             delete_option('cslfw_products_in_label');
+            delete_option('cslfw_queued_bulk_labels');
         }
 
         public function cargo_settings_link( $links_array ) {

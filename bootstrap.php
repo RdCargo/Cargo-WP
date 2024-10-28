@@ -19,6 +19,7 @@ require CSLFW_PATH . '/includes/cslfw-cargo.php';
 // processes
 require CSLFW_PATH . '/includes/processes/cslfw-cargo-job.php';
 require CSLFW_PATH . '/includes/processes/cslfw-cargo-process-shipment-create.php';
+require CSLFW_PATH . '/includes/processes/cslfw-cargo-process-shipment-label.php';
 //include_once __DIR__ . '/blocks/cargo-shipping.php';
 
 /**
@@ -39,8 +40,8 @@ function cslfw_push_cargo_job(CSLFW_Cargo_Job $job, $delay = 0 )  {
                 'status' => ActionScheduler_Store::STATUS_PENDING,
                 'args' => array(
                     'obj_id' => isset($job->id) ? $job->id : null),
-                'group' => 'cslfw-cargo-shipping-location'
-            )
+                    'group' => 'cslfw-cargo-shipping-location'
+                )
         ) : null;
 
         if (!empty($existing_actions)) {
@@ -94,6 +95,16 @@ function cslfw_handle_or_queue(CSLFW_Cargo_Job $job, $delay = 0)
         }
         // tell the system the order is already queued for processing in this saving process - and we don't need to process it again.
         set_site_transient("cslfw_order_shipment_being_processed_{$job->id}", true, 30);
+    }
+
+    if ($job instanceof CSLFW_Cargo_Process_Shipment_Label && isset($job->id) && empty($job->gdpr_fields)) {
+        // if this is a order process already queued - just skip this
+        if (get_site_transient("cslfw_order_label_being_processed_{$job->id}") == true) {
+            $logs->add_debug_message("queue:: Not queuing up order {$job->id} because it's already queued");
+            return;
+        }
+        // tell the system the order is already queued for processing in this saving process - and we don't need to process it again.
+        set_site_transient("cslfw_order_label_being_processed_{$job->id}", true, 30);
     }
 
     $as_job_id = cslfw_push_cargo_job($job, $delay);

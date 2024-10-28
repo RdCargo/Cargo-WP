@@ -32,7 +32,7 @@ if ( !class_exists( 'Cargo_Express_24_Method' ) ) {
             $this->id                 = 'cargo-express-24';
             $this->instance_id 		  = absint( $instance_id );
         	$this->method_title       = esc_html__( 'CARGO EXPRESS 24', 'cargo-shipping-location-for-woocommerce' );
-            $this->method_description = esc_html__( 'Custom Shipping method CARGO Express for Home Delivery', 'cargo-shipping-location-for-woocommerce' );
+            $this->method_description = esc_html__( 'Custom Shipping method CARGO Express 24 for Home Delivery', 'cargo-shipping-location-for-woocommerce' );
             $this->supports           = ['shipping-zones','instance-settings','instance-settings-modal','settings'];
 			$this->enabled            = 'yes';
 			$this->title       		  = esc_html__( 'CARGO EXPRESS SHIPPING 24', 'cargo-shipping-location-for-woocommerce');

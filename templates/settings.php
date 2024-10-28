@@ -397,6 +397,26 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         </div>
                     </td>
                 </tr>
+
+                <tr>
+                    <th scope="row" align="left" >
+                        <label for="cslfw_queued_bulk_labels"><?php esc_html_e('Print labels in queue (when lot of shipments at once)', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_queued_bulk_labels" style="vertical-align: top;">
+                                <?php
+                                $cslfw_queued_bulk_labels = get_option('cslfw_queued_bulk_labels');
+                                $checked = $cslfw_queued_bulk_labels ? 'checked' : '';
+                                ?>
+                                <label for="cslfw_queued_bulk_labels">
+                                    <input type="checkbox" id="cslfw_queued_bulk_labels" name="cslfw_queued_bulk_labels" <?php echo esc_attr($checked) ?>>
+                                    <span><?php esc_html_e('Enable', 'cargo-shipping-location-for-woocommerce') ?></span>
+                                </label>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
                 <tr>
                     <th scope="row" align="left" >
                         <label for="cslfw_shipping_methods_all"><?php esc_html_e('Enable cargo for all shipments', 'cargo-shipping-location-for-woocommerce') ?></label>

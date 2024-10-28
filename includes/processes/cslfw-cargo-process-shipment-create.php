@@ -27,8 +27,8 @@ class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
     }
 
     /**
-     * @param null $id
-     * @return MailChimp_WooCommerce_Single_Order
+     * @param $id
+     * @return $this
      */
     public function setId($id)
     {
@@ -52,6 +52,7 @@ class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
                 }
             }
         }
+        set_transient( 'cslfw_bulk_shipment_process', $progress, 300);
 
         $cargoShipping = new CSLFW_Cargo_Shipping($this->id);
         $order = wc_get_order($this->id);

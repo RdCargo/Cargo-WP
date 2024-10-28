@@ -34,7 +34,7 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '5.2.1' );
+    define( 'CSLFW_VERSION', '5.2.1-test' );
 }
 
 if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
@@ -43,6 +43,7 @@ if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
         include_once __DIR__ . "/includes/vendor/action-scheduler/action-scheduler.php";
     }
 
+    include_once __DIR__ . "/vendor/autoload.php";
     include_once __DIR__ . "/bootstrap.php";
 }
 
@@ -100,17 +101,31 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             add_action('woocommerce_order_status_processing', [$this, 'auto_create_shipment'], 200, 1);
 
-            add_action('CSLFW_Cargo_Process_Shipment_Create', [$this, 'cslfw_process_single_job'], 10, 3);
+            add_action('CSLFW_Cargo_Process_Shipment_Create', [$this, 'cslfw_process_single_shipment_create_job'], 10, 3);
+            add_action('CSLFW_Cargo_Process_Shipment_Label', [$this, 'cslfw_process_single_shipment_label_job'], 10, 4);
         }
 
-        function cslfw_process_single_job($obj_id = null, $action_name = '', $last_order_id = null)
+        function cslfw_process_single_shipment_create_job($obj_id = null, $action_name = '', $last_order_id = null)
         {
             $logs = new CSLFW_Logs();
             $message = "********************************************* \n";
             $message .= "********************************************* \n";
-            $message .= 'cslfw_process_single_job fired';
+            $message .= 'cslfw_process_single_shipment_create_job fired';
             $logs->add_debug_message($message, ['obj' => $obj_id, 'action_name' => $action_name, 'last_order_id' => $last_order_id]);
             $job = new CSLFW_Cargo_Process_Shipment_Create($obj_id, $action_name, $last_order_id);
+            $job->handle();
+
+            return true;
+        }
+
+        function cslfw_process_single_shipment_label_job($obj_id = null, $action_name = '', $last_order_id = null, $file_name = '')
+        {
+            $logs = new CSLFW_Logs();
+            $message = "********************************************* \n";
+            $message .= "********************************************* \n";
+            $message .= 'cslfw_process_single_shipment_label_job fired';
+            $logs->add_debug_message($message, ['obj' => $obj_id, 'action_name' => $action_name, 'last_order_id' => $last_order_id]);
+            $job = new CSLFW_Cargo_Process_Shipment_Label($obj_id, $action_name, $last_order_id, $file_name);
             $job->handle();
 
             return true;

@@ -437,11 +437,11 @@ if( !class_exists('CSLFW_Admin') ) {
                 if ($print_label) {
                     $label_link = sanitize_text_field($print_label);
 
-                    $noticeText = '<div class="notice notice-success fade is-dismissible"><p>';
-                    $noticeText .=  esc_html__( "If it didn't redirect you to the labels, click button below", 'cargo-shipping-location-for-woocommerce');
+                    $noticeText = '<div class="notice notice-success fade is-dismissible"><div id="cslfw_shipments_label_process"><p>';
+                    $noticeText .=  esc_html__( "All labels are process. If it didn't redirect you to the labels, click button below", 'cargo-shipping-location-for-woocommerce');
                     $noticeText .='</p>';
                     $noticeText .='<p><a class="button" href="#" onclick="window.open(\''.$label_link.'\', \'_blank\')">Pdf link</a></p>';
-                    $noticeText .='</div>';
+                    $noticeText .='</div></div>';
                     echo wp_kses_post( printf( $noticeText ) );
                     echo '<script>
                                 window.open("' . $label_link . '", "_blank")
@@ -452,6 +452,23 @@ if( !class_exists('CSLFW_Admin') ) {
                             </script>';
 
                     delete_transient('cslfw_print_label');
+                }
+
+                if ($labelsProcess = get_transient('cslfw_bulk_shipment_print')) {
+                    $labelsCompleted = get_transient('cslfw_bulk_shipment_print_process');
+
+                    $noticeText = '<div class="notice notice-success fade is-dismissible"><div id="cslfw_shipments_label_process"><p>';
+                    $noticeText .=  __( 'Printing labels is in process. [%1$s] out of %2$s are completed. Please be patient.', 'action-scheduler' );
+                    $noticeText .='</p>';
+                    $noticeText .='</div></div>';
+
+                    echo wp_kses_post(
+                        printf(
+                            $noticeText,
+                            count($labelsCompleted),
+                            count($labelsProcess)
+                        )
+                    );
                 }
 
                 if ( isset($_REQUEST['processed_ids']) && isset( $_GET['cargo_send'])) {
@@ -484,27 +501,70 @@ if( !class_exists('CSLFW_Admin') ) {
 
         public function get_bulk_action_progress()
         {
-            $progress = get_transient( 'cslfw_bulk_shipment_process');
-            $completed = !get_transient('bulk_shipment_create');
+            if ($progress = get_transient( 'cslfw_bulk_shipment_process')) {
+                $completed = !get_transient('bulk_shipment_create');
 
-            $countProgress = !$completed && is_array($progress) ? count($progress) : 0;
-            $noticeText = '<p>';
-            $noticeText .=  "$countProgress Order Sent for Shipment. They will start processing really soon. be patient.";
-            $noticeText .='</p>';
-            if ($progress) {
-                foreach ($progress as $value) {
-                    $noticeText .= "<p>Order <b>#{$value['orderId']}</b> :: {$value['status']}</p>";
+                $countProgress = !$completed && is_array($progress) ? count($progress) : 0;
+                $noticeText = '<p>';
+                $noticeText .=  "$countProgress Order Sent for Shipment. They will start processing really soon. be patient.";
+                $noticeText .='</p>';
+                if ($progress) {
+                    foreach ($progress as $value) {
+                        $noticeText .= "<p>Order <b>#{$value['orderId']}</b> :: {$value['status']}</p>";
+                    }
                 }
+                if ($completed) {
+                    $noticeText .='<p>All shipments are completed.</p>';
+                    $noticeText .='<p><a class="cslfw-remove-webhooks button" href="#" onclick="window.location.reload()">Reload page</a></p>';
+                }
+                $data = [
+                    'completed' => $completed,
+                    'progress_html' => $noticeText,
+                    'progress' => $progress,
+                    'action' => 'cslfw_bulk_shipment_progress'
+                ];
+
+
+            } else if ($labelsProcess = get_transient('cslfw_bulk_shipment_print') ) {
+                $labelsCompleted = get_transient('cslfw_bulk_shipment_print_process');
+
+                $completedCount = count($labelsCompleted);
+                $processCount = count($labelsProcess);
+
+                $noticeText = '<div><p>';
+                $noticeText .=  __( "Printing labels is in process. [$completedCount] out of [$processCount] are completed. Please be patient.", 'action-scheduler' );
+                $noticeText .='</p>';
+                $noticeText .='</div>';
+
+                $data = [
+                    'completed' => false,
+                    'progress_html' => $noticeText,
+                    'progress' => [],
+                    'action' => 'cslfw_shipments_label_process'
+                ];
+            } else if ($print_label = get_transient('cslfw_print_label')) {
+                $label_link = sanitize_text_field($print_label);
+
+                $noticeText = '<div><p>';
+                $noticeText .=  esc_html__( "If it didn't redirect you to the labels, click button below", 'cargo-shipping-location-for-woocommerce');
+                $noticeText .='</p>';
+                $noticeText .='<p><a class="button" href="#" onclick="window.open(\''.$label_link.'\', \'_blank\')">Pdf link</a></p>';
+                $noticeText .='</div>';
+
+                $data = [
+                    'completed' => true,
+                    'progress_html' => $noticeText,
+                    'progress' => [],
+                    'label_link' => $label_link,
+                    'action' => 'cslfw_shipments_label_process'
+                ];
+            } else {
+                $data = [
+                    'completed' => true,
+                    'progress_html' => '',
+                    'progress' => [],
+                ];
             }
-            if ($completed) {
-                $noticeText .='<p>All shipments are completed.</p>';
-                $noticeText .='<p><a class="cslfw-remove-webhooks button" href="#" onclick="window.location.reload()">Reload page</a></p>';
-            }
-            $data = [
-                'completed' => $completed,
-                'progress_html' => $noticeText,
-                'progress' => $progress,
-            ];
 
             echo wp_json_encode($data);
             wp_die();
@@ -560,14 +620,39 @@ if( !class_exists('CSLFW_Admin') ) {
                 $actionName = substr( $action, 5 ); // Get the status name from action.
 
                 if ($actionName === 'cargo-print-label') {
-                    $cargoShipping = new CSLFW_Cargo_Shipping();
-                    $shipmentIds   = $cargoShipping->order_ids_to_shipment_ids($orderIds);
-                    $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
+                    if ($queued = get_option('cslfw_queued_bulk_labels')) {
 
-                    if (!$pdfLabel->errors) {
-                        set_transient("cslfw_print_label", $pdfLabel->data, 60);
+                        $currentProcess = get_transient('bulk_shipment_print');
+                        $currentProcess = $currentProcess ? $currentProcess : [];
 
-                        return $redirect_to;
+                        if (!count($currentProcess)) {
+
+                            set_transient('cslfw_bulk_shipment_print', $orderIds, 300);
+                            set_transient('cslfw_bulk_shipment_print_process', [], 300);
+
+                            $lastOrderId = $orderIds && count($orderIds) > 0 ? $orderIds[count($orderIds) - 1] : null;
+                            $delay = 0;
+                            $logs = new CSLFW_Logs();
+
+                            $time = time();
+                            $fileName = "cargo_{$orderIds[0]}_{$lastOrderId}_{$time}";
+                            $logs->add_log_message('BULK PROCESS PRINT LABELS:: add orders', ['file' => $fileName, 'orders' => $orderIds]);
+
+                            foreach ($orderIds as $orderId) {
+                                $handler = new CSLFW_Cargo_Process_Shipment_Label($orderId, $actionName, $lastOrderId, $fileName);
+                                cslfw_handle_or_queue($handler, $delay);
+                            }
+                        }
+                    } else {
+                        $cargoShipping = new CSLFW_Cargo_Shipping();
+                        $shipmentIds   = $cargoShipping->order_ids_to_shipment_ids($orderIds);
+                        $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
+
+                        if (!$pdfLabel->errors) {
+                            set_transient("cslfw_print_label", $pdfLabel->data, 60);
+
+                            return $redirect_to;
+                        }
                     }
                 } else if (in_array($actionName, ['send-cargo-shipping', 'send-cargo-dd', 'send-cargo-pickup'])) {
                     $currentProcess = get_transient( 'bulk_shipment_create');
@@ -590,7 +675,7 @@ if( !class_exists('CSLFW_Admin') ) {
                     $lastOrderId = $currentProcess && count($currentProcess) > 0 ? $currentProcess[count($currentProcess) - 1] : null;
                     $delay = 0;
                     $logs = new CSLFW_Logs();
-                    $logs->add_log_message('BULK PROCESS:: add orders', ['orders' => $orderIds]);
+                    $logs->add_log_message('BULK PROCESS SHIPMENT CREATE:: add orders', ['orders' => $orderIds]);
 
                     foreach ($orderIds as $orderId) {
                         $handler = new CSLFW_Cargo_Process_Shipment_Create($orderId, $actionName, $lastOrderId);

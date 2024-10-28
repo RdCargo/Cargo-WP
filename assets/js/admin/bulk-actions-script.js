@@ -12,23 +12,29 @@
                 data: data,
                 success: function(response) {
                     if (response.progress) {
-                        $('#cslfw_bulk_shipment_progress').html(response.progress_html)
+                        console.log('progress.response', response);
+                        $(`#${response.action}`)?.html(response.progress_html)
 
-                        response.progress.forEach(order => {
-                            if (order.status.includes('ShipmentID: ')) {
-                                let key = `post-${order.orderId}`
-                                let hposKey = `order-${order.orderId}`
-                                let shipmentId = order.status.replace('ShipmentID: ', '');
-                                if ($(`tr#${key} td.cslfw_delivery_status .cslfw-status, tr#${hposKey} td.cslfw_delivery_status .cslfw-status`).length === 0) {
-                                    let content = `<p class="cslfw-status status-1">${shipmentId} - Open</p>`
+                        if (response.action === 'cslfw_shipments_label_process' && response.completed) {
+                            window.open(response.label_link, '_blank')
+                        }
+                        if (response.action === 'cslfw_bulk_shipment_progress') {
+                            response.progress.forEach(order => {
+                                if (order.status.includes('ShipmentID: ')) {
+                                    let key = `post-${order.orderId}`
+                                    let hposKey = `order-${order.orderId}`
+                                    let shipmentId = order.status.replace('ShipmentID: ', '');
+                                    if ($(`tr#${key} td.cslfw_delivery_status .cslfw-status, tr#${hposKey} td.cslfw_delivery_status .cslfw-status`).length === 0) {
+                                        let content = `<p class="cslfw-status status-1">${shipmentId} - Open</p>`
 
-                                    $(`tr#${key} td.cslfw_delivery_status`).append(content)
-                                    $(`tr#${hposKey} td.cslfw_delivery_status`).append(content)
-                                    $(`tr#${key} td.send_to_cargo`).html('')
-                                    $(`tr#${hposKey} td.send_to_cargo`).html('')
+                                        $(`tr#${key} td.cslfw_delivery_status`).append(content)
+                                        $(`tr#${hposKey} td.cslfw_delivery_status`).append(content)
+                                        $(`tr#${key} td.send_to_cargo`).html('')
+                                        $(`tr#${hposKey} td.send_to_cargo`).html('')
+                                    }
                                 }
-                            }
-                        })
+                            })
+                        }
                     }
                     if (response.completed) {
                         clearInterval(bulkActionsInterval);

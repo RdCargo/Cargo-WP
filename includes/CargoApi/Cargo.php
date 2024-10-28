@@ -43,16 +43,17 @@ class Cargo
     public function createShipment($args)
     {
         $logs = new \CSLFW_Logs();
-        $logs->add_log_message('cargo.api.shipment-create:: ', [
-            'request' => $args
-        ]);
-        $response = $this->post("{$this->host}CreateShipment", $args);
 
+        $response = $this->post("{$this->host}CreateShipment", $args);
+        $logs->add_log_message('cargo.api.shipment-create:: ', [
+            'request' => $args,
+            'response' => $response
+        ]);
         if (empty($response->shipmentId)) {
             return (object)[
                 'errors' => true,
                 'data' => (object)[],
-                'message' => $response->error_msg
+                'message' => $response->error_msg ?? $response->message
             ];
         } else {
             return (object)[

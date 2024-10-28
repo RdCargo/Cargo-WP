@@ -37,7 +37,8 @@ function cslfw_single_uninstall() {
         'cargo_box_style',
         'disable_order_status',
         'cslfw_shipping_methods',
-        'cslfw_products_in_label'
+        'cslfw_products_in_label',
+        'cslfw_queued_bulk_labels'
 	);
 
 	foreach ( $options_to_delete as $option ) {
