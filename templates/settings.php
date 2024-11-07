@@ -530,10 +530,43 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						</div>
 					</td>
 				</tr>
+                <tr>
+                    <th><div style="margin: 10px 0; border-bottom: 1px solid #000"> </div></th>
+                    <td><div style="margin: 10px 0; border-bottom: 1px solid #000"> </div></td>
+                </tr>
+
+                <tr class="cslfw-shipping-wrap">
+                    <th scope="row" align="left" >
+                        <label for="cslfw_shipping_methods"><?php esc_html_e('Bulk actions', 'cargo-shipping-location-for-woocommerce') ?></label>
+                    </th>
+                    <td >
+                        <div style="display: inline-block; margin-right: 15px;" class="text">
+                            <label for="cslfw_shipping_methods" style="vertical-align: top;">
+                                <?php
+                                $bulk_actions = array(
+                                    'mark_send-cargo-shipping' => esc_html__( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' ),
+                                    'mark_send-cargo-dd' => esc_html__( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' ),
+                                    'mark_send-cargo-pickup' => esc_html__( 'Send Pickup to CARGO', 'cargo-shipping-location-for-woocommerce' ),
+                                    'mark_cargo-print-label' => esc_html__( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' ),
+                                );
+                                $cslfw_bulk_actions = get_option('cslfw_bulk_actions') ? get_option('cslfw_bulk_actions') : array_keys($bulk_actions);
+
+                                foreach ($bulk_actions as $key => $value) :
+                                    $checked = in_array($key, $cslfw_bulk_actions) ? 'checked' : '';
+                                    ?>
+                                        <label for="cslfw_bulk_action_<?php echo esc_attr($key) ?>" style="display: block">
+                                            <input type="checkbox" id="cslfw_bulk_action_<?php echo esc_attr($key) ?>" name="cslfw_bulk_actions[]" value="<?php echo esc_attr($key) ?>" <?php echo esc_attr($checked) ?>>
+                                            <span><?php echo esc_html($value) ?></span>
+                                        </label>
+                                <?php endforeach; ?>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
 			</table>
 
-				<?php wp_nonce_field( 'shippingwoo-settings-save', 'cslfw_shipping_api_settings_fg' ); ?>
-				<?php submit_button(); ?>
+            <?php wp_nonce_field( 'shippingwoo-settings-save', 'cslfw_shipping_api_settings_fg' ); ?>
+            <?php submit_button(); ?>
 
 		</form>
 	</div>

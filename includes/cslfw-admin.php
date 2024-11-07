@@ -282,15 +282,26 @@ if( !class_exists('CSLFW_Admin') ) {
          */
         function custom_dropdown_bulk_actions_shop_order($actions ){
             $new_actions = [];
+            $newBulkActions = array(
+                'mark_send-cargo-shipping' => esc_html__( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' ),
+                'mark_send-cargo-dd' => esc_html__( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' ),
+                'mark_send-cargo-pickup' => esc_html__( 'Send Pickup to CARGO', 'cargo-shipping-location-for-woocommerce' ),
+                'mark_cargo-print-label' => esc_html__( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' ),
+            );
+
+            $cslfw_bulk_actions = get_option('cslfw_bulk_actions') ? get_option('cslfw_bulk_actions') : array_keys($newBulkActions);
+
 
             foreach ($actions as $key => $action) {
                 $new_actions[$key] = $action;
 
                 if ('mark_processing' === $key) {
-                    $new_actions['mark_send-cargo-shipping'] = esc_html__( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
-                    $new_actions['mark_send-cargo-dd'] = esc_html__( 'Send to CARGO with double delivery', 'cargo-shipping-location-for-woocommerce' );
-                    $new_actions['mark_send-cargo-pickup'] = esc_html__( 'Send Pickup to CARGO', 'cargo-shipping-location-for-woocommerce' );
-                    $new_actions['mark_cargo-print-label'] = esc_html__( 'Print CARGO labels', 'cargo-shipping-location-for-woocommerce' );
+
+                    foreach ($newBulkActions as $k => $value) {
+                        if (in_array($k, $cslfw_bulk_actions)) {
+                            $new_actions[$k] = $value;
+                        }
+                    }
                 }
             }
 
@@ -645,7 +656,7 @@ if( !class_exists('CSLFW_Admin') ) {
                         }
                     } else {
                         $cargoShipping = new CSLFW_Cargo_Shipping();
-                        $shipmentIds   = $cargoShipping->order_ids_to_shipment_ids($orderIds);
+                        $shipmentIds = $cargoShipping->get_all_shipment_ids($orderIds);
                         $pdfLabel      = $cargoShipping->getShipmentLabel( implode( ',', $shipmentIds ), $orderIds);
 
                         if (!$pdfLabel->errors) {

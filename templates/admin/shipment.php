@@ -138,6 +138,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>" data-id="<?php echo $cargoShippingIds ?>"><?php esc_html_e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
     </div>
 
+
     <div class="checkstatus-section">
         <?php
         $webhook_installed = get_option('cslfw_webhooks_installed');
@@ -145,6 +146,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         foreach ($data['shipmentData'] as $key => $value) {
 
             echo wp_kses_post('<div class=""><p class="cslfw-status status-' . $value['status']['number'] .'">'. $key .' - ' . $value['status']['text'] . '</p></div>');
+            echo wp_kses_post('<a href="#" class="btn btn-red js-cancel-shipment button" style="margin-bottom: 10px;"
+                                data-nonce="'.  esc_attr($nonce) .'"
+                                data-order-id="'. esc_attr($order->get_id()) .'"
+                                data-shipment-id="'. esc_attr($key) .'">' . esc_html__('ביטול', 'cargo-shipping-location-for-woocommerce') . ' ' .  $key .'</a>');
 
             if ($webhook_installed !== 'yes') {
                 echo wp_kses_post("<a href='#' class='btn btn-success send-status button' style='margin-bottom: 10px;' data-id=" . $order->get_id() . " data-deliveryid='$key'>" . esc_html__('בקש סטטוס משלוח', 'cargo-shipping-location-for-woocommerce') . " $key</a>");

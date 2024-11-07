@@ -1,10 +1,61 @@
 (function($) {
+    function ajaxAction(data) {
+        ToggleLoading(true);
+
+        $.ajax({
+            type : "post",
+            url : admin_cargo_obj.ajaxurl,
+            dataType: "json",
+            data : data,
+            success: function(response) {
+                console.log(response);
+                ToggleLoading(false);
+
+                let html = '';
+                if ( response.errors === false || response.error === false || response.type === 'success') {
+
+                    html = `<div class="notice notice-success"><p>${response.message ?? response.data}</p> </div>`;
+                    setTimeout(() => {
+                        location.reload()
+                    }, 1000 )
+                } else {
+                    html = `<div class="notice notice-error"><p>${response.message ?? response.data}</p> </div>`;
+                }
+                $('.cslfw-form-notice').empty().append(html);
+            },
+            error: function( jqXHR, textStatus, errorThrown ) {
+                console.log('error');
+                console.log(textStatus);
+                alert(textStatus);
+                ToggleLoading(false);
+            }
+        });
+    }
+
+
 	$('#seting_cargo').on('submit', function(e) {
 		if ( $(this).find('#shipping_cargo_express').val().length < 1 && $(this).find('#shipping_cargo_box').val().length < 1 ) {
 			e.preventDefault();
 			alert('Fill in cargo box or cargo express to proceed');
 		}
 	})
+
+    $(document).on('click','.js-cancel-shipment',function(e){
+        e.preventDefault();
+
+        let shipmentId = $(this).data('shipment-id');
+        let orderId = $(this).data('order-id');
+        let nonce = $(this).data('nonce');
+
+        let data = {
+            action: 'cancelShipment',
+            orderId: orderId,
+            deliveryId: shipmentId,
+            _wpnonce: nonce,
+        };
+        console.log(data);
+        ajaxAction(data)
+    });
 
     $("input#shipping_cargo_box").on('input', function() {
         console.log($(this).val());

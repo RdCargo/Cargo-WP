@@ -48,23 +48,6 @@
         ajaxAction(data)
     });
 
-    $(document).on('click','.js-cancel-shipment',function(e){
-        e.preventDefault();
-
-        let shipmentId = $(this).data('shipment-id');
-        let orderId = $(this).data('order-id');
-        let nonce = $(this).data('nonce');
-
-        let data = {
-            action: 'cancelShipment',
-            orderId: orderId,
-            deliveryId: shipmentId,
-            _wpnonce: nonce,
-        };
-        console.log(data);
-        ajaxAction(data)
-    });
-
     $(document).on('submit', '.js-shipments-table-actions', function(e) {
 
         let formDataObject = {};

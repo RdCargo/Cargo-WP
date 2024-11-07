@@ -426,12 +426,11 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'shipmentId' => $shipmentIds
             ];
 
-            $orderIds = $orderIds ? $orderIds : [$this->order_id];
-            $shipmentsData = $this->helpers->getProductsForLabels($shipmentIds, $orderIds);
             $withProducts = get_option('cslfw_products_in_label');
+            $orderIds = $orderIds ? $orderIds : [$this->order_id];
 
-            if ($withProducts && $shipmentsData) {
-                $args['shipmentsData'] = $shipmentsData;
+            if ($withProducts) {
+                $args['shipmentsData'] = $this->helpers->getProductsForLabels($shipmentIds, $orderIds);
             }
 
             $cargoLabel = $this->cargo->generateShipmentLabel($args);
@@ -473,7 +472,61 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             }
         }
 
-        /**
+        function get_all_shipment_ids($order_ids = [])
+        {
+            global $wpdb;
+
+            // Prepare placeholders for the order IDs
+            $placeholders = implode(',', $order_ids);
+
+            if ($this->helpers->HPOS_enabled()) {
+                // Query to fetch meta values for the given orders
+                $sql = "
+                SELECT order_id, meta_value
+                FROM {$wpdb->prefix}wc_orders_meta
+                WHERE meta_key = 'cslfw_shipping'
+                AND order_id IN ($placeholders)
+            ";
+                $query = $wpdb->prepare($sql);
+
+                $results = $wpdb->get_results($query);
+
+                // Organize results by order ID
+                $shipment_ids = [];
+                foreach ($results as $row) {
+                    $unserialized = maybe_unserialize($row->meta_value);
+
+                    if (is_array($unserialized)) {
+                        $shipment_ids = [...$shipment_ids, ...array_keys($unserialized)];
+                    }
+                }
+            } else {
+                $sql = "
+                    SELECT post_id, meta_value
+                    FROM $wpdb->postmeta
+                    WHERE meta_key = 'cslfw_shipping'
+                    AND post_id IN ($placeholders)
+                ";
+                // Query to fetch meta values for the given orders
+                $query = $wpdb->prepare($sql);
+
+                $results = $wpdb->get_results($query);
+
+                // Organize results by order ID
+                $shipment_ids = [];
+                foreach ($results as $row) {
+                    $unserialized = maybe_unserialize($row->meta_value);
+
+                    if (is_array($unserialized)) {
+                        $shipment_ids = [...$shipment_ids, ...array_keys($unserialized)];
+                    }
+                }
+            }
+
+            return $shipment_ids;
+        }
+
+            /**
          * @param $order_id
          */
         public function clean_cookies($order_id) {
