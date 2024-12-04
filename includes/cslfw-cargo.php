@@ -126,7 +126,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'doubleDelivery'        => $args['double_delivery'] ?? 1,
                 'noOfParcel'            => $args['no_of_parcel'] ?? 0,
                 'TransactionID'         => $this->order_id,
-                'CashOnDelivery'        => isset($args['cargo_cod']) && $args['cargo_cod'] ? floatval($this->order->get_total()) : 0,
+                'CashOnDelivery'        => isset($args['cargo_cod']) && $args['cargo_cod'] ? floatval($args['cargo_cod']) : 0,
                 'TotalValue'            => floatval($this->order->get_total()),
                 'CarrierID'             => $isBoxShipment ? 0 : 1,
                 'OrderID'               => $this->order_id,

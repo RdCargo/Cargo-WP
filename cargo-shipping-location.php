@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 5.3.1
+ * Version: 5.3.2
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -34,7 +34,7 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '5.3.1' );
+    define( 'CSLFW_VERSION', '5.3.2' );
 }
 
 if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
@@ -424,7 +424,17 @@ if( !class_exists('CSLFW_Cargo') ) {
 
             $autoShipmentCreate = get_option('cslfw_auto_shipment_create');
             if ($autoShipmentCreate === 'on' && !$cargo_shipping->get_shipment_data()) {
-                $cargo_shipping->createShipment();
+                $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
+                $allowForAllShippingMethods = get_option('cslfw_shipping_methods_all');
+
+                if ($shipping_method === 'cargo-express'
+                    || $shipping_method === 'cargo-express-24'
+                    || $shipping_method === 'woo-baldarp-pickup'
+                    || in_array($shipping_method, $cslfw_shiping_methods)
+                    || $allowForAllShippingMethods
+                ) {
+                    $cargo_shipping->createShipment();
+                }
             }
 
             $order->save();

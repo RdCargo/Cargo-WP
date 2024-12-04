@@ -51,7 +51,7 @@ class CargoAPIV2
             "total_value" => $oldApiParams['TotalValue'],
             "transaction_id" => $oldApiParams['TransactionID'],
             "cash_on_delivery" => $oldApiParams['CashOnDelivery'],
-            "cod_type" => $oldApiParams['CashOnDeliveryType'],
+            "cod_type" => $oldApiParams['CashOnDeliveryType'] ?? 0,
             "carrier_id" => $oldApiParams['CarrierID'],
             "order_id" => $oldApiParams['OrderID'],
             "notes" => $oldApiParams['Note'],

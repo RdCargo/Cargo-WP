@@ -91,9 +91,9 @@
     })
 	$('input[name="cargo_cod"]').change(function() {
 		if ( $(this).is(':checked') ) {
-			$('.cargo_cod_type').show();
+			$('.cargo_cod_checked').show();
 		} else {
-			$('.cargo_cod_type').hide();
+			$('.cargo_cod_checked').hide();
 			$('input[name="cargo_cod_type"]').prop('checked', false);
 		}
 	})
@@ -185,7 +185,7 @@
                 double_delivery: $('input[name="cargo_double_delivery"]').is(":checked") ? 2 : 1,
 				shipment_type: $('input[name="cargo_shipment_type"]').length > 0 ? $('input[name="cargo_shipment_type"]:checked').val() : 1,
 				no_of_parcel: $('input[name="cargo_packages"]').length > 0 ? $('input[name="cargo_packages"]').val() : 0,
-				cargo_cod: $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? 1 : 0 : 0,
+				cargo_cod: $('input[name="cargo_cod"]').length > 0 ? $('input[name="cargo_cod"]').is(':checked') ? $('input[name="cod_amount"]').val() : 0 : 0,
                 fulfillment: $('input[name="cslfw_fulfillment"]').length > 0 ? $('input[name="cslfw_fulfillment"]').is(':checked') ? 1 : 0 : 0,
 				cargo_cod_type: $('input[name="cargo_cod_type"]').length > 0 ? $('input[name="cargo_cod_type"]').is(':checked') ? 1 : '' : ''
 			};

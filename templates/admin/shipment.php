@@ -53,7 +53,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             </label>
         </div>
 
-        <div class="cargo-button cargo_cod_type" style="display: <?php echo esc_html($paymentMethod === $data['paymentMethodCheck'] ? 'block' : 'none' ) ?>">
+        <div class="cargo-button cargo_cod_checked" style="display: <?php echo esc_html($paymentMethod === $data['paymentMethodCheck'] ? 'block' : 'none' ) ?>">
+            <label for="shipping_cargo_express" style="vertical-align: top;">
+                <strong><?php esc_html_e('Cash on delivery amount', 'cargo-shipping-location-for-woocommerce') ?></strong>
+
+                <input type="text"
+                       placeholder="<?php esc_html_e('please enter amount', 'cargo-shipping-location-for-woocommerce')?>"
+                       id="cod_amount"
+                       name="cod_amount"
+                       value="<?php echo esc_attr( $order->get_total() ) ?>" autocomplete="off"/>
+            </label>
+        </div>
+        <div class="cargo-button cargo_cod_type cargo_cod_checked" style="display: <?php echo esc_html($paymentMethod === $data['paymentMethodCheck'] ? 'block' : 'none' ) ?>">
             <strong><?php esc_html_e('Cash on delivery Type', 'cargo-shipping-location-for-woocommerce') ?></strong>
             <?php foreach ($codTypes as $key => $value) : ?>
                 <label for="cargo_cod_type_<?php echo esc_attr($key) ?>">

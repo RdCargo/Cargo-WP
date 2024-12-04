@@ -256,7 +256,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				</tr>
                 <tr>
                     <th scope="row" align="left" >
-                        <label for="cslfw_auto_shipment_create"><?php esc_html_e('Automatically create shipment.', 'cargo-shipping-location-for-woocommerce') ?></label>
+                        <label for="cslfw_auto_shipment_create"><?php esc_html_e('Automatically create shipment', 'cargo-shipping-location-for-woocommerce') ?></label>
                     </th>
                     <td >
                         <div style="display: inline-block; margin-right: 15px;" class="text">

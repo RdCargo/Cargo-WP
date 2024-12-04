@@ -4,7 +4,7 @@ Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
 Tested up to: 6.6.2
 Requires PHP: 7.4
-Stable tag: 5.3.1
+Stable tag: 5.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -151,3 +151,7 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 5.3.1 ==
 * Add settings for bulk actions to filter them
 * Add shipping cancel button to order page.
+
+== 5.3.2 ==
+* Add cash on delivery field to edit amount for COD
+* Fix automatic shipment create to count settings
