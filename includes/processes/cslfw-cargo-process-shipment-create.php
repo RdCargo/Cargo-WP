@@ -2,6 +2,7 @@
 
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CargoAPIV2;
+use CSLFW\Includes\CargoAPI\CSLFW_Order;
 
 class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
 {
@@ -57,37 +58,54 @@ class CSLFW_Cargo_Process_Shipment_Create extends CSLFW_Cargo_Job
         $cargoShipping = new CSLFW_Cargo_Shipping($this->id);
         $order = wc_get_order($this->id);
 
+
         if (!$cargoShipping->get_shipment_data()) {
-            $args = [
-                'double_delivery' => $this->action_name === 'send-cargo-dd' ? 2 : 1,
-                'shipping_type' => $this->action_name === 'send-cargo-pickup' ? 2 : 1
-            ];
+            $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
+            $allowForAllShippingMethods = get_option('cslfw_shipping_methods_all');
 
-            $autoCashOnDeliveryMethod = get_option('cslfw_cod_check') ?  get_option('cslfw_cod_check') : 'cod';
+            $cargo_order = new CSLFW_Order($order);
+            $shipping_method = $cargo_order->getShippingMethod();
 
-            if ($autoCashOnDeliveryMethod === $order->get_payment_method()) {
-                $args['cargo_cod'] = $order->get_total();
-            }
+            if ($shipping_method === 'cargo-express'
+                || $shipping_method === 'cargo-express-24'
+                || $shipping_method === 'woo-baldarp-pickup'
+                || in_array($shipping_method, $cslfw_shiping_methods)
+                || $allowForAllShippingMethods
+            ) {
+                $args = [
+                    'double_delivery' => $this->action_name === 'send-cargo-dd' ? 2 : 1,
+                    'shipping_type' => $this->action_name === 'send-cargo-pickup' ? 2 : 1
+                ];
 
-            if ($distribution_point = (int)$order->get_meta('cargo_DistributionPointID', true)) {
-                $point = $this->cargo->findPointById($distribution_point);
-                if (!$point->errors) {
-                    $args['box_point'] = $point->data;
+                $autoCashOnDeliveryMethod = get_option('cslfw_cod_check') ?  get_option('cslfw_cod_check') : 'cod';
+
+                if ($autoCashOnDeliveryMethod === $order->get_payment_method()) {
+                    $args['cargo_cod'] = $order->get_total();
                 }
-            }
 
-            $shipment = $cargoShipping->createShipment($args);
+                if ($distribution_point = (int)$order->get_meta('cargo_DistributionPointID', true)) {
+                    $point = $this->cargo->findPointById($distribution_point);
+                    if (!$point->errors) {
+                        $args['box_point'] = $point->data;
+                    }
+                }
 
-            if (!$shipment->errors) {
-                $shipment_id = $shipment->data->shipment_id;
-                $newProgressStatus = "ShipmentID: $shipment_id";
-            } else {
-                $newProgressStatus = "ERROR:: {$shipment->message}";
+                $shipment = $cargoShipping->createShipment($args);
+
+                if (!$shipment->errors) {
+                    $shipment_id = $shipment->data->shipment_id;
+                    $newProgressStatus = "ShipmentID: $shipment_id";
+                } else {
+                    $newProgressStatus = "ERROR:: {$shipment->message}";
+                    $logs->add_debug_message("CARGO QUEUE:: processed order", ['order_id' => $this->id, 'action_name' => $this->action_name, 'shipment' => $shipment]);
+                }
+
                 $logs->add_debug_message("CARGO QUEUE:: processed order", ['order_id' => $this->id, 'action_name' => $this->action_name, 'shipment' => $shipment]);
+            } else {
+                $newProgressStatus = 'Order skipped because of plugin settings allowed `Shipping methods for CARGO`';
+                $logs->add_debug_message("CARGO QUEUE:: Order skipped because of plugin settings allowed `Shipping methods for CARGO`", ['order_id' => $this->id, 'action_name' => $this->action_name]);
+
             }
-
-            $logs->add_debug_message("CARGO QUEUE:: processed order", ['order_id' => $this->id, 'action_name' => $this->action_name, 'shipment' => $shipment]);
-
         } else {
             $newProgressStatus = 'Order skipped because shipment already exist';
             $logs->add_debug_message("CARGO QUEUE:: skip the order because shipment already exist", ['order_id' => $this->id, 'action_name' => $this->action_name]);

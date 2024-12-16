@@ -32,6 +32,7 @@ class CSLFW_ShipmentsPage
     private function getOrders()
     {
         $paged = isset($_GET['paged']) ? sanitize_text_field($_GET['paged']) : 1;
+        $per_page = isset($_GET['per_page']) ? sanitize_text_field($_GET['per_page']) : 50;
         $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : null;
         $metaQuery = [
             'relation' => 'AND',
@@ -52,7 +53,7 @@ class CSLFW_ShipmentsPage
         $args = [
             'meta_key' => 'cslfw_shipping',
             'paginate' => true,
-            'posts_per_page' => 10,
+            'posts_per_page' => $per_page,
             'page' => $paged,
         ];
 

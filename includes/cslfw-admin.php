@@ -365,6 +365,7 @@ if( !class_exists('CSLFW_Admin') ) {
 
                             }
                         } else {
+
                             $autoCashOnDeliveryMethod = get_option('cslfw_cod_check') ?  get_option('cslfw_cod_check') : 'cod';
 
                             $order_total = $autoCashOnDeliveryMethod === $order->get_payment_method() ? $order->get_total() : 0;
