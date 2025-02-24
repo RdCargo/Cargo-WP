@@ -156,11 +156,9 @@ class CargoAPIV2
         $boxPoints = $this->getPickupPoints();
 
         if (!$boxPoints->errors) {
-            $cities = array_unique(array_map(function($point) {
+            return array_unique(array_map(function($point) {
                 return $point->CityName;
-            }, $boxPoints->data));
-
-            return $cities ?? [];
+            }, $boxPoints->data ?? []));
         } else {
             return [];
         }

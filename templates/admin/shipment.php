@@ -168,7 +168,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         }
         ?>
     </div>
-
+<?php print_r(get_option('mailchimp_auto_subscribe'));?>
     <div class="cargo-button">
         <a href="#" class="cslfw-create-new-shipment button button-primary"><?php esc_html_e('יצירת משלוח חדש', 'cargo-shipping-location-for-woocommerce') ?></a>
         <p style="font-size: 12px;"><?php esc_html_e('פעולה זו לא תבטל את המשלוח הקודם (יש לפנות לשירות הלקוחות) אלא תיצור משלוח חדש', 'cargo-shipping-location-for-woocommerce') ?></p>

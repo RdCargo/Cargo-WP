@@ -15,11 +15,10 @@ class Cargo
     public function getPointsCities()
     {
         $boxPoints = $this->getPickupPoints();
-        $cities = array_unique(array_map(function($point) {
-            return $point->CityName;
-        }, $boxPoints->data));
 
-        return $cities ?? [];
+        return array_unique(array_map(function($point) {
+            return $point->CityName;
+        }, $boxPoints->data ?? []));
     }
 
     /**
@@ -30,7 +29,7 @@ class Cargo
         $points = $this->post("{$this->host}getPickUpPoints");
 
         if (empty($points->error_msg)) {
-            return (object)['errors' => false, 'data' => $points->PointsDetails, 'message' => 'Success.'];
+            return (object)['errors' => false, 'data' => $points->PointsDetails ?? [], 'message' => 'Success.'];
         } else {
             return (object)['errors' => true, 'data' => [], 'message' => $points->error_msg];
         }

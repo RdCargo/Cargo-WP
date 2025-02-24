@@ -433,6 +433,13 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 $args['shipmentsData'] = $this->helpers->getProductsForLabels($shipmentIds, $orderIds);
             }
 
+            $logs = new CSLFW_Logs();
+
+            $logs->add_log_message('Printing label', [
+                'args' => $args,
+                'orderIds' => $orderIds
+            ]);
+
             $cargoLabel = $this->cargo->generateShipmentLabel($args);
 
             if (!$cargoLabel->errors) {

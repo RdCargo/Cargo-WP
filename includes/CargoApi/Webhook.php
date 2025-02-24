@@ -29,8 +29,17 @@ class Webhook
         add_action('wp_ajax_cslfw_add_webhooks', [$this, 'send_webhooks_to_cargo']);
         add_action('wp_ajax_cslfw_delete_webhooks', [$this, 'delete_webhooks_from_cargo']);
         add_action('admin_enqueue_scripts', [$this, 'import_assets'] );
+        add_action('rest_api_init', [$this, 'check_rest_api'] );
     }
 
+    public function check_rest_api()
+    {
+        $routes = rest_get_server()->get_routes();
+        $message = "REST ROUTES:" . wp_json_encode($routes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+
+        $logs = new \CSLFW_Logs();
+        $logs->add_debug_message($message . PHP_EOL);
+    }
 
     public function cargo_status_update_webhook()
     {
@@ -55,6 +64,10 @@ class Webhook
      */
     public function cargo_update_shipment_status($request)
     {
+        $logs = new \CSLFW_Logs();
+        $message = "webhook.status-update:: Start to update shipment\n";
+        $logs->add_debug_message($message . PHP_EOL);
+
         global $wpdb;
 
         $data = $request->get_params();
@@ -77,6 +90,10 @@ class Webhook
         if ( $orders ) {
             foreach ( $orders as $orderData ) {
                 $orderId = $orderData->$orderIdField;
+
+                $message = "webhook.status-update:: Updating order $orderId \n";
+                $logs->add_debug_message($message . PHP_EOL);
+
                 $order = wc_get_order($orderId);
                 $deliveries = $order->get_meta('cslfw_shipping');
 
@@ -271,12 +288,14 @@ class Webhook
             $logs = new \CSLFW_Logs();
             $message = "update WEBHOOK : ".wp_json_encode($args,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
             $message .= "update WEBHOOK HEADERS: ".wp_json_encode($this->headers,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
-
-            $logs->add_debug_message($message . PHP_EOL );
-
         }
 
-        return $this->post("https://dashboard.cargo.co.il/api/webhooks/update", $args, $this->headers);
+        $response =  $this->post("https://dashboard.cargo.co.il/api/webhooks/update", $args, $this->headers);
+
+        $message .= "update WEBHOOK HEADERS: ".wp_json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES). PHP_EOL;
+        $logs->add_debug_message($message . PHP_EOL );
+
+        return $response;
     }
 
     /**

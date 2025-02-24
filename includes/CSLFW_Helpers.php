@@ -136,7 +136,7 @@ class CSLFW_Helpers {
 
             foreach ($orderItems as $item) {
                 $products[] = [
-                    "title"=> $item->get_name(),
+                    "title"=> empty($item->get_name()) ? 'No title' : $item->get_name(),
                     "quantity"=> $item->get_quantity(),
                     "item_price"=> floatval($item->get_total())
                 ];
