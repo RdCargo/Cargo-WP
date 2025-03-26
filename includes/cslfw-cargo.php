@@ -118,9 +118,33 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $website.= sanitize_text_field($_SERVER['HTTP_HOST']);
 
             $toPhone = isset($order_data['shipping']['phone']) && !empty($order_data['shipping']['phone']) ? $order_data['shipping']['phone'] : $order_data['billing']['phone'];
-            $toPhone = apply_filters( 'cslfw_change_recipient_phone', $toPhone, $this->order );
+            $toPhone = apply_filters( 'cslfw_change_recipient_phone', $toPhone, $this->order);
 
             $data['Method'] = "ship";
+            $fromAddress = [
+                'name'      => apply_filters('cslfw_from_address_name', get_option('website_name_cargo'), $this->order_id),
+                'company'   => apply_filters('cslfw_from_address_name', get_option('website_name_cargo'), $this->order_id),
+                'street1'   => get_option('from_street'),
+                'street2'   => get_option('from_street_name'),
+                'city'      => get_option('from_city'),
+                'country'   => 'Israel',
+                'phone'     => get_option('phonenumber_from'),
+                'email'     => '',
+            ];
+
+            $toAddress = [
+                'name'      => $name,
+                'company'   => !empty($order_data['shipping']['company']) ? $order_data['shipping']['company'] :  $name,
+                'street1'   => !empty($order_data['shipping']['address_1']) ? $order_data['shipping']['address_1'] : $order_data['billing']['address_1'],
+                'street2'   => !empty($order_data['shipping']['address_2']) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
+                'city'      => !empty($order_data['shipping']['city']) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
+                'country'   => !empty($order_data['shipping']['country']) ? $order_data['shipping']['country'] : $order_data['billing']['country'],
+                'phone'     => $toPhone,
+                'email'     => !empty($order_data['shipping']['email']) ? $order_data['shipping']['email'] : $order_data['billing']['email'],
+                'floor'     => $this->order->get_meta('cargo_floor', true),
+                'appartment' => $this->order->get_meta('cargo_apartment', true),
+            ];
+
             $data['Params'] = [
                 'shipping_type'         => $shipping_type,
                 'doubleDelivery'        => $args['double_delivery'] ?? 1,
@@ -136,28 +160,8 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 'website'               => $website,
                 'Platform'              => 'Wordpress',
 
-                'to_address' => [
-                    'name'      => $name,
-                    'company'   => !empty($order_data['shipping']['company']) ? $order_data['shipping']['company'] :  $name,
-                    'street1'   => !empty($order_data['shipping']['address_1']) ? $order_data['shipping']['address_1'] : $order_data['billing']['address_1'],
-                    'street2'   => !empty($order_data['shipping']['address_2']) ? $order_data['shipping']['address_2'] : $order_data['billing']['address_2'],
-                    'city'      => !empty($order_data['shipping']['city']) ? $order_data['shipping']['city'] : $order_data['billing']['city'],
-                    'country'   => !empty($order_data['shipping']['country']) ? $order_data['shipping']['country'] : $order_data['billing']['country'],
-                    'phone'     => $toPhone,
-                    'email'     => !empty($order_data['shipping']['email']) ? $order_data['shipping']['email'] : $order_data['billing']['email'],
-                    'floor'     => $this->order->get_meta('cargo_floor', true),
-                    'appartment' => $this->order->get_meta('cargo_apartment', true),
-                ],
-                'from_address' => [
-                    'name'      => apply_filters('cslfw_from_address_name', get_option('website_name_cargo'), $this->order_id),
-                    'company'   => apply_filters('cslfw_from_address_name', get_option('website_name_cargo'), $this->order_id),
-                    'street1'   => get_option('from_street'),
-                    'street2'   => get_option('from_street_name'),
-                    'city'      => get_option('from_city'),
-                    'country'   => 'Israel',
-                    'phone'     => get_option('phonenumber_from'),
-                    'email'     => '',
-                ]
+                'to_address' => apply_filters('cslfw_modify_to_address_params', $toAddress, $this->order),
+                'from_address' => apply_filters('cslfw_modify_from_address_params', $fromAddress, $this->order)
             ];
 
             if ($shipping_type === 2) {
