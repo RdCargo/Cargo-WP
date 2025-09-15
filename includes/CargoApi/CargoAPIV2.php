@@ -18,9 +18,11 @@ class CargoAPIV2
     {
         $this->api_key = get_option('cslfw_cargo_api_key');
 
-        $this->headers = [
-            "Authorization" => "Bearer {$this->api_key}",
-        ];
+        if ($this->api_key) {
+            $this->headers = [
+                "Authorization" => "Bearer {$this->api_key}",
+            ];
+        }
     }
 
     /**
@@ -162,7 +164,19 @@ class CargoAPIV2
         } else {
             return [];
         }
+    }
 
+    /**
+     * @param $city
+     * @return mixed
+     */
+    public function checkSuperExpress($city)
+    {
+        $args = [
+            "city" => $city,
+        ];
+
+        return $this->post("{$this->host}shipments/allowed-for-super-express", $args);
     }
 
     /**

@@ -441,7 +441,7 @@ function toRad(Value) {
         if($("div.blockUI").hasClass('blockOverlay')) {
             $("div.blockUI").removeClass('blockOverlay');
             $("div.blockUI").removeAttr('id')
-            $("div.blockUI").hide();
+            $("div.blockUI").remove();
         }
     },5000);
 

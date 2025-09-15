@@ -444,12 +444,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         <div style="display: inline-block; margin-right: 15px;" class="text">
                             <label for="cslfw_shipping_methods" style="vertical-align: top;">
                                 <?php
-                                $shipping_methods = WC()->shipping->get_shipping_methods();
-                                $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
+                                    $shipping_methods = \WC()->shipping->get_shipping_methods();
+                                    $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
 
-                                foreach ($shipping_methods as $method) :
-                                    $checked = in_array($method->id, $cslfw_shiping_methods) ? 'checked' : '';
-                                    if ($method->id !== 'cargo-express' && $method->id !== 'cargo-express-24' && $method->id !== 'woo-baldarp-pickup') :
+                                    foreach ($shipping_methods as $method) :
+                                        $checked = in_array($method->id, $cslfw_shiping_methods) ? 'checked' : '';
+                                        if ($method->id !== 'cargo-express' && $method->id !== 'cargo-express-24' && $method->id !== 'woo-baldarp-pickup') :
                                 ?>
                                     <label for="cslfw_shipping_methods_<?php echo esc_attr($method->id) ?>" style="display: block">
                                         <input type="checkbox" id="cslfw_shipping_methods_<?php echo esc_attr($method->id) ?>" name="cslfw_shipping_methods[]" value="<?php echo esc_attr($method->id) ?>" <?php echo esc_attr($checked) ?>>

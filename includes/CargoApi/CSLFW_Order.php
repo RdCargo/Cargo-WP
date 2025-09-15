@@ -39,7 +39,8 @@ class CSLFW_Order
         if ($shippingMethod = $this->getMeta('cslfw_shipping_method')) {
             $this->shippingMethod = $shippingMethod;
         } else {
-            $shippingMethodObject = @array_shift($this->order->get_shipping_methods());
+            $orderShippingMethods = $this->order->get_shipping_methods();
+            $shippingMethodObject = @array_shift($orderShippingMethods);
 
             $shippingMethod = $shippingMethodObject
                 ? $shippingMethodObject['method_id']

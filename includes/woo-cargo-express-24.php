@@ -90,6 +90,13 @@ if ( !class_exists( 'Cargo_Express_24_Method' ) ) {
          */
         public function is_available( $package )
         {
+            $city = $package['destination']['city'] ?? null;
+            $cargo = new \CSLFW\Includes\CargoAPI\CargoAPIV2();
+            if ($city) {
+                $checkCity = $cargo->checkSuperExpress($city);
+                return !($checkCity->errors ?? true);
+            }
+
             if ($this->weight_limit > 0) {
                 $cart_weight = WC()->cart->get_cart_contents_weight();
                 return $cart_weight < $this->weight_limit;
@@ -102,7 +109,7 @@ if ( !class_exists( 'Cargo_Express_24_Method' ) ) {
          * @param array $package
          */
 		public function calculate_shipping( $package = [] ) {
-			if(!empty($this->shipping_cost)) {
+            if(!empty($this->shipping_cost)) {
 				$this->add_rate([
 					'id'    => $this->id .":" .$this->instance_id,
 					'label' => $this->title,

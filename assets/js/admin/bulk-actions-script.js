@@ -46,6 +46,6 @@
                     console.log(textStatus);
                 }
             });
-        }, 500)
+        }, 1000)
     })
 })(window.jQuery)

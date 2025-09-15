@@ -2,9 +2,9 @@
 Contributors: Astraverdes
 Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 5.0.0
-Tested up to: 6.6.2
+Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 5.4.0
+Stable tag: 5.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -161,3 +161,8 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 
 == 5.4.0 ==
 * Add filter for from/to addresses to allow modifications of custom fields
+
+== 5.5.0 ==
+* Fix several warnings thrown by plugin
+* Increase progress bar interval
+* Fix super express shipping method

@@ -34,11 +34,11 @@ class Webhook
 
     public function check_rest_api()
     {
-        $routes = rest_get_server()->get_routes();
-        $message = "REST ROUTES:" . wp_json_encode($routes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
-
-        $logs = new \CSLFW_Logs();
-        $logs->add_debug_message($message . PHP_EOL);
+//        $routes = rest_get_server()->get_routes();
+//        $message = "REST ROUTES:" . wp_json_encode($routes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+//
+//        $logs = new \CSLFW_Logs();
+//        $logs->add_debug_message($message . PHP_EOL);
     }
 
     public function cargo_status_update_webhook()

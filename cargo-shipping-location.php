@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 5.4.0
+ * Version: 5.5.0
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -34,7 +34,7 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '5.4.0' );
+    define( 'CSLFW_VERSION', '5.5.0' );
 }
 
 if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
@@ -100,6 +100,7 @@ if( !class_exists('CSLFW_Cargo') ) {
             add_filter('woocommerce_order_get_formatted_shipping_address', [$this, 'additional_shipping_details'], 10, 3 );
 
             add_action('woocommerce_order_status_processing', [$this, 'auto_create_shipment'], 200, 1);
+            add_action('woocommerce_order_status_completed', [$this, 'auto_create_shipment'], 200, 1);
 
             add_action('CSLFW_Cargo_Process_Shipment_Create', [$this, 'cslfw_process_single_shipment_create_job'], 10, 3);
             add_action('CSLFW_Cargo_Process_Shipment_Label', [$this, 'cslfw_process_single_shipment_label_job'], 10, 4);
@@ -387,55 +388,59 @@ if( !class_exists('CSLFW_Cargo') ) {
             $cargo_shipping = new CSLFW_Cargo_Shipping($order_id);
             $cargo_order = new CSLFW_Order($order);
             $shipping_method = $cargo_order->getShippingMethod();
+            $shipments = $order->get_meta('cslfw_shipping', true) ?? [];
 
-            $autoBoxChose = get_option('cargo_box_style');
+            if (!$shipments) {
+                $autoBoxChose = get_option('cargo_box_style');
 
-            if ($shipping_method === 'woo-baldarp-pickup' && $autoBoxChose === 'cargo_automatic') {
-                $logs = new \CSLFW_Logs();
+                if ($shipping_method === 'woo-baldarp-pickup' && $autoBoxChose === 'cargo_automatic') {
+                    $logs = new \CSLFW_Logs();
 
-                $data = $cargo_shipping->createCargoObject();
-                $address = $data['Params']['to_address']['street1'] . ' ' . $data['Params']['to_address']['street2'] . ',' . $data['Params']['to_address']['city'];
-                $geocoding = $this->cargo->cargoGeocoding($address);
+                    $data = $cargo_shipping->createCargoObject();
+                    $address = $data['Params']['to_address']['street1'] . ' ' . $data['Params']['to_address']['street2'] . ',' . $data['Params']['to_address']['city'];
+                    $geocoding = $this->cargo->cargoGeocoding($address);
 
-                if ($geocoding->errors === false) {
-                    if ( !empty($geocoding->data->results) ) {
+                    if ($geocoding->errors === false) {
+                        if ( !empty($geocoding->data->results) ) {
 
-                        $coordinates = $geocoding->data->results[0]->geometry->location;
+                            $coordinates = $geocoding->data->results[0]->geometry->location;
 
-                        $closest_point = $this->cargo->findClosestPoints($coordinates->lat, $coordinates->lng, 30);
+                            $closest_point = $this->cargo->findClosestPoints($coordinates->lat, $coordinates->lng, 30);
 
-                        if ( !$closest_point->errors ) {
-                            // THE SUCCESS FOR DETERMINE CARGO POINT ID IN AUTOMATIC MODE.
-                            $chosen_point = $closest_point->data[0];
-                            $order->update_meta_data('cargo_DistributionPointID', $chosen_point->DistributionPointID);
+                            if ( !$closest_point->errors ) {
+                                // THE SUCCESS FOR DETERMINE CARGO POINT ID IN AUTOMATIC MODE.
+                                $chosen_point = $closest_point->data[0];
+                                $order->update_meta_data('cargo_DistributionPointID', $chosen_point->DistributionPointID);
 
-                            $order->save();
+                                $order->save();
+                            } else {
+                                $logs->add_debug_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );
+                            }
                         } else {
-                            $logs->add_debug_message("ERROR.FAIL: 'No closest points found by the radius." . PHP_EOL );
+                            $logs->add_debug_message("ERROR.FAIL: Empty geocoding data." . PHP_EOL );
                         }
+
                     } else {
-                        $logs->add_debug_message("ERROR.FAIL: Empty geocoding data." . PHP_EOL );
+                        $logs->add_debug_message("ERROR.FAIL: Address geocoding fail for address $address" . PHP_EOL );
                     }
+                }
 
-                } else {
-                    $logs->add_debug_message("ERROR.FAIL: Address geocoding fail for address $address" . PHP_EOL );
+                $autoShipmentCreate = get_option('cslfw_auto_shipment_create');
+                if ($autoShipmentCreate && !$cargo_shipping->get_shipment_data()) {
+                    $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
+                    $allowForAllShippingMethods = get_option('cslfw_shipping_methods_all');
+
+                    if ($shipping_method === 'cargo-express'
+                        || $shipping_method === 'cargo-express-24'
+                        || $shipping_method === 'woo-baldarp-pickup'
+                        || in_array($shipping_method, $cslfw_shiping_methods)
+                        || $allowForAllShippingMethods
+                    ) {
+                        $cargo_shipping->createShipment();
+                    }
                 }
             }
 
-            $autoShipmentCreate = get_option('cslfw_auto_shipment_create');
-            if ($autoShipmentCreate === 'on' && !$cargo_shipping->get_shipment_data()) {
-                $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
-                $allowForAllShippingMethods = get_option('cslfw_shipping_methods_all');
-
-                if ($shipping_method === 'cargo-express'
-                    || $shipping_method === 'cargo-express-24'
-                    || $shipping_method === 'woo-baldarp-pickup'
-                    || in_array($shipping_method, $cslfw_shiping_methods)
-                    || $allowForAllShippingMethods
-                ) {
-                    $cargo_shipping->createShipment();
-                }
-            }
 
             $order->save();
         }
@@ -475,7 +480,7 @@ if( !class_exists('CSLFW_Cargo') ) {
         public function cslfw_ajax_delivery_location() {
             if ( WC()->session->get('chosen_shipping_methods') !== null) {
                 $results = $this->cargo->getPickupPoints();
-                if (!$results->errors && count($results->data) > 0) {
+                if (!$results->errors && $results->data && count($results->data) > 0) {
                     $response = [
                         "info"             => "Everything is fine.",
                         "data"             => 1,
