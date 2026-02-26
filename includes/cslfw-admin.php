@@ -176,7 +176,8 @@ if( !class_exists('CSLFW_Admin') ) {
                         'shipmentData' => $shipmentData,
                     ];
 
-                    $boxPointId = !empty($shipmentData) ? @end( $shipmentData)['box_id'] : false;
+                    $lastShipment = @end($shipmentData);
+                    $boxPointId = !empty($shipmentData) && isset($lastShipment['box_id']) ? $lastShipment['box_id'] : false;
                     $boxPointId = $boxPointId ? $boxPointId : $order->get_meta('cargo_DistributionPointID', true);
 
                     if ($boxPointId) {

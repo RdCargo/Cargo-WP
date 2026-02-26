@@ -96,7 +96,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             $customer_code = $isBoxShipment ? get_option('shipping_cargo_box') : get_option('shipping_cargo_express');
             $customer_code = $isExpress24 ? get_option('shipping_cargo_express_24') : $customer_code;
 
-            $shipping_type = (int) $args['shipping_type'] ?? 1;
+            $shipping_type = (int) ($args['shipping_type'] ?? 1);
             if ($shipping_type === 2 ) {
                 $customer_code = $pickupCustomerCode ? $pickupCustomerCode :  get_option('shipping_cargo_express');
             }

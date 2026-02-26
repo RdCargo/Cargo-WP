@@ -135,10 +135,11 @@ class CSLFW_Helpers {
             $products = [];
 
             foreach ($orderItems as $item) {
+                $itemPrice = floatval($item->get_total());
                 $products[] = [
                     "title"=> empty($item->get_name()) ? 'No title' : $item->get_name(),
                     "quantity"=> $item->get_quantity(),
-                    "item_price"=> floatval($item->get_total())
+                    "item_price"=> apply_filters('cslfw_cargo_label_item_price', $itemPrice, $item),
                 ];
             }
 
