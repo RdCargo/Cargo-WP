@@ -184,7 +184,64 @@ class CargoAPIV2
      */
     public function getPickupPoints()
     {
-        return $this->get( "{$this->host}shipments/get-pickup-points", [], $this->headers);
+        // TODO make with cache
+        $pickup_points = get_transient('cslfw_pickup_points');
+
+        if (!$pickup_points) {
+            $pickup_points = $this->get( "{$this->host}shipments/get-pickup-points", [], $this->headers);
+
+            if (!$pickup_points->errors && !empty($pickup_points->data)) {
+                set_transient('cslfw_pickup_points', $pickup_points, 3600);
+            }
+        }
+
+        return $pickup_points;
+    }
+
+    public function getPickupPointsIndexed()
+    {
+        $indexed = get_transient('cslfw_pickup_points_indexed');
+
+        if (!$indexed) {
+            $pickup_points = $this->get( "{$this->host}shipments/get-pickup-points", [], $this->headers);
+
+            if (!$pickup_points->errors && !empty($pickup_points->data)) {
+                $indexed = [];
+
+                foreach ($pickup_points->data as $point) {
+                    $indexed[$point->DistributionPointID] = $point;
+                }
+
+                set_transient('cslfw_pickup_points_indexed', $indexed,  3600);
+            }
+        }
+
+        return $indexed;
+    }
+
+    public function getPickupPointsCityIndexed()
+    {
+        $indexed = get_transient('cslfw_pickup_points_city_indexed');
+
+        if (!$indexed) {
+            $pickup_points = $this->get( "{$this->host}shipments/get-pickup-points", [], $this->headers);
+
+            if (!$pickup_points->errors && !empty($pickup_points->data)) {
+                $indexed = [];
+
+                foreach ($pickup_points->data as $point) {
+                    if (isset($indexed[$point->CityName])) {
+                        $indexed[$point->CityName][] = $point;
+                    } else {
+                        $indexed[$point->CityName] = [$point];
+                    }
+                }
+
+                set_transient('cslfw_pickup_points_city_indexed', $indexed,  3600);
+            }
+        }
+
+        return $indexed;
     }
 
     /**
@@ -193,10 +250,16 @@ class CargoAPIV2
      */
     public function findPointById($pointId = null)
     {
-        if ($pointId) {
-            $point = $this->post("{$this->host}shipments/get-point-details", ['point_id' => $pointId], $this->headers);
+        $pickup_points = $this->getPickupPointsIndexed();
 
-            return $point;
+        if (!empty($pickup_points) && $pointId) {
+            $foundPoint = $pickup_points[$pointId] ?? null;
+
+            if ($foundPoint) {
+                return (object) ['errors' => false, 'data' => $foundPoint, 'messages' => 'Point found'];
+            } else {
+                return (object) ['errors' => true, 'data' => [], 'messages' => 'Point not found'];
+            }
         } else {
             return (object) ['errors' => true, 'data' => [], 'messages' => 'Point not found'];
         }
@@ -208,11 +271,27 @@ class CargoAPIV2
      */
     public function getPointsByCity($city)
     {
-        $args = [
-            'city' => $city
-        ];
+        $pickup_points = $this->getPickupPointsCityIndexed();
 
-        return $this->post( "{$this->host}shipments/get-points-by-city", $args, $this->headers);
+        if (!empty($pickup_points) && $city) {
+            $logs = new \CSLFW_Logs();
+            $logs->add_log_message('cached indexed point', ['pp' => $pickup_points]);
+            $foundPoint = $pickup_points[$city] ?? null;
+
+
+            $logs->add_log_message('cached indexed point', [
+                'city' => $city,
+                'point' => $foundPoint
+            ]);
+
+            if ($foundPoint) {
+                return (object) ['errors' => false, 'data' => $foundPoint, 'messages' => 'Point found'];
+            } else {
+                return (object) ['errors' => true, 'data' => [], 'messages' => 'Point not found'];
+            }
+        } else {
+            return (object) ['errors' => true, 'data' => [], 'messages' => 'Point not found'];
+        }
     }
 
     /**
