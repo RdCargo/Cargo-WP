@@ -2,6 +2,7 @@
 namespace CSLFW\Includes\CargoAPI;
 
 use CSLFW\Includes\CSLFW_Helpers;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Webhook
 {
@@ -54,8 +55,51 @@ class Webhook
 
     public function  cargo_update_shipment_status_permission($request)
     {
+        $allowed_domains = [
+            'api-v2.cargo.co.il',
+            'dashboard.cargo.co.il',
+        ];
+
+        // Get the custom header value
+        // WordPress REST API converts headers to lowercase and replaces - with _
+        // Http-Cargo-Domain becomes http_cargo_domain
+        $cargo_domain = sanitize_text_field( $request->get_header( 'Http-Cargo-Domain' ) );
+
+        if ( empty( $cargo_domain ) ) {
+            return new \WP_Error(
+                'rest_forbidden',
+                __( 'Missing Cargo domain header.', 'cargo-shipping-location-for-woocommerce' ),
+                [ 'status' => 401 ]
+            );
+        }
+
+        // Strip www. prefix and sanitize
+        // Strip protocol (http:// or https://)
+        $cargo_domain = preg_replace( '/^https?:\/\//', '', $cargo_domain );
+
+        // Strip slashes
+        $cargo_domain = trim( $cargo_domain, '/' );
+
+        // Strip www. prefix
+        $cargo_domain = preg_replace( '/^www\./', '', $cargo_domain );
+
+        // Strip anything after the domain (path, query string, port)
+        $cargo_domain = strtolower( parse_url( 'https://' . $cargo_domain, PHP_URL_HOST ) );
+
+
+        if ( ! in_array( $cargo_domain, $allowed_domains, true ) ) {
+            return new \WP_Error(
+                'rest_forbidden',
+                __( 'Domain not allowed.', 'cargo-shipping-location-for-woocommerce' ),
+                [ 'status' => 403 ]
+            );
+        }
+
+        return true;
+
         return true;
     }
+
     /**
      * Webhook callback to update cargo shipment status.
      *
@@ -79,12 +123,20 @@ class Webhook
             $tableName = 'postmeta';
             $orderIdField = 'post_id';
         }
+        $table = $wpdb->prefix . $tableName;
+        $like  = '%' . $wpdb->esc_like($data['shipment_id']) . '%';
+
         $orders = $wpdb->get_results(
-            "
-            SELECT *
-            FROM {$wpdb->prefix}{$tableName}
-            WHERE meta_key = 'cslfw_shipping' AND meta_value LIKE '%{$data['shipment_id']}%'
-            "
+            $wpdb->prepare(
+                "
+                    SELECT *
+                    FROM {$table}
+                    WHERE meta_key = %s
+                    AND meta_value LIKE %s
+                ",
+                'cslfw_shipping',
+                $like
+            )
         );
 
         if ( $orders ) {
@@ -126,7 +178,7 @@ class Webhook
     {
         parse_str(sanitize_text_field($_POST['form_data']), $data);
 
-        if (!isset($data['_wpnonce']) && !wp_verify_nonce(sanitize_text_field($data['_wpnonce']), 'cslfw-save-api-key')) {
+        if (!isset($data['_wpnonce']) || !wp_verify_nonce(sanitize_text_field($data['_wpnonce']), 'cslfw-save-api-key')) {
             echo wp_json_encode([
                 'error' => true,
                 'message' => 'Bad request, try again later.',

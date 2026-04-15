@@ -3,7 +3,7 @@
 use CSLFW\Includes\CargoAPI\Cargo;
 use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use setasign\Fpdi\Fpdi;
-
+if ( ! defined( 'ABSPATH' ) ) exit;
 class CSLFW_Cargo_Process_Shipment_Label extends CSLFW_Cargo_Job
 {
     private $cargo;
@@ -138,8 +138,8 @@ class CSLFW_Cargo_Process_Shipment_Label extends CSLFW_Cargo_Job
 
             $pdf->Output($existingPdfPath, 'F');
 
-            unlink($tempPdf1);
-            unlink($tempPdf2);
+            wp_delete_file($tempPdf1);
+            wp_delete_file($tempPdf2);
 
             $logs->add_debug_message('PDF Created', ['d' => $existingPdfPath]);
         } catch (Exception $e) {
@@ -148,7 +148,7 @@ class CSLFW_Cargo_Process_Shipment_Label extends CSLFW_Cargo_Job
 
             $logs->add_debug_message("Error creating PDF: " . $e->getMessage());
 
-            die("Error creating PDF: " . $e->getMessage());
+            die("Error creating PDF: " . esc_html($e->getMessage()));
         }
         $logs->add_debug_message('LABELS APPENDING', ['d' => $externalUrl]);
 
@@ -161,17 +161,32 @@ class CSLFW_Cargo_Process_Shipment_Label extends CSLFW_Cargo_Job
         $folder = CSLFW_PATH . "assets/labels";
         $logs->add_debug_message('LABELS FOLDER', ['d' => $folder]);
 
-        if (! is_dir($folder)) {
+        // Initialize WP_Filesystem
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . '/wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
+        if ( ! $wp_filesystem->is_dir( $folder ) ) {
             $logs->add_debug_message('FOLDER NOT FOUND, CREATING FOLDER', ['d' => $folder]);
-            mkdir( $folder, 0700 );
+            $wp_filesystem->mkdir( $folder, 0700 );
         }
 
         // Step 1: Retrieve content from the provided URL
-        file_put_contents($outputPdfPath, file_get_contents($url));
+        $response = wp_remote_get( $url );
 
-        if ($outputPdfPath === FALSE) {
-            die('Error: Could not fetch content from the URL');
+        if ( is_wp_error( $response ) ) {
+            die( 'Error: Could not fetch content from the URL' );
         }
+
+        $content = wp_remote_retrieve_body( $response );
+
+        if ( empty( $content ) ) {
+            die( 'Error: Could not fetch content from the URL' );
+        }
+
+        $wp_filesystem->put_contents( $outputPdfPath, $content, FS_CHMOD_FILE );
 
         $logs->add_debug_message('PDF Created', ['d' => $outputPdfPath]);
     }

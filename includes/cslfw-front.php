@@ -137,7 +137,7 @@ if( !class_exists('CSLFW_Front') ) {
 
                     $this->helpers->load_template('checkout/box-shipment', $data);
                 } else {
-                    echo "<div>FAILED TO LOAD POINTS $city</div><pre>";
+                    echo '<div>' . esc_html( sprintf( __( 'FAILED TO LOAD POINTS %s', 'your-textdomain' ), $city ) ) . '</div><pre>';
                     print_r($points);
                 }
             }

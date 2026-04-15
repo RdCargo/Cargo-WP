@@ -59,6 +59,17 @@ if( !class_exists('CSLFW_Logs') ) {
             $this->viewed_log  = '';
         }
 
+        public function get_wp_filesystem()
+        {
+            global $wp_filesystem;
+
+            if ( ! function_exists('WP_Filesystem') ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            return WP_Filesystem();
+        }
+
         public function add_menu_link() {
             add_submenu_page('loaction_api_settings', 'Log Files', 'Log Files', 'manage_options', 'cargo_shipping_log', [$this, 'logs']);
         }
@@ -74,21 +85,49 @@ if( !class_exists('CSLFW_Logs') ) {
          * Add Log for Order
          */
         function add_log_message($msg, $data = []) {
-            $upload = wp_upload_dir();
-            $upload_dir = $upload['basedir'];
-            $upload_dir = $upload_dir . '/cargo-shipping-location';
+            global $wp_filesystem;
 
-            if (! is_dir($upload_dir)) {
-                mkdir( $upload_dir, 0700 );
-            }
-            $path = $upload_dir.'/order_log_' . date('Ymd') . '.txt';
-            if (!file_exists($path)) {
-                $file = fopen($path, 'w') or die("Can't create file");
+            if ( ! function_exists('WP_Filesystem') ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
             }
 
-            $msg = '['. date('Y-m-d H:i:d') . '] ' . $msg;
-            $message = empty($data) ? $msg . PHP_EOL  : "$msg " . wc_print_r($data, true) . PHP_EOL;
-            file_put_contents($path, $message, FILE_APPEND) or die('failed to put');
+            // Initialize filesystem
+            WP_Filesystem();
+
+            $upload     = wp_upload_dir();
+            $upload_dir = $upload['basedir'] . '/cargo-shipping-location';
+
+            // Create directory if not exists
+            if ( ! $wp_filesystem->is_dir($upload_dir) ) {
+                $wp_filesystem->mkdir($upload_dir, FS_CHMOD_DIR);
+            }
+
+            $path = $upload_dir . '/order_log_' . gmdate('Ymd') . '.txt';
+
+            // Build message
+            $timestamp = '[' . gmdate('Y-m-d H:i:s') . '] ';
+            $msg       = $timestamp . $msg;
+            $message   = empty($data)
+                ? $msg . PHP_EOL
+                : $msg . ' ' . wc_print_r($data, true) . PHP_EOL;
+
+            // Append or create file
+            if ( $wp_filesystem->exists($path) ) {
+                // Read existing content and append
+                $existing = $wp_filesystem->get_contents($path);
+                $wp_filesystem->put_contents(
+                    $path,
+                    $existing . $message,
+                    FS_CHMOD_FILE
+                );
+            } else {
+                // Create new file
+                $wp_filesystem->put_contents(
+                    $path,
+                    $message,
+                    FS_CHMOD_FILE
+                );
+            }
         }
 
         /**
@@ -151,6 +190,14 @@ if( !class_exists('CSLFW_Logs') ) {
         }
 
         function remove_op($handle) {
+            global $wp_filesystem;
+
+            if ( ! function_exists('WP_Filesystem') ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            WP_Filesystem();
+
             $removed    = false;
             $result_new = [];
 
@@ -164,15 +211,24 @@ if( !class_exists('CSLFW_Logs') ) {
                 }
             }
 
-            $handle  = sanitize_title( $handle );
+            $handle = sanitize_title( $handle );
 
             if ( isset( $result_new[ $handle ] ) && $result_new[ $handle ] ) {
-                $file = realpath( trailingslashit( $this->logs_dir ) .'/'. $result_new[ $handle ] );
-                if ( 0 === stripos( $file, realpath( trailingslashit( $this->logs_dir ) ) ) && is_file( $file ) && is_writable( $file ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_is_writable
-                    $this->close_op( $file ); // Close first to be certain no processes keep it alive after it is unlinked.
-                    $removed = unlink( $file ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_unlink
+                $base_dir = realpath( trailingslashit( $this->logs_dir ) );
+                $file     = realpath( trailingslashit( $this->logs_dir ) . $result_new[ $handle ] );
+
+                // Security check: ensure file is inside logs dir
+                if ( $file && 0 === stripos( $file, $base_dir ) && $wp_filesystem->is_file( $file ) ) {
+
+                    $this->close_op( $file );
+
+                    // WP way instead of is_writable() + unlink()
+                    if ( $wp_filesystem->exists( $file ) ) {
+                        $removed = $wp_filesystem->delete( $file );
+                    }
                 }
             }
+
             return $removed;
         }
 

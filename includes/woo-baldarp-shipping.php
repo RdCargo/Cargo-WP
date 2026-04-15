@@ -62,20 +62,20 @@ if ( !class_exists( 'CSLFW_Shipping_Method' ) ) {
 				'shipping_cost' => [
 					'title' => esc_html__( 'Shipping cost', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => esc_html__( '', 'cargo-shipping-location-for-woocommerce' ),
-					'default' => esc_html__( '', 'cargo-shipping-location-for-woocommerce' )
+					'description' => '',
+					'default' => ''
 				],
                 'weight_limit' => [
 					'title' => esc_html__( 'Cart Weight limit', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'number',
 					'description' => esc_html__( 'Set here the weight limit with the dot. e.g. "3.5"', 'cargo-shipping-location-for-woocommerce' ),
-					'default' => esc_html__( '', 'cargo-shipping-location-for-woocommerce' )
+					'default' => ''
 				],
 				'free_shipping_amount' => [
 					'title' => esc_html__( 'Free shipping from an amount', 'cargo-shipping-location-for-woocommerce' ),
 					'type' => 'text',
-					'description' => esc_html__( '', 'cargo-shipping-location-for-woocommerce' ),
-					'default' => esc_html__( '', 'cargo-shipping-location-for-woocommerce' )
+					'description' => '',
+					'default' => ''
 				]
 			];
 		}

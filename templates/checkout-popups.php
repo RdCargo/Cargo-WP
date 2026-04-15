@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <div class="modal-content " <?php echo esc_attr($cargo_size_custom) ?>>
             <div class="modal-header">
                 <div class="cargo-logo">
-                    <img src="<?php echo CSLFW_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
+                    <img src="<?php echo esc_url(CSLFW_URL.'assets/image/howitworks.png'); ?>" alt="Cargo" width="60">
                 </div>
                 <div class="modal-search" style="direction: rtl;">
                     <a href="javascript:void(0);" class="open-how-it-works">?</a>
@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <div class="modal-content">
             <div class="modal-header">
                 <div class="cargo-logo">
-                    <img src="<?php echo CSLFW_URL.'assets/image/howitworks.png'; ?>" alt="Cargo" width="60">
+                    <img src="<?php echo esc_url(CSLFW_URL.'assets/image/howitworks.png'); ?>" alt="Cargo" width="60">
                 </div>
                 <h5 class="modal-title"><?php esc_html_e('CARGO BOX - איך זה עובד', 'cargo-shipping-location-for-woocommerce') ?></h5>
                 <button type="button" class="close js-modal-close" id="modal-close-desc" aria-label="Close">

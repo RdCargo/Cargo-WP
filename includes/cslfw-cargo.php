@@ -220,7 +220,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             if (!$response->errors) {
                 $response->all_data = $this->addShipment($data['Params'], $response->data);
                 $this->update_wc_status();
-                $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response->data->shipment_id} | SENT TO CARGO ON : ".date('Y-m-d H:i:d')." CarrierID : {$data['Params']['CarrierID']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
+                $message .= "ORDER ID : $this->order_id | DELIVERY ID  : {$response->data->shipment_id} | SENT TO CARGO ON : ".gmdate('Y-m-d H:i:d')." CarrierID : {$data['Params']['CarrierID']} | CUSTOMER CODE : {$data['Params']['customerCode']}" . PHP_EOL;
                 if( $data['Params']['CarrierID'] === 0) {
                     $message    .= "CARGO BOX POINT ID : {$data['Params']['boxPointId']}". PHP_EOL;
                 }
@@ -245,7 +245,7 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                     'driver_name'   => $shipment_data->driver_name,
                     'line_number'   => $shipment_data->line_text,
                     'customer_code' => $shipment_params['customerCode'],
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_at' => gmdate('Y-m-d H:i:s'),
                     'status'        => [
                         'number' => $shipment_data->status_number ?? 1,
                         'text' => $shipment_data->status_text ?? 'Open',
@@ -450,11 +450,11 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
                 if ($orderIds) {
                     foreach ($orderIds as $orderId) {
                         $order = wc_get_order($orderId);
-                        $order->update_meta_data('cslfw_printed_label', date('Y-m-d H:i:d'));
+                        $order->update_meta_data('cslfw_printed_label', gmdate('Y-m-d H:i:d'));
                         $order->save();
                     }
                 } else {
-                    $this->order->update_meta_data('cslfw_printed_label', date('Y-m-d H:i:d'));
+                    $this->order->update_meta_data('cslfw_printed_label', gmdate('Y-m-d H:i:d'));
                     $this->order->save();
                 }
             }
@@ -488,48 +488,48 @@ if( !class_exists('CSLFW_Cargo_Shipping') ) {
             global $wpdb;
 
             // Prepare placeholders for the order IDs
-            $placeholders = implode(',', $order_ids);
+            $placeholders = implode( ',', array_fill( 0, count( $order_ids ), '%d' ) );
 
-            if ($this->helpers->HPOS_enabled()) {
+            if ( $this->helpers->HPOS_enabled() ) {
                 // Query to fetch meta values for the given orders
-                $sql = "
-                SELECT order_id, meta_value
-                FROM {$wpdb->prefix}wc_orders_meta
-                WHERE meta_key = 'cslfw_shipping'
-                AND order_id IN ($placeholders)
-            ";
-                $query = $wpdb->prepare($sql);
+                $query = $wpdb->prepare(
+                    "SELECT order_id, meta_value
+                    FROM {$wpdb->prefix}wc_orders_meta
+                    WHERE meta_key = %s
+                    AND order_id IN ($placeholders)",
+                    array_merge( [ 'cslfw_shipping' ], $order_ids )
+                );
 
-                $results = $wpdb->get_results($query);
+                $results = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
                 // Organize results by order ID
                 $shipment_ids = [];
-                foreach ($results as $row) {
-                    $unserialized = maybe_unserialize($row->meta_value);
+                foreach ( $results as $row ) {
+                    $unserialized = maybe_unserialize( $row->meta_value );
 
-                    if (is_array($unserialized)) {
-                        $shipment_ids = [...$shipment_ids, ...array_keys($unserialized)];
+                    if ( is_array( $unserialized ) ) {
+                        $shipment_ids = [ ...$shipment_ids, ...array_keys( $unserialized ) ];
                     }
                 }
             } else {
-                $sql = "
-                    SELECT post_id, meta_value
-                    FROM $wpdb->postmeta
-                    WHERE meta_key = 'cslfw_shipping'
-                    AND post_id IN ($placeholders)
-                ";
                 // Query to fetch meta values for the given orders
-                $query = $wpdb->prepare($sql);
+                $query = $wpdb->prepare(
+                    "SELECT post_id, meta_value
+                    FROM {$wpdb->postmeta}
+                    WHERE meta_key = %s
+                    AND post_id IN ($placeholders)",
+                    array_merge( [ 'cslfw_shipping' ], $order_ids )
+                );
 
-                $results = $wpdb->get_results($query);
+                $results = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
                 // Organize results by order ID
                 $shipment_ids = [];
-                foreach ($results as $row) {
-                    $unserialized = maybe_unserialize($row->meta_value);
+                foreach ( $results as $row ) {
+                    $unserialized = maybe_unserialize( $row->meta_value );
 
-                    if (is_array($unserialized)) {
-                        $shipment_ids = [...$shipment_ids, ...array_keys($unserialized)];
+                    if ( is_array( $unserialized ) ) {
+                        $shipment_ids = [ ...$shipment_ids, ...array_keys( $unserialized ) ];
                     }
                 }
             }

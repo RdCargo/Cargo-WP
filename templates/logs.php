@@ -3,7 +3,8 @@
  * Admin View: Page - Status Logs
  *
  */
-if ( ! defined( 'ABSPATH' ) || !class_exists('CSLFW_Logs') ) {
+if ( ! defined( 'ABSPATH' ) ) exit;
+if ( !class_exists('CSLFW_Logs') ) {
 	exit;
 }
 $logs = (new CSLFW_Logs())->get_logs();

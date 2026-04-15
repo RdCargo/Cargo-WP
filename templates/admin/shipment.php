@@ -146,7 +146,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     ?>
 
     <div class="cargo-button" style="margin-top: 10px;">
-        <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>" data-id="<?php echo $cargoShippingIds ?>"><?php esc_html_e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
+        <a href="#" class="label-cargo-shipping button"  data-order-id="<?php echo esc_attr($order->get_id()); ?>" data-id="<?php echo esc_attr($cargoShippingIds) ?>"><?php esc_html_e('הדפס תווית', 'cargo-shipping-location-for-woocommerce') ?></a>
     </div>
 
 

@@ -1,7 +1,7 @@
 <?php
 use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 use CSLFW\Includes\CargoAPI\Cargo;
-
+if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Class for integrating with WooCommerce Blocks
  */
@@ -139,8 +139,8 @@ use CSLFW\Includes\CargoAPI\Cargo;
 				 * [backend-step-08]
 				 * 📝 Output the alternate shipping instructions here!
 				 */
-                echo "<div>{$cargo_shipping_alternate_shipping_instruction}</div>";
-                echo "<div>{$cargo_shipping_alternate_shipping_instruction_other_text}</div>";
+				echo '<div>' . wp_kses_post($cargo_shipping_alternate_shipping_instruction) . '</div>';
+				echo '<div>' . wp_kses_post($cargo_shipping_alternate_shipping_instruction_other_text) . '</div>';
 				 /**
 				 * [backend-step-08-extra-credit]
 				 * 💰 Extra credit: Don't show the other value if the `cargo_shipping_alternate_shipping_instruction` is not `other`.

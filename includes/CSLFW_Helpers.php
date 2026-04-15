@@ -7,6 +7,8 @@
 namespace CSLFW\Includes;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class CSLFW_Helpers {
     public function check_woo() {
         include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
@@ -41,7 +43,7 @@ class CSLFW_Helpers {
         ];
         if ( $data ) $args['body'] = wp_json_encode($data);
         $response   = wp_remote_post($url, $args);
-        $response   = wp_remote_retrieve_body($response) or die("Error: Cannot create object. <pre>" . $args['body']);
+        $response = wp_remote_retrieve_body($response) or die('Error: Cannot create object. <pre>' . esc_html($args['body']));
         return json_decode( $response );
     }
 

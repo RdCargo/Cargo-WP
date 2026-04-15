@@ -3,8 +3,8 @@
  * Admin View: Page - Contact Us
  *
  */
-
-if ( ! defined( 'ABSPATH' ) || !class_exists('CSLFW_Contact') ) {
+if ( ! defined( 'ABSPATH' ) ) exit;
+if ( !class_exists('CSLFW_Contact') ) {
     exit;
 }
 ?>

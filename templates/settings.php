@@ -102,7 +102,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                 ?>
                                 <select name="cargo_box_style">
                                     <?php foreach ( $cargo_box_style_options as $key => $value ) : ?>
-                                    <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cargo_box_style) echo esc_attr('selected="selected"'); ?>><?php echo $value ?></option>
+                                    <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cargo_box_style) echo esc_attr('selected="selected"'); ?>><?php echo wp_kses_post($value) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </label>
@@ -150,7 +150,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                 ?>
                                 <select name="cslfw_map_size">
                                     <?php foreach ( $cargo_map_style_options as $key => $value ) : ?>
-                                        <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cargo_map_style) echo esc_attr('selected="selected"'); ?>><?php echo $value ?></option>
+                                        <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cargo_map_style) echo esc_attr('selected="selected"'); ?>><?php echo wp_kses_post($value) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </label>
@@ -347,7 +347,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                     <option value="none" <?php if ('none' === $cslfw_cod_check) echo esc_attr('selected="selected"'); ?>><?php esc_html_e('No Automatic COD', 'cargo-shipping-location-for-woocommerce' )?></option>
 
                                     <?php foreach ( $installed_payment_methods as $key => $value ) : ?>
-                                        <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cslfw_cod_check) echo esc_attr('selected="selected"'); ?>><?php echo $value->title ?></option>
+                                        <option value="<?php echo esc_attr($key) ?>" <?php if ($key === $cslfw_cod_check) echo esc_attr('selected="selected"'); ?>><?php echo wp_kses_post($value->get_title()) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </label>
@@ -521,7 +521,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									foreach (wc_get_order_statuses() as $key => $value) {
 										$selected = get_option('cargo_order_status') == $key ? 'selected' : '';
 										?>
-										<option value="<?php echo esc_attr($key) ?>" <?php echo $selected ?>><?php echo esc_html($value) ?></option>
+										<option value="<?php echo esc_attr($key) ?>" <?php echo esc_attr($selected) ?>><?php echo esc_html($value) ?></option>
 										<?php
 									}
 									?>

@@ -1,10 +1,10 @@
 === Cargo Shipping Location for WooCommerce ===
 Contributors: Astraverdes
 Tags: woo-commerce, woocommerce, delivery, shipment, cargo
-Requires at least: 5.0.0
-Tested up to: 6.8.2
+Requires at least: 6.2
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 5.6
+Stable tag: 5.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,3 +178,7 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 5.6 ==
 * Optimize pickup points search to use cache
 * Fix deprecated functions
+
+== 5.7 ==
+* Improve the security of the plugin
+* Add validation to REST request

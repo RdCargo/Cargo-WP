@@ -44,7 +44,7 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
                 <div class="alignleft actions">
                 </div>
                 <div class="tablenav-pages">
-                    <span class="displaying-num"><?php echo $data['total_orders'] ?> orders</span>
+                    <span class="displaying-num"><?php echo wp_kses_post($data['total_orders']) ?> orders</span>
                     <span class="pagination-links">
                 <?php if ($data['current_page'] == 1) : ?>
                     <span class="tablenav-pages-navspan button disabled" aria-hidden="true">«</span>
@@ -175,7 +175,7 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
             <div class="alignleft actions">
             </div>
             <div class="tablenav-pages">
-                <span class="displaying-num"><?php echo $data['total_orders'] ?> orders</span>
+                <span class="displaying-num"><?php echo wp_kses_post($data['total_orders']) ?> orders</span>
                 <span class="pagination-links">
                     <?php if ($data['current_page'] == 1) : ?>
                         <span class="tablenav-pages-navspan button disabled" aria-hidden="true">«</span>
@@ -230,12 +230,12 @@ $lastPageUrl = add_query_arg('paged', $data['total_pages'], $current_url);
                 <div class="grid grid-cols-2" style="direction: rtl">
                     <?php for ($i = 1; $i <= 8; $i++) : ?>
                         <div class="grid-item a4-start">
-                            <label for="startingPoint-<?php echo $i ?>">
+                            <label for="startingPoint-<?php echo esc_attr( $i ); ?>">
                                 <input type="radio"
                                        name="startingPoint"
-                                       id="startingPoint-<?php echo $i ?>"
-                                       value="<?php echo $i ?>"
-                                    <?php if ($i === 1) echo 'checked' ?>
+                                       id="startingPoint-<?php echo esc_attr( $i ); ?>"
+                                       value="<?php echo esc_attr( $i ); ?>"
+                                    <?php if ($i === 1) echo 'checked'; ?>
                                 >
                                 <span></span>
                             </label>

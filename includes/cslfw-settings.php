@@ -39,33 +39,60 @@ if( !class_exists('CSLFW_Settings') ) {
         }
 
         public function cslfw_shipping_api_settings_init() {
-            register_setting('cslfw_shipping_api_settings_fg', 'cargo_order_status');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_google_api_key');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_map_size');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_cod_check');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_debug_mode');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_shipping_methods_all');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_auto_shipment_create');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_fulfill_all');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_complete_orders');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_custom_map_size');
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express');
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_express_24');
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_cargo_box');
-            register_setting('cslfw_shipping_api_settings_fg', 'shipping_pickup_code');
-            register_setting('cslfw_shipping_api_settings_fg', 'from_street');
-            register_setting('cslfw_shipping_api_settings_fg', 'from_street_name');
-            register_setting('cslfw_shipping_api_settings_fg', 'from_city');
-            register_setting('cslfw_shipping_api_settings_fg', 'phonenumber_from');
-            register_setting('cslfw_shipping_api_settings_fg', 'website_name_cargo');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_box_info_email');
-            register_setting('cslfw_shipping_api_settings_fg', 'bootstrap_enalble');
-            register_setting('cslfw_shipping_api_settings_fg', 'cargo_box_style');
-            register_setting('cslfw_shipping_api_settings_fg', 'disable_order_status');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_shipping_methods');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_bulk_actions');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_products_in_label');
-            register_setting('cslfw_shipping_api_settings_fg', 'cslfw_queued_bulk_labels');
+            $fields = [
+
+                // 📝 Text fields
+                'cargo_order_status'        => 'sanitize_text_field',
+                'cslfw_google_api_key'      => 'sanitize_text_field',
+                'from_street'               => 'sanitize_text_field',
+                'from_street_name'          => 'sanitize_text_field',
+                'from_city'                 => 'sanitize_text_field',
+                'website_name_cargo'        => 'sanitize_text_field',
+                'cslfw_box_info_email'      => 'sanitize_email',
+                'phonenumber_from'          => 'sanitize_text_field',
+                'cslfw_map_size'            => 'sanitize_text_field',
+                'cslfw_custom_map_size'     => 'sanitize_text_field',
+                'cslfw_cod_check'           => 'sanitize_text_field',
+                'shipping_cargo_express'    => 'sanitize_text_field',
+                'shipping_cargo_express_24' => 'sanitize_text_field',
+                'shipping_cargo_box'        => 'sanitize_text_field',
+                'shipping_pickup_code'      => 'sanitize_text_field',
+
+                // ✅ Checkboxes / booleans
+                'cslfw_debug_mode'          => [$this, 'sanitize_checkbox'],
+                'cslfw_shipping_methods_all'=> [$this, 'sanitize_checkbox'],
+                'cslfw_auto_shipment_create'=> [$this, 'sanitize_checkbox'],
+                'cslfw_fulfill_all'         => [$this, 'sanitize_checkbox'],
+                'cslfw_complete_orders'     => [$this, 'sanitize_checkbox'],
+                'bootstrap_enalble'         => [$this, 'sanitize_checkbox'],
+                'cslfw_products_in_label'   => [$this, 'sanitize_checkbox'],
+                'cslfw_queued_bulk_labels'  => [$this, 'sanitize_checkbox'],
+                'disable_order_status'      => [$this, 'sanitize_checkbox'],
+
+                // 🎨 Style / select fields
+                'cargo_box_style'           => 'sanitize_text_field',
+
+                // 📦 Arrays (multi-select / complex settings)
+                'cslfw_shipping_methods'    => [$this, 'sanitize_array'],
+                'cslfw_bulk_actions'        => [$this, 'sanitize_array'],
+            ];
+
+
+            foreach ($fields as $field => $callback) {
+                register_setting('cslfw_shipping_api_settings_fg', $field, [
+                    'sanitize_callback' => $callback,
+                ]);
+            }
+        }
+
+        public function sanitize_checkbox($value) {
+            return $value ? 1 : 0;
+        }
+
+        public function sanitize_array($value) {
+            return is_array($value)
+                ? array_map('sanitize_text_field', $value)
+                : [];
         }
 
         public function cslfw_uninstall() {
@@ -97,7 +124,7 @@ if( !class_exists('CSLFW_Settings') ) {
         }
 
         public function cargo_settings_link( $links_array ) {
-            array_unshift( $links_array, '<a href="' . admin_url( 'admin.php?page=loaction_api_settings' ) . '">' . esc_html_e('Settings') . '</a>' );
+            array_unshift( $links_array, '<a href="' . admin_url( 'admin.php?page=loaction_api_settings' ) . '">' . esc_html_e('Settings', 'cargo-shipping-location-for-woocommerce') . '</a>' );
             return $links_array;
         }
 

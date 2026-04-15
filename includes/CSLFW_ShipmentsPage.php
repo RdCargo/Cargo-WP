@@ -6,7 +6,7 @@ use CSLFW\Includes\CargoAPI\CargoAPIV2;
 use CSLFW\Includes\CSLFW_Helpers;
 use CSLFW_Logs;
 
-
+if ( ! defined( 'ABSPATH' ) ) exit;
 class CSLFW_ShipmentsPage
 {
 

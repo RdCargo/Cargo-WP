@@ -145,7 +145,6 @@ if( !class_exists('CSLFW_Admin') ) {
             $cargoOrder = new CSLFW_Order($order);
             $shipping_method = $cargoOrder->getShippingMethod();
 
-            $cargo_debug_mode   = get_option('cslfw_debug_mode');
             $cargo_shipping     = new CSLFW_Cargo_Shipping($order->get_id());
             $allowForAllShippingMethods = get_option('cslfw_shipping_methods_all');
             $cslfw_shiping_methods = get_option('cslfw_shipping_methods') ? get_option('cslfw_shipping_methods') : [];
@@ -153,10 +152,6 @@ if( !class_exists('CSLFW_Admin') ) {
             $orderStatus = $order->get_status();
 
             if (!in_array($orderStatus, ['cancelled', 'refunded', 'pending']) && $shipping_method) {
-                if ($cargo_debug_mode) {
-
-                    echo maybe_serialize($cargo_shipping->deliveries);
-                }
                 if (
                     $shipping_method === 'cargo-express'
                     || $shipping_method === 'cargo-express-24'
@@ -217,7 +212,7 @@ if( !class_exists('CSLFW_Admin') ) {
                 'exclude_from_search'       => false,
                 'show_in_admin_all_list'    => true,
                 'show_in_admin_status_list' => true,
-                'label_count'               => _n_noop( 'Send to CARGO <span class="count">(%s)</span>', 'Send to CARGO <span class="count">(%s)</span>' )
+                'label_count'               => _n_noop( 'Send to CARGO <span class="count">(%s)</span>', 'Send to CARGO <span class="count">(%s)</span>', 'cargo-shipping-location-for-woocommerce' ),
             ] );
         }
 
@@ -228,7 +223,7 @@ if( !class_exists('CSLFW_Admin') ) {
          * Add order status in Array
          */
         function custom_order_status( $order_statuses ) {
-            $order_statuses['wc-send-cargo'] = esc_html__( 'Send to CARGO', 'Order status', 'cargo-shipping-location-for-woocommerce' );
+            $order_statuses['wc-send-cargo'] = esc_html__( 'Send to CARGO', 'cargo-shipping-location-for-woocommerce' );
             return $order_statuses;
         }
         /**
@@ -432,13 +427,26 @@ if( !class_exists('CSLFW_Admin') ) {
 
                 $orders = wc_get_orders( $args );
                 if ( count($orders) > 0) {
-                    echo wp_kses_post( printf( '<div class="notice notice-error fade is-dismissible"><p>' .
-                        _n( '%s Order require reindex',
-                            '%s Orders require reindex',
-                            count($orders),
+                    $orders_count = count($orders);
+
+                    /* translators: %s: number of orders that require reindex */
+                    $message = sprintf(
+                        _n(
+                            '%s order requires reindex',
+                            '%s orders require reindex',
+                            $orders_count,
                             'cargo-shipping-location-for-woocommerce'
-                        ) . '<a class="button button-primary" style="margin-left: 10px;" href="%s">REINDEX</a></p></div>', count($orders), admin_url('admin.php?page=cargo_orders_reindex')
-                    ) );
+                        ),
+                        number_format_i18n($orders_count)
+                    );
+
+                    echo wp_kses_post(
+                        sprintf(
+                            '<div class="notice notice-error fade is-dismissible"><p>%s <a class="button button-primary" style="margin-left: 10px;" href="%s">REINDEX</a></p></div>',
+                            $message,
+                            esc_url(admin_url('admin.php?page=cargo_orders_reindex'))
+                        )
+                    );
                 }
             }
 
@@ -448,21 +456,27 @@ if( !class_exists('CSLFW_Admin') ) {
                 $print_label = get_transient('cslfw_print_label');
 
                 if ($print_label) {
-                    $label_link = sanitize_text_field($print_label);
+                    $label_link = esc_url($print_label);
 
-                    $noticeText = '<div class="notice notice-success fade is-dismissible"><div id="cslfw_shipments_label_process"><p>';
-                    $noticeText .=  esc_html__( "All labels are process. If it didn't redirect you to the labels, click button below", 'cargo-shipping-location-for-woocommerce');
-                    $noticeText .='</p>';
-                    $noticeText .='<p><a class="button" href="#" onclick="window.open(\''.$label_link.'\', \'_blank\')">Pdf link</a></p>';
-                    $noticeText .='</div></div>';
-                    echo wp_kses_post( printf( $noticeText ) );
-                    echo '<script>
-                                window.open("' . $label_link . '", "_blank")
-                                const url = new URL(window.location.href);
-                                const params = new URLSearchParams(url.search);
-                                params.delete("cslfw_print_label");
-                                window.history.replaceState({}, "", `${url.pathname}?${params}`);
-                            </script>';
+                    $noticeText  = '<div class="notice notice-success fade is-dismissible"><div id="cslfw_shipments_label_process"><p>';
+                    $noticeText .= esc_html__("All labels are processed. If it didn't redirect you to the labels, click the button below", 'cargo-shipping-location-for-woocommerce');
+                    $noticeText .= '</p>';
+                    $noticeText .= '<p><a class="button" href="'. $label_link .'">Pdf link</a></p>';
+                    $noticeText .= '</div></div>';
+
+                    echo wp_kses_post($noticeText);
+
+                    // JS part (escape for JS context!)
+                    ?>
+                    <script>
+                        window.open("<?php echo esc_js($label_link); ?>", "_blank");
+
+                        const url = new URL(window.location.href);
+                        const params = new URLSearchParams(url.search);
+                        params.delete("cslfw_print_label");
+                        window.history.replaceState({}, "", `${url.pathname}?${params}`);
+                    </script>
+                    <?php
 
                     delete_transient('cslfw_print_label');
                 }
@@ -542,18 +556,23 @@ if( !class_exists('CSLFW_Admin') ) {
                 $labelsCompleted = get_transient('cslfw_bulk_shipment_print_process');
 
                 $completedCount = count($labelsCompleted);
-                $processCount = count($labelsProcess);
+                $processCount   = count($labelsProcess);
 
-                $noticeText = '<div><p>';
-                $noticeText .=  __( "Printing labels is in process. [$completedCount] out of [$processCount] are completed. Please be patient.", 'action-scheduler' );
-                $noticeText .='</p>';
-                $noticeText .='</div>';
+                $noticeText  = '<div><p>';
+                $noticeText .= sprintf(
+                /* translators: 1: completed labels count, 2: total labels count */
+                    __('Printing labels is in process. [%1$s] out of [%2$s] are completed. Please be patient.', 'action-scheduler'),
+                    number_format_i18n($completedCount),
+                    number_format_i18n($processCount)
+                );
+                $noticeText .= '</p>';
+                $noticeText .= '</div>';
 
                 $data = [
-                    'completed' => false,
+                    'completed'     => false,
                     'progress_html' => $noticeText,
-                    'progress' => [],
-                    'action' => 'cslfw_shipments_label_process'
+                    'progress'      => [],
+                    'action'        => 'cslfw_shipments_label_process'
                 ];
             } else if ($print_label = get_transient('cslfw_print_label')) {
                 $label_link = sanitize_text_field($print_label);
