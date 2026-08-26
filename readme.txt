@@ -2,9 +2,9 @@
 Contributors: Astraverdes
 Tags: woo-commerce, woocommerce, delivery, shipment, cargo
 Requires at least: 6.2
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 5.7
+Stable tag: 5.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -182,3 +182,6 @@ We use [CARGO API](https://cargo11.docs.apiary.io/) in order to integrate woocom
 == 5.7 ==
 * Improve the security of the plugin
 * Add validation to REST request
+
+== 5.7.1 ==
+* Fix Cookies js error

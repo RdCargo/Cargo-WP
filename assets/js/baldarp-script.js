@@ -1,3 +1,70 @@
+/**
+ * Minimal js-cookie compatible helper.
+ * Uses window.Cookies when the js-cookie library is present, otherwise
+ * falls back to this native implementation (same get/set/remove signatures).
+ */
+var Cookies = window.Cookies || {
+    get: function (name) {
+        var cookies = document.cookie ? document.cookie.split('; ') : [];
+
+        for (var i = 0; i < cookies.length; i++) {
+            var parts = cookies[i].split('=');
+            var key = decodeURIComponent(parts[0]);
+
+            if (key === name) {
+                var value = parts.slice(1).join('=');
+
+                if (value.charAt(0) === '"') {
+                    value = value.slice(1, -1);
+                }
+
+                try {
+                    return decodeURIComponent(value);
+                } catch (e) {
+                    return value;
+                }
+            }
+        }
+
+        return undefined;
+    },
+    set: function (name, value, attributes) {
+        attributes = attributes || {};
+
+        var cookie = encodeURIComponent(name) + '=' + encodeURIComponent(value == null ? '' : value);
+        var expires = attributes.expires;
+
+        if (typeof expires === 'number') {
+            expires = new Date(Date.now() + expires * 864e5);
+        }
+
+        if (expires instanceof Date) {
+            cookie += '; expires=' + expires.toUTCString();
+        }
+
+        cookie += '; path=' + (attributes.path || '/');
+
+        if (attributes.domain) {
+            cookie += '; domain=' + attributes.domain;
+        }
+
+        if (attributes.sameSite) {
+            cookie += '; samesite=' + attributes.sameSite;
+        }
+
+        if (attributes.secure || location.protocol === 'https:') {
+            cookie += '; secure';
+        }
+
+        document.cookie = cookie;
+
+        return cookie;
+    },
+    remove: function (name, attributes) {
+        this.set(name, '', Object.assign({}, attributes, { expires: -1 }));
+    }
+};
+
 $ = window.jQuery;
 let markersArray = [];
 

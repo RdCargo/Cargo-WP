@@ -3,7 +3,7 @@
  * Plugin Name: Cargo Shipping Location for WooCommerce
  * Plugin URI: https://cargo.co.il/
  * Description: Location Selection for Shipping Method for WooCommerce
- * Version: 5.7
+ * Version: 5.7.1
  * Author: Astraverdes
  * Author URI: https://astraverdes.com/
  * License: GPLv2 or later
@@ -11,7 +11,7 @@
  * Text Domain: cargo-shipping-location-for-woocommerce
  * Requires Plugins: woocommerce
  * Requires at least: 6.2
- * Tested up to: 6.9
+ * Tested up to: 7.1
  * WC requires at least: 6.0.0
  * WC tested up to: 9.2.3
  */
