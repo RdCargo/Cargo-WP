@@ -36,7 +36,7 @@ if ( !defined( 'CSLFW_PATH' ) ) {
 }
 
 if ( !defined( 'CSLFW_VERSION' ) ) {
-    define( 'CSLFW_VERSION', '5.6.0' );
+    define( 'CSLFW_VERSION', '5.7.1' );
 }
 
 if (!isset($cslfw_cargo_autoloader) || $cslfw_cargo_autoloader === false) {
